@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  admin
+  dokter
+  perawat
+}
+
+enum TipePresensi {
+  sakit
+  hamil
+  laktasi
+  umum
+}
+
+model User {
+  id_user                     Int           @id @default(autoincrement())
+  email                       String        @unique
+  password                    String
+  role                        Role
+  tenaga_MedisId_tenaga_medis Int?
+  tenagaMedis                 Tenaga_Medis?
+}
+
+model Tenaga_Medis {
+  id_tenaga_medis   Int               @id @default(autoincrement())
+  id_user           Int               @unique
+  kode_tenaga_medis String
+  nama_tenaga_medis String
+  jabatan           String
+  users             User              @relation(fields: [id_user], references: [id_user])
+  permintaanObats   Permintaan_Obat[]
+}
+
+model Pegawai {
+  id_pegawai      Int               @id @default(autoincrement())
+  nomor_pegawai   String
+  nama_pegawai    String
+  departemen      String
+  permintaanObats Permintaan_Obat[]
+  presensis       Presensi[]
+}
+
+model Penyakit {
+  id_penyakit     Int               @id @default(autoincrement())
+  nama_penyakit   String
+  permintaan_obat Permintaan_Obat[]
+}
+
+model Permintaan_Obat {
+  id_permintaan     Int                      @id @default(autoincrement())
+  id_pegawai        Int
+  id_tenaga_medis   Int
+  id_penyakit       Int
+  waktu_permintaan  DateTime                 @default(now())
+  pegawai           Pegawai                  @relation(fields: [id_pegawai], references: [id_pegawai])
+  tenaga_medis      Tenaga_Medis             @relation(fields: [id_tenaga_medis], references: [id_tenaga_medis])
+  penyakit          Penyakit                 @relation(fields: [id_penyakit], references: [id_penyakit])
+  detail_permintaan Detail_Permintaan_Obat[]
+}
+
+model Obat {
+  id_obat           Int                      @id @default(autoincrement())
+  nama_obat         String
+  nama_batch        String
+  stok_saat_ini     Int
+  satuan            String
+  expired_date      DateTime
+  reorder_level     Int
+  detail_permintaan Detail_Permintaan_Obat[]
+  notifikasi        Notifikasi[]
+}
+
+model Detail_Permintaan_Obat {
+  id_permintaan   Int
+  id_obat         Int
+  jumlah_diminta  Int
+  permintaan_obat Permintaan_Obat @relation(fields: [id_permintaan], references: [id_permintaan])
+  obat            Obat            @relation(fields: [id_obat], references: [id_obat])
+
+  @@id([id_permintaan, id_obat])
+}
+
+model Presensi {
+  id_presensi Int          @id @default(autoincrement())
+  id_pegawai  Int
+  jam_masuk   DateTime     @default(now())
+  jam_keluar  DateTime?
+  tipe        TipePresensi
+  pegawai     Pegawai      @relation(fields: [id_pegawai], references: [id_pegawai])
+}
+
+model Notifikasi {
+  id_notifikasi Int    @id @default(autoincrement())
+  id_obat       Int
+  pesan         String
+  status        String
+  obat          Obat   @relation(fields: [id_obat], references: [id_obat])
+}
