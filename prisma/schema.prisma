@@ -26,13 +26,22 @@ enum TipePresensi {
   umum
 }
 
+enum JenisObat {
+  tablet
+  kapsul
+  sirup
+  salep
+  injeksi
+  tetes
+  puyer
+}
+
 model User {
-  id_user                     Int           @id @default(autoincrement())
-  email                       String        @unique
-  password                    String
-  role                        Role
-  tenaga_MedisId_tenaga_medis Int?
-  tenagaMedis                 Tenaga_Medis?
+  id_user     Int           @id @default(autoincrement())
+  email       String        @unique
+  password    String
+  role        Role
+  tenagaMedis Tenaga_Medis?
 }
 
 model Tenaga_Medis {
@@ -47,7 +56,7 @@ model Tenaga_Medis {
 
 model Pegawai {
   id_pegawai      Int               @id @default(autoincrement())
-  nomor_pegawai   String
+  nomor_pegawai   String            @unique
   nama_pegawai    String
   departemen      String
   permintaanObats Permintaan_Obat[]
@@ -80,6 +89,7 @@ model Obat {
   satuan            String
   expired_date      DateTime
   reorder_level     Int
+  jenis_obat        JenisObat
   detail_permintaan Detail_Permintaan_Obat[]
   notifikasi        Notifikasi[]
 }
