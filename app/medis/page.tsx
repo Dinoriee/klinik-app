@@ -1,9 +1,16 @@
+import { AuthOptions } from "@/lib/auth"
+import { getServerSession } from "next-auth"
 
 
-export default function DashboardMedis(){
+const DashboardMedis = async () => {
+    const session = await getServerSession(AuthOptions);
+    console.log(session);
+
     return(
         <div>
-            <h1>Dashboard Medis</h1>
+            Selamat datang {session?.user?.name}
         </div>
     )
 }
+
+export default DashboardMedis
