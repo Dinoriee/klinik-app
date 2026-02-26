@@ -1,10 +1,11 @@
-import { Eraser, Search, SquarePen, User } from "lucide-react";
+import { Search} from "lucide-react";
 import { AuthOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/db";
 import TambahUserButton from "@/components/ui/TambahUserButton";
 import EditUserButton from "@/components/ui/EditUserButton";
 import DeleteUserButton from "@/components/ui/DeleteUserButton";
+import UserAccount from "@/components/ui/userAccount";
 
 
 const KelolaUser = async () => {
@@ -29,9 +30,9 @@ const KelolaUser = async () => {
           </h1>
           <span className="text-black font-bold">Kelola User</span>
         </div>
+        {}
         <div className="flex space-x-1">
-          <User size={24} className="bg-gray-400 rounded-2xl text-gray-800" />
-          <span className="text-gray-800">{session?.user.name}</span>
+          <UserAccount userName={session?.user?.name}/>
         </div>
       </div>
       <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md">

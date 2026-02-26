@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { hash } from "bcrypt";
+import { Prisma } from "@/generated/prisma/client";
 
 
 export async function POST(req: Request) {
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
     })
     return NextResponse.json({user: newUser, message: "User created successfully"}, {status: 201});
    } catch(error){
-        return NextResponse.json({message:"Something went wrong."}, {status: 500});
+        return NextResponse.json({message: error}, {status: 500});
    } 
 }
 
@@ -44,7 +45,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: "User tidak ditemukan" }, { status: 404 });
     }
 
-    const updateData: any = {
+    const updateData: Prisma.UserUpdateInput = {
       email,
       name,
     };
@@ -82,6 +83,6 @@ export async function DELETE(request: Request) {
 
         return NextResponse.json({message: "User dihapus"});
     }catch(error){
-        return NextResponse.json({error: "Gagal dihapus"}, {status: 500});
+        return NextResponse.json({error: error}, {status: 500});
     }
 }

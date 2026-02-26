@@ -1,18 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Montserrat } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/sidebar";
+import { Toaster } from "@/components/ui/sonner"
 
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const monserrat = Montserrat({
   variable:"--font-monserrat",
@@ -37,6 +27,7 @@ export default function RootLayout({
         <main className="w-full">
           {children}
         </main>
+        <Toaster />
       </body>
     </html>
   );

@@ -2,6 +2,9 @@ import { Search, Package } from "lucide-react";
 import prisma from "@/lib/db"; 
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
+import UserAccount from "@/components/ui/userAccount";
+import { getServerSession } from "next-auth";
+import { AuthOptions } from "@/lib/auth";
 
 export default async function KelolaObat({
     searchParams,
@@ -10,6 +13,7 @@ export default async function KelolaObat({
 }) {
     const resolvedSearchParams = await searchParams;
     const query = resolvedSearchParams.query || "";
+    const session = await getServerSession(AuthOptions);
 
     const obatList = await prisma.obat.findMany({
         where: {
@@ -51,6 +55,7 @@ export default async function KelolaObat({
                 <div className="flex flex-col">
                     <h1 className="text-gray-400">Klinik / Obat / <span className="text-black font-bold">Kelola Obat</span></h1>
                 </div>
+                <UserAccount userName={session?.user?.name}/>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">

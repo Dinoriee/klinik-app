@@ -69,7 +69,7 @@ export default function LoginPage({ setUser }: LoginProps) {
                 Email
               </label>
               <input
-                type="text"
+                type="email"
                 className="bg-gray-50 outline-none rounded-sm w-full h-10 p-4 border-2 border-black focus:border-blue-500 transition-colors duration-300 ease-in-out"
                 id="email"
                 placeholder="Masukkan email anda..."
@@ -83,7 +83,7 @@ export default function LoginPage({ setUser }: LoginProps) {
                 <input
                   type={showPassword ? "text" : "password"}
                   className="bg-gray-50 outline-none rounded-sm w-full h-10 p-4 border-2 border-black focus:border-blue-500 transition-colors duration-300 ease-in-out"
-                  id="email"
+                  id="password"
                   placeholder="Masukkan password anda..."
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

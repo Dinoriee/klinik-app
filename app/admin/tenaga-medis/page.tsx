@@ -1,9 +1,10 @@
-import { Search, User } from "lucide-react";
+import { Search, SquarePen, Trash } from "lucide-react";
 import { AuthOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/db"; 
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
+import UserAccount from "@/components/ui/userAccount";
 
 // PERUBAHAN 1: Menambahkan searchParams untuk menangkap kata kunci pencarian dari URL
 export default async function KelolaTenagaMedis({
@@ -53,10 +54,7 @@ export default async function KelolaTenagaMedis({
                 <div className="flex flex-col">
                     <h1 className="text-gray-400">Klinik / Tenaga Medis / <span className="text-black font-bold">Kelola Tenaga Medis</span></h1>
                 </div>
-                <div className="flex space-x-2 items-center">
-                    <User size={24} className="bg-gray-200 rounded-full p-1 text-gray-800"/>
-                    <span className="text-gray-800 capitalize">{session?.user?.role || "Admin"}</span>
-                </div>
+                <UserAccount userName={session?.user?.name}/>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
@@ -71,7 +69,7 @@ export default async function KelolaTenagaMedis({
                                 type="text" 
                                 name="query" // Nama parameter di URL
                                 defaultValue={query} // Mengisi otomatis input dengan kata kunci yang sedang dicari
-                                className="pl-9 pr-4 py-2 border rounded-md border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" 
+                                className="pl-9 pr-4 py-2 border rounded-md border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder:text-gray-400" 
                                 placeholder="Cari nama/kode..."
                             />
                             {/* Tombol submit tak terlihat agar bisa ditekkan 'Enter' */}
@@ -106,11 +104,11 @@ export default async function KelolaTenagaMedis({
                             ) : (
                                 tenagaMedisList.map((tm, index) => (
                                     <tr key={tm.id_tenaga_medis} className="hover:bg-gray-50">
-                                        <td className="px-4 py-3">{index + 1}</td>
-                                        <td className="px-4 py-3">{tm.kode_tenaga_medis}</td>
+                                        <td className="px-4 py-3 text-gray-800">{index + 1}</td>
+                                        <td className="px-4 py-3 text-gray-800">{tm.kode_tenaga_medis}</td>
                                         <td className="px-4 py-3 font-medium text-gray-800">{tm.nama_tenaga_medis}</td>
-                                        <td className="px-4 py-3 capitalize">{tm.jabatan}</td>
-                                        <td className="px-4 py-3">{tm.users.email}</td>
+                                        <td className="px-4 py-3 capitalize text-gray-800">{tm.jabatan}</td>
+                                        <td className="px-4 py-3 text-gray-800">{tm.users.email}</td>
                                         <td className="px-4 py-3 capitalize">
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${tm.users.role === 'dokter' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                                                 {tm.users.role}
@@ -118,14 +116,14 @@ export default async function KelolaTenagaMedis({
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <div className="flex justify-center space-x-3 items-center">
-                                                <Link href={`/admin/tenaga-medis/edit/${tm.id_tenaga_medis}`} className="text-blue-500 hover:text-blue-700 text-xs font-medium">
-                                                    Edit
+                                                <Link href={`/admin/tenaga-medis/edit/${tm.id_tenaga_medis}`} className="text-yellow-500 hover:text-blue-700 text-xs font-medium">
+                                                    <SquarePen size={20}/>
                                                 </Link>
                                                 <form action={hapusData}>
                                                     <input type="hidden" name="id_tenaga_medis" value={tm.id_tenaga_medis} />
                                                     <input type="hidden" name="id_user" value={tm.id_user} />
                                                     <button type="submit" className="text-red-500 hover:text-red-700 text-xs font-medium cursor-pointer">
-                                                        Hapus
+                                                        <Trash size={20}/>
                                                     </button>
                                                 </form>
                                             </div>

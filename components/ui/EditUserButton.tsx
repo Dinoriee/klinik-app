@@ -2,7 +2,18 @@
 import { SquarePen, X } from "lucide-react";
 import React, { useState, useEffect } from "react";
 
-export default function EditUserButton({ user }: { user: any }) {
+interface TenagaMedis {
+  nama_tenaga_medis: string;
+}
+
+interface User {
+  id_user: number;
+  email: string;
+  name: string;
+  tenagaMedis?: TenagaMedis | null;
+}
+
+export default function EditUserButton({ user }: { user: User }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [email, setEmail] = useState(user.email);
   const [name, setName] = useState(
