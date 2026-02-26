@@ -3,7 +3,18 @@ import { X } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function EditTenagaMedisButton({ tm }: { tm: any }) {
+interface TenagaMedis {
+    id_tenaga_medis: number | string;
+    kode_tenaga_medis: string;
+    nama_tenaga_medis: string;
+    jabatan: string;
+    users?: {
+        email: string;
+        role: string;
+    } | null;
+}
+
+export default function EditTenagaMedisButton({ tm }: { tm: TenagaMedis }) {
     const router = useRouter();
     const [isModalOpen, setModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);

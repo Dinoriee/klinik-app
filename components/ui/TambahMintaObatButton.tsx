@@ -3,7 +3,14 @@ import { X, Plus, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function TambahMintaObatButton({ obats }: { obats: any[] }) {
+interface Obat {
+    id_obat: string | number;
+    nama_obat: string;
+    stok_saat_ini: number;
+    satuan: string;
+}
+
+export default function TambahMintaObatButton({ obats }: { obats: Obat[] }) {
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [barisObat, setBarisObat] = useState([{ id: Date.now() }]);
@@ -102,7 +109,8 @@ export default function TambahMintaObatButton({ obats }: { obats: any[] }) {
                                                     <label className="text-xs font-semibold text-gray-800">Pilih Obat {index + 1}</label>
                                                     <select name="id_obat" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400 bg-white">
                                                         <option value="">-- Pilih Obat --</option>
-                                                        {obats.map((o: any) => (
+                                                        {}
+                                                        {obats.map((o: Obat) => (
                                                             <option key={o.id_obat} value={o.id_obat}>
                                                                 {o.nama_obat} (Sisa Stok: {o.stok_saat_ini} {o.satuan})
                                                             </option>

@@ -4,14 +4,51 @@ import { Search } from "lucide-react";
 import TambahObatButton from "@/components/ui/TambahObatButton"; 
 import EditObatButton from "@/components/ui/EditObatButton";     
 import DeleteObatButton from "@/components/ui/DeleteObatButton"; 
+import * as XLSX from "xlsx"; 
 
-export default function ObatClient({ obatList, query }: { obatList: any[], query: string }) {
+interface Obat {
+    id_obat: number;
+    nama_obat: string;
+    nama_batch: string;
+    jenis_obat: string;
+    stok_saat_ini: number;
+    satuan: string;
+    expired_date: string;
+    reorder_level: number;
+}
+
+export default function ObatClient({ obatList, query }: { obatList: Obat[], query: string }) {
 
     const formatTanggal = (tanggalString: string) => {
         return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(tanggalString));
     };
 
     const tanggalHariIni = new Date();
+    const handleExportExcel = () => {
+        const dataToExport = obatList.map((obat, index) => {
+            const isExpired = new Date(obat.expired_date) < tanggalHariIni;
+            const isMenipis = obat.stok_saat_ini <= obat.reorder_level;
+            
+            let status = "Aman";
+            if (isExpired) status = "Kedaluwarsa";
+            else if (isMenipis) status = "Menipis";
+
+            return {
+                "No": index + 1,
+                "Nama Obat": obat.nama_obat,
+                "Batch": obat.nama_batch,
+                "Jenis": obat.jenis_obat.charAt(0).toUpperCase() + obat.jenis_obat.slice(1),
+                "Stok Saat Ini": `${obat.stok_saat_ini} ${obat.satuan}`,
+                "Batas Minimum (Reorder)": obat.reorder_level,
+                "Tanggal Kedaluwarsa": formatTanggal(obat.expired_date),
+                "Status": status
+            };
+        });
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Stok Obat");
+        XLSX.writeFile(workbook, "Data_Stok_Obat_Klinik.xlsx");
+    };
 
     return (
         <div className="flex flex-col gap-4 relative">
@@ -34,7 +71,14 @@ export default function ObatClient({ obatList, query }: { obatList: any[], query
                             />
                             <button type="submit" className="hidden">Cari</button>
                         </form>
-                        <button className="border border-blue-400 text-blue-500 hover:bg-blue-50 px-4 py-2 rounded-md transition-colors text-sm font-medium">Export CSV</button>
+                        
+                        {}
+                        <button 
+                            onClick={handleExportExcel}
+                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
+                        >
+                            Export
+                        </button>
                         
                         <TambahObatButton />
                     </div>
@@ -77,12 +121,8 @@ export default function ObatClient({ obatList, query }: { obatList: any[], query
                                             </td>
                                             <td className="px-4 py-3 text-center">
                                                 <div className="flex justify-center space-x-3 items-center">
-                                                    
                                                     <EditObatButton obat={obat} />
-                                                    
-                                                    {}
                                                     <DeleteObatButton id_obat={obat.id_obat} />
-
                                                 </div>
                                             </td>
                                         </tr>

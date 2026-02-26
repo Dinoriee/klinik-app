@@ -3,20 +3,29 @@ import { X } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function EditObatButton({ obat }: { obat: any }) {
+interface Obat {
+    id_obat: string | number;
+    nama_obat: string;
+    nama_batch: string;
+    jenis_obat: string;
+    satuan: string;
+    stok_saat_ini: number;
+    reorder_level: number;
+    expired_date: string;
+}
+
+export default function EditObatButton({ obat }: { obat: Obat }) {
     const router = useRouter();
     const [isModalOpen, setModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
-    // State diisi langsung dengan data obat yang mau diedit
     const [namaObat, setNamaObat] = useState(obat.nama_obat);
     const [namaBatch, setNamaBatch] = useState(obat.nama_batch);
     const [jenisObat, setJenisObat] = useState(obat.jenis_obat);
     const [satuan, setSatuan] = useState(obat.satuan);
     const [stok, setStok] = useState(obat.stok_saat_ini);
     const [reorderLevel, setReorderLevel] = useState(obat.reorder_level);
-    // Potong tanggal ISO agar pas dengan format kalender
-    const [expiredDate, setExpiredDate] = useState(obat.expired_date.split("T")[0]);
+    const safeExpiredDate = obat.expired_date ? obat.expired_date.split("T")[0] : "";
+    const [expiredDate, setExpiredDate] = useState(safeExpiredDate);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,7 +35,7 @@ export default function EditObatButton({ obat }: { obat: any }) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                id_obat: obat.id_obat, // PENTING: Kirim ID supaya API tahu ini proses Edit
+                id_obat: obat.id_obat, 
                 nama_obat: namaObat,
                 nama_batch: namaBatch,
                 jenis_obat: jenisObat,
@@ -95,11 +104,11 @@ export default function EditObatButton({ obat }: { obat: any }) {
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="flex flex-col space-y-1.5">
                                     <label className="text-sm font-semibold text-gray-800">Stok</label>
-                                    <input type="number" required min="0" className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={stok} onChange={(e) => setStok(e.target.value)}/>
+                                    <input type="number" required min="0" className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={stok} onChange={(e) => setStok(Number(e.target.value))}/>
                                 </div>
                                 <div className="flex flex-col space-y-1.5">
                                     <label className="text-sm font-semibold text-gray-800">Batas Min (Reorder)</label>
-                                    <input type="number" required min="0" className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={reorderLevel} onChange={(e) => setReorderLevel(e.target.value)}/>
+                                    <input type="number" required min="0" className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={reorderLevel} onChange={(e) => setReorderLevel(Number(e.target.value))}/>
                                 </div>
                                 <div className="flex flex-col space-y-1.5">
                                     <label className="text-sm font-semibold text-gray-800">Expired Date</label>

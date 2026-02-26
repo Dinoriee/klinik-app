@@ -1,8 +1,29 @@
 "use client";
 
-import { Search, Download } from "lucide-react"; 
+import { Search, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 
-export default function MintaObatClient({ riwayatList, query }: { riwayatList: any[], query: string }) {
+interface ObatDetail {
+    obat?: { nama_obat: string };
+    jumlah_diminta: number;
+}
+
+interface RiwayatPermintaan {
+    id_permintaan: number;
+    waktu_permintaan: string;
+    pegawai?: { nama_pegawai: string };
+    tenaga_medis?: { nama_tenaga_medis: string };
+    penyakit?: { nama_penyakit: string };
+    detail_permintaan?: ObatDetail[];
+}
+
+export default function MintaObatClient({ 
+    riwayatList, 
+    query 
+}: { 
+    riwayatList: RiwayatPermintaan[], 
+    query: string 
+}) {
     
     const formatTanggal = (tanggalString: string) => {
         return new Intl.DateTimeFormat('id-ID', {
@@ -11,39 +32,33 @@ export default function MintaObatClient({ riwayatList, query }: { riwayatList: a
         }).format(new Date(tanggalString));
     };
 
-    const exportToCSV = () => {
+    const exportToExcel = () => {
         if (riwayatList.length === 0) {
             alert("Tidak ada data untuk diexport.");
             return;
         }
 
-        const headers = ["No", "Waktu Transaksi", "Pasien", "Pemeriksa", "Diagnosa Penyakit", "Obat Diberikan"];
-        const csvRows = riwayatList.map((riwayat, index) => {
+        const excelData = riwayatList.map((riwayat, index) => {
             const waktu = formatTanggal(riwayat.waktu_permintaan);
             const pasien = riwayat.pegawai?.nama_pegawai || "-";
             const pemeriksa = riwayat.tenaga_medis?.nama_tenaga_medis || "-";
             const diagnosa = riwayat.penyakit?.nama_penyakit || "-";
-            const daftarObat = riwayat.detail_permintaan?.map((d: any) => `${d.obat?.nama_obat} (${d.jumlah_diminta})`).join(", ") || "-";
+            const daftarObat = riwayat.detail_permintaan?.map((d) => `${d.obat?.nama_obat} (${d.jumlah_diminta})`).join(", ") || "-";
 
-            return [
-                index + 1,
-                `"${waktu}"`,
-                `"${pasien}"`,
-                `"${pemeriksa}"`,
-                `"${diagnosa}"`,
-                `"${daftarObat}"`
-            ].join(",");
+            return {
+                "No": index + 1,
+                "Waktu Transaksi": waktu,
+                "Pasien": pasien,
+                "Pemeriksa": pemeriksa,
+                "Diagnosa Penyakit": diagnosa,
+                "Obat Diberikan": daftarObat
+            };
         });
 
-        const csvString = [headers.join(","), ...csvRows].join("\n");
-        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `Rekap_Obat_Keluar_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Obat Keluar");
+        XLSX.writeFile(workbook, `Rekap_Obat_Keluar_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
     return (
@@ -70,7 +85,7 @@ export default function MintaObatClient({ riwayatList, query }: { riwayatList: a
                         
                         {}
                         <button 
-                            onClick={exportToCSV}
+                            onClick={exportToExcel}
                             className="flex items-center gap-2 border border-blue-400 text-blue-500 hover:bg-blue-50 px-4 py-2 rounded-md transition-colors text-sm font-medium"
                         >
                             <Download size={16} /> Export Rekap
@@ -104,7 +119,7 @@ export default function MintaObatClient({ riwayatList, query }: { riwayatList: a
                                         <td className="px-4 py-3">{riwayat.penyakit?.nama_penyakit || "-"}</td>
                                         <td className="px-4 py-3">
                                             <ul className="list-disc list-inside text-xs text-gray-600">
-                                                {riwayat.detail_permintaan?.map((detail: any, i: number) => (
+                                                {riwayat.detail_permintaan?.map((detail, i) => (
                                                     <li key={i}>{detail.obat?.nama_obat} ({detail.jumlah_diminta})</li>
                                                 ))}
                                             </ul>

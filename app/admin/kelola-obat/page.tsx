@@ -1,9 +1,4 @@
 import prisma from "@/lib/db"; 
-import Link from "next/link";
-import { revalidatePath } from "next/cache";
-import UserAccount from "@/components/ui/userAccount";
-import { getServerSession } from "next-auth";
-import { AuthOptions } from "@/lib/auth";
 import ObatClient from "./ObatClient";
 
 export default async function KelolaObat({
@@ -13,7 +8,6 @@ export default async function KelolaObat({
 }) {
     const resolvedSearchParams = await searchParams;
     const query = resolvedSearchParams.query || "";
-    const session = await getServerSession(AuthOptions);
 
     const obatList = await prisma.obat.findMany({
         where: {

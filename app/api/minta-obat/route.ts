@@ -52,8 +52,12 @@ export async function POST(request: Request) {
         });
         
         return NextResponse.json({ success: true, message: "Berhasil" }, { status: 200 });
-    } catch (error: any) {
+        
+    } catch (error: unknown) {
         console.error("Error API Minta Obat:", error);
-        return NextResponse.json({ success: false, message: error.message || "Terjadi kesalahan." }, { status: 500 });
+        
+        const errorMessage = error instanceof Error ? error.message : "Terjadi kesalahan yang tidak diketahui.";
+        
+        return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
     }
 }

@@ -4,8 +4,41 @@ import { Search } from "lucide-react";
 import TambahTenagaMedisButton from "@/components/ui/TambahTenagaMedisButton";
 import EditTenagaMedisButton from "@/components/ui/EditTenagaMedisButton";
 import DeleteTenagaMedisButton from "@/components/ui/DeleteTenagaMedisButton";
+import * as XLSX from "xlsx"; 
 
-export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMedisList: any[], query: string }) {
+interface TenagaMedis {
+    id_tenaga_medis: number | string;
+    kode_tenaga_medis: string;
+    nama_tenaga_medis: string;
+    jabatan: string;
+    users?: {
+        email: string;
+        role: string;
+    } | null;
+}
+
+export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMedisList: TenagaMedis[], query: string }) {
+  
+    const handleExportExcel = () => {
+        const dataToExport = tenagaMedisList.map((tm, index) => {
+            const roleFormatted = tm.users?.role ? tm.users.role.charAt(0).toUpperCase() + tm.users.role.slice(1) : "-";
+            
+            return {
+                "No": index + 1,
+                "Kode Tenaga Medis": tm.kode_tenaga_medis,
+                "Nama Lengkap": tm.nama_tenaga_medis,
+                "Jabatan / Spesialisasi": tm.jabatan,
+                "Email Akun": tm.users?.email || "-",
+                "Role Sistem": roleFormatted
+            };
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Tenaga Medis");
+        XLSX.writeFile(workbook, "Data_Tenaga_Medis_Klinik.xlsx");
+    };
+
     return (
         <div className="flex flex-col gap-4 relative">
             <div className="flex justify-between p-4">
@@ -27,9 +60,15 @@ export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMe
                             />
                             <button type="submit" className="hidden">Cari</button>
                         </form>
-                        <button className="border border-blue-400 text-blue-500 hover:bg-blue-50 px-4 py-2 rounded-md transition-colors text-sm font-medium">Export CSV</button>
                         
                         {}
+                        <button 
+                            onClick={handleExportExcel}
+                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
+                        >
+                            Export
+                        </button>
+                        
                         <TambahTenagaMedisButton />
                     </div>
                 </div>
@@ -66,9 +105,8 @@ export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMe
                                         <td className="px-4 py-3 text-center">
                                             <div className="flex justify-center space-x-3 items-center">
                                                 
-                                                {}
                                                 <EditTenagaMedisButton tm={tm} />
-                                                <DeleteTenagaMedisButton id_tenaga_medis={tm.id_tenaga_medis} />
+                                                <DeleteTenagaMedisButton id_tenaga_medis={tm.id_tenaga_medis as number} />
 
                                             </div>
                                         </td>
