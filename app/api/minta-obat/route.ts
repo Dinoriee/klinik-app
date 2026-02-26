@@ -4,13 +4,10 @@ import prisma from "@/lib/db";
 export async function POST(request: Request) {
     try {
         const data = await request.json();
-        
-        // Menangkap data array dari form dinamis
         const idObats = data.id_obat; 
         const jumlahs = data.jumlah;
 
         await prisma.$transaction(async (tx) => {
-            // Gunakan data dummy pertama yang ada di database
             const dummyPegawai = await tx.pegawai.findFirst();
             const dummyTenagaMedis = await tx.tenaga_Medis.findFirst();
             const dummyPenyakit = await tx.penyakit.findFirst();
@@ -38,7 +35,6 @@ export async function POST(request: Request) {
                         throw new Error(`Stok obat ${cekObat?.nama_obat || ''} tidak mencukupi!`);
                     }
 
-                    // Catat detail obat
                     await tx.detail_Permintaan_Obat.create({
                         data: {
                             id_permintaan: permintaan.id_permintaan,
@@ -47,7 +43,6 @@ export async function POST(request: Request) {
                         }
                     });
 
-                    // Kurangi stok
                     await tx.obat.update({
                         where: { id_obat: id_obat },
                         data: { stok_saat_ini: { decrement: jumlah } }
