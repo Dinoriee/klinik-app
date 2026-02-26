@@ -22,6 +22,7 @@ async function main() {
       email: 'admin@mail.com',
       password: hashedPassword,
       role: 'admin',
+      name: 'HR PT. xxx'
     },
   });
 
@@ -32,6 +33,7 @@ async function main() {
       email: 'dokter@mail.com',
       password: hashedPassword,
       role: 'dokter',
+      name: 'dr. Dino, Sp.Kom',
       tenagaMedis: {
         create: {
           kode_tenaga_medis: 'DOC-001',
@@ -49,6 +51,7 @@ async function main() {
       email: 'perawat@mail.com',
       password: hashedPassword,
       role: 'perawat',
+      name: 'Ns. Arif, S.Kep',
       tenagaMedis: {
         create: {
           kode_tenaga_medis: 'NS-001',
