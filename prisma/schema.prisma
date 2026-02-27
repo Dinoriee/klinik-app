@@ -26,11 +26,6 @@ enum TipePresensi {
   umum
 }
 
-enum PresensiMedis {
-  hadir
-  izin
-}
-
 enum JenisObat {
   tablet
   kapsul
@@ -45,20 +40,18 @@ model User {
   id_user     Int           @id @default(autoincrement())
   email       String        @unique
   password    String
-  name        String
   role        Role
   tenagaMedis Tenaga_Medis?
 }
 
 model Tenaga_Medis {
-  id_tenaga_medis   Int                     @id @default(autoincrement())
-  id_user           Int                     @unique
+  id_tenaga_medis   Int               @id @default(autoincrement())
+  id_user           Int               @unique
   kode_tenaga_medis String
   nama_tenaga_medis String
   jabatan           String
-  users             User                    @relation(fields: [id_user], references: [id_user])
+  users             User              @relation(fields: [id_user], references: [id_user])
   permintaanObats   Permintaan_Obat[]
-  presensis         Presensi_Tenaga_Medis[]
 }
 
 model Pegawai {
@@ -118,15 +111,6 @@ model Presensi {
   jam_keluar  DateTime?
   tipe        TipePresensi
   pegawai     Pegawai      @relation(fields: [id_pegawai], references: [id_pegawai])
-}
-
-model Presensi_Tenaga_Medis {
-  id_presensi     Int           @id @default(autoincrement())
-  id_tenaga_medis Int
-  jam_masuk       DateTime      @default(now())
-  jam_keluar      DateTime?
-  keterangan      PresensiMedis
-  tenagaMedis     Tenaga_Medis  @relation(fields: [id_tenaga_medis], references: [id_tenaga_medis])
 }
 
 model Notifikasi {
