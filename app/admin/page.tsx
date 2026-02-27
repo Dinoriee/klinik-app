@@ -7,11 +7,21 @@ import EditUserButton from "@/components/ui/EditUserButton";
 import DeleteUserButton from "@/components/ui/DeleteUserButton";
 import UserAccount from "@/components/ui/userAccount";
 import PengunjungMonth from "@/components/pengunjungMonth";
+import PengunjungDaily from "@/components/pengunjungDaily";
 
-interface Pengunjung{
+interface PengunjungBulanan{
   bulan: string;
   total: number;
 }
+
+interface PengunjungHarian{
+  jam: string;
+  total: number;
+}
+
+const now = new Date();
+const startOfToday = new Date(now.setHours(0, 0, 0, 0));
+const endOfToday = new Date(now.setHours(23, 59, 59, 59));
 
 const DashboardAdmin = async () => {
   const session = await getServerSession(AuthOptions);
@@ -33,15 +43,22 @@ const [obat, obatCount] = await Promise.all([prisma.obat.findMany({
   prisma.obat.count()
 ]); 
 
-const [pengunjung, pengunjungCount] = await Promise.all([prisma.presensi_Tenaga_Medis.findMany({
+const [pengunjung, pengunjungCount] = await Promise.all([prisma.presensi.findMany({
     orderBy: {
       id_presensi: "desc",
     },
   }),
-  prisma.presensi.count()
+  prisma.presensi.count({
+    where:{
+      jam_masuk:{
+        gte: startOfToday,
+        lte: endOfToday,
+      }
+    }
+  })
 ]);
 
-const monthData = pengunjung.reduce((acc: Record<string, Pengunjung>, item) => {
+const monthData = pengunjung.reduce((acc: Record<string, PengunjungBulanan>, item) => {
   const namaBulan = new Intl.DateTimeFormat("id-ID", {month: "long"}).format(item.jam_masuk);
 
   if(!acc[namaBulan]) {
@@ -54,7 +71,23 @@ const monthData = pengunjung.reduce((acc: Record<string, Pengunjung>, item) => {
 
 const groupedMonthData = Object.values(monthData);
 
-console.log("data berisi: ", groupedMonthData)
+const hoursTemplate: Record<string, PengunjungHarian> = {};
+for (let i = 0; i < 24; i++) {
+  const label = i.toString().padStart(2, '0');
+  hoursTemplate[label] = { jam: `${label}:00`, total: 0 };
+}
+
+const dataHariIni = pengunjung.filter(p => new Date(p.jam_masuk) >= startOfToday);
+
+const dailyData = dataHariIni.reduce((acc, item) => {
+  const jam = new Intl.DateTimeFormat("id-ID", { hour: "2-digit" }).format(new Date(item.jam_masuk));
+  if (acc[jam]) {
+    acc[jam].total += 1;
+  }
+  
+  return acc;
+}, { ...hoursTemplate });
+const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCompare(b.jam));
 
 
   return (
@@ -95,22 +128,11 @@ console.log("data berisi: ", groupedMonthData)
             </div>
           </div>
           <div className="flex space-x-2 p-2">
-            <div className="flex relative">
-              <Search
-                size={16}
-                className="absolute left-1 top-1/2 -translate-y-1/2 text-gray-400"
-              />
-              <input
-                type="text"
-                className="pl-6 border rounded-md border-gray-300 h-8"
-                placeholder="Cari disini..."
-              />
-            </div>
           </div>
         </div>
-        <div className="flex justify-between pt-10">
+        <div className="flex justify-between pt-10 space-x-10">
           <PengunjungMonth chartData={groupedMonthData}/>
-        <PengunjungMonth chartData={groupedMonthData}/>
+          <PengunjungDaily chartData={groupedDailyData}/>
         </div>
       </div>
     </div>

@@ -1,13 +1,20 @@
 import prisma from "@/lib/db";
-import MintaObatClient from "./MintaObatClient";
+import MintaObatMedisClient from "./MintaObatMedisClient";
 
-export default async function MintaObatPage({
+export default async function MintaObatMedisPage({
     searchParams,
 }: {
     searchParams: Promise<{ query?: string }>
 }) {
     const resolvedSearchParams = await searchParams;
     const query = resolvedSearchParams.query || "";
+    const obats = await prisma.obat.findMany({
+        where: { stok_saat_ini: { gt: 0 } },
+        select: { id_obat: true, nama_obat: true, stok_saat_ini: true, satuan: true },
+        orderBy: { nama_obat: 'asc' }
+    });
+
+    // Mengambil riwayat transaksi
     const riwayatList = await prisma.permintaan_Obat.findMany({
         orderBy: { waktu_permintaan: 'desc' },
         include: {
@@ -25,5 +32,5 @@ export default async function MintaObatPage({
         waktu_permintaan: riwayat.waktu_permintaan.toISOString()
     }));
 
-    return <MintaObatClient riwayatList={serializedRiwayat} query={query} />;
+    return <MintaObatMedisClient riwayatList={serializedRiwayat} obats={obats} query={query} />;
 }

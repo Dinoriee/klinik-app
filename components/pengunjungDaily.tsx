@@ -11,32 +11,38 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-interface Pengunjung{
-  bulan: string;
+interface PengunjungHarian{
+  jam: string;
   total: number;
 }
 
-export default function PengunjungMonth({ chartData }: { chartData: Pengunjung[] }) {
+export default function PengunjungMonth({ chartData }: { chartData: PengunjungHarian[] }) {
     const bulanTerbaru = chartData && chartData.length > 0 
-        ? chartData[chartData.length - 1]?.bulan 
+        ? chartData[chartData.length - 1]?.jam 
         : "";
 
     const bulanTerlama = chartData && chartData.length > 0 
-        ? chartData[0]?.bulan 
+        ? chartData[0]?.jam 
         : "";
+
+    const today = new Date();
+    const formattedDate = new Intl.DateTimeFormat("id-ID", {
+  dateStyle: "long",
+}).format(today);
+
   
     return (
     <Card>
         <CardHeader>
-            <CardTitle>Total Pengunjung 6 Bulan Terakhir</CardTitle>
-            <CardDescription>{bulanTerlama} - {bulanTerbaru} 2026</CardDescription>
+            <CardTitle>Total Pengunjung 24 Jam Terakhir</CardTitle>
+            <CardDescription>{formattedDate}</CardDescription>
         </CardHeader>
         <CardContent>
             <ChartContainer config={chartConfig} className="min-h-50 w-full">
       <BarChart data={chartData}>
         <CartesianGrid vertical={false} />
         <XAxis
-          dataKey="bulan"
+          dataKey="jam"
           tickLine={false}
           tickMargin={10}
           axisLine={false}
