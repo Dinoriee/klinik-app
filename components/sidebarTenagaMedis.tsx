@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { LayoutDashboard, ClipboardClock, ReceiptText, Pill, MessageCircleQuestion, Frown, Baby, Milk   } from 'lucide-react'
+import { LayoutDashboard, ClipboardClock, ReceiptText, Pill, MessageCircleQuestion, Frown, Baby, Milk, Syringe } from 'lucide-react'
 import Link from "next/link"
 
 export default function SidebarTenagaMedis(){
@@ -22,9 +22,13 @@ export default function SidebarTenagaMedis(){
                         <ReceiptText size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
                         <span className='text-sm'>Kwitansi</span>
                     </Link>
-                    <Link href="#" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
+                    <Link href="/medis/minta-obat" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
                         <Pill size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
                         <span className='text-sm'>Minta Obat</span>
+                    </Link>
+                    <Link href="/medis/penyakit" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
+                        <Syringe size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
+                        <span className='text-sm'>Kelola Penyakit</span>
                     </Link>
                     <Link href="#" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
                         <MessageCircleQuestion size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
