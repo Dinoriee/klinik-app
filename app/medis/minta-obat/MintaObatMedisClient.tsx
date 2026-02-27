@@ -32,19 +32,46 @@ interface Riwayat {
     detail_permintaan?: DetailPermintaan[];
 }
 
-export default function MintaObatMedisClient({ riwayatList, obats, query }: { riwayatList: Riwayat[], obats: Obat[], query: string }) {
-    
-    const formatTanggal = (tanggalString: string) => {
-        return new Intl.DateTimeFormat('id-ID', {
-            day: '2-digit', month: 'short', year: 'numeric',
-            hour: '2-digit', minute: '2-digit'
-        }).format(new Date(tanggalString));
-    };
+type ObatOption = {
+  id_obat: number;
+  nama_obat: string;
+  stok_saat_ini: number;
+  satuan: string;
+};
+
+type RiwayatPermintaan = {
+  id_permintaan: number;
+  waktu_permintaan: string;
+  pegawai?: { nama_pegawai: string } | null;
+  tenaga_medis?: { nama_tenaga_medis: string } | null;
+  penyakit?: { nama_penyakit: string } | null;
+  detail_permintaan?: DetailPermintaan[];
+};
+
+export default function MintaObatMedisClient({
+  riwayatList,
+  obats,
+  query,
+}: {
+  riwayatList: RiwayatPermintaan[];
+  obats: ObatOption[];
+  query: string;
+}) {
+  const formatTanggal = (tanggalString: string) => {
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(tanggalString));
+  };
 
     return (
         <div className="flex flex-col gap-4 relative">
             <div className="flex justify-between p-4">
                 <div className="flex flex-col">
+                    {}
                     <h1 className="text-gray-400">Medis / Transaksi / <span className="text-black font-bold">Minta Obat</span></h1>
                 </div>
             </div>
@@ -63,6 +90,7 @@ export default function MintaObatMedisClient({ riwayatList, obats, query }: { ri
                             <button type="submit" className="hidden">Cari</button>
                         </form>
                         
+                        {}
                         <TambahMintaObatButton obats={obats} />
                         
                     </div>
@@ -93,8 +121,7 @@ export default function MintaObatMedisClient({ riwayatList, obats, query }: { ri
                                         <td className="px-4 py-3">{riwayat.penyakit?.nama_penyakit || "-"}</td>
                                         <td className="px-4 py-3">
                                             <ul className="list-disc list-inside text-xs text-gray-600">
-                                                {}
-                                                {riwayat.detail_permintaan?.map((detail, i: number) => (
+                                                {riwayat.detail_permintaan?.map((detail: any, i: number) => (
                                                     <li key={i}>{detail.obat?.nama_obat} ({detail.jumlah_diminta})</li>
                                                 ))}
                                             </ul>
