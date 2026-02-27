@@ -5,6 +5,9 @@ import TambahTenagaMedisButton from "@/components/ui/TambahTenagaMedisButton";
 import EditTenagaMedisButton from "@/components/ui/EditTenagaMedisButton";
 import DeleteTenagaMedisButton from "@/components/ui/DeleteTenagaMedisButton";
 import * as XLSX from "xlsx"; 
+import UserAccount from "@/components/ui/userAccount";
+import { AuthOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 
 interface TenagaMedis {
     id_tenaga_medis: number | string;
@@ -18,7 +21,8 @@ interface TenagaMedis {
 }
 
 export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMedisList: TenagaMedis[], query: string }) {
-  
+    
+    
     const handleExportExcel = () => {
         const dataToExport = tenagaMedisList.map((tm, index) => {
             const roleFormatted = tm.users?.role ? tm.users.role.charAt(0).toUpperCase() + tm.users.role.slice(1) : "-";
