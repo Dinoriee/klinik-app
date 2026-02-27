@@ -3,33 +3,11 @@
 import { Search } from "lucide-react";
 import TambahMintaObatButton from "@/components/ui/TambahMintaObatButton";
 
-interface Obat {
-    id_obat: string | number;
-    nama_obat: string;
-    stok_saat_ini: number;
-    satuan: string;
-}
-
 interface DetailPermintaan {
     jumlah_diminta: number;
     obat?: {
         nama_obat: string;
     };
-}
-
-interface Riwayat {
-    id_permintaan: string | number;
-    waktu_permintaan: string;
-    pegawai?: {
-        nama_pegawai: string;
-    };
-    tenaga_medis?: {
-        nama_tenaga_medis: string;
-    };
-    penyakit?: {
-        nama_penyakit: string;
-    };
-    detail_permintaan?: DetailPermintaan[];
 }
 
 type ObatOption = {
@@ -38,6 +16,11 @@ type ObatOption = {
   stok_saat_ini: number;
   satuan: string;
 };
+
+// Tambahan Tipe Data Baru
+type PegawaiOption = { id_pegawai: number; nama_pegawai: string; };
+type TenagaMedisOption = { id_tenaga_medis: number; nama_tenaga_medis: string; };
+type PenyakitOption = { id_penyakit: number; nama_penyakit: string; };
 
 type RiwayatPermintaan = {
   id_permintaan: number;
@@ -51,10 +34,16 @@ type RiwayatPermintaan = {
 export default function MintaObatMedisClient({
   riwayatList,
   obats,
+  pegawais,         
+  tenagaMedisList,   
+  penyakits,        
   query,
 }: {
   riwayatList: RiwayatPermintaan[];
   obats: ObatOption[];
+  pegawais: PegawaiOption[];
+  tenagaMedisList: TenagaMedisOption[];
+  penyakits: PenyakitOption[];
   query: string;
 }) {
   const formatTanggal = (tanggalString: string) => {
@@ -71,7 +60,6 @@ export default function MintaObatMedisClient({
         <div className="flex flex-col gap-4 relative">
             <div className="flex justify-between p-4">
                 <div className="flex flex-col">
-                    {}
                     <h1 className="text-gray-400">Medis / Transaksi / <span className="text-black font-bold">Minta Obat</span></h1>
                 </div>
             </div>
@@ -91,7 +79,12 @@ export default function MintaObatMedisClient({
                         </form>
                         
                         {}
-                        <TambahMintaObatButton obats={obats} />
+                        <TambahMintaObatButton 
+                            obats={obats} 
+                            pegawais={pegawais} 
+                            tenagaMedisList={tenagaMedisList} 
+                            penyakits={penyakits} 
+                        />
                         
                     </div>
                 </div>
@@ -121,7 +114,8 @@ export default function MintaObatMedisClient({
                                         <td className="px-4 py-3">{riwayat.penyakit?.nama_penyakit || "-"}</td>
                                         <td className="px-4 py-3">
                                             <ul className="list-disc list-inside text-xs text-gray-600">
-                                                {riwayat.detail_permintaan?.map((detail: any, i: number) => (
+                                                {}
+                                                {riwayat.detail_permintaan?.map((detail: DetailPermintaan, i: number) => (
                                                     <li key={i}>{detail.obat?.nama_obat} ({detail.jumlah_diminta})</li>
                                                 ))}
                                             </ul>

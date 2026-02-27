@@ -14,7 +14,21 @@ export default async function MintaObatMedisPage({
         orderBy: { nama_obat: 'asc' }
     });
 
-    // Mengambil riwayat transaksi
+    const pegawais = await prisma.pegawai.findMany({
+        select: { id_pegawai: true, nama_pegawai: true },
+        orderBy: { nama_pegawai: 'asc' }
+    });
+
+    const tenagaMedisList = await prisma.tenaga_Medis.findMany({
+        select: { id_tenaga_medis: true, nama_tenaga_medis: true },
+        orderBy: { nama_tenaga_medis: 'asc' }
+    });
+
+    const penyakits = await prisma.penyakit.findMany({
+        select: { id_penyakit: true, nama_penyakit: true },
+        orderBy: { nama_penyakit: 'asc' }
+    });
+
     const riwayatList = await prisma.permintaan_Obat.findMany({
         orderBy: { waktu_permintaan: 'desc' },
         include: {
@@ -32,5 +46,14 @@ export default async function MintaObatMedisPage({
         waktu_permintaan: riwayat.waktu_permintaan.toISOString()
     }));
 
-    return <MintaObatMedisClient riwayatList={serializedRiwayat} obats={obats} query={query} />;
+    return (
+        <MintaObatMedisClient 
+            riwayatList={serializedRiwayat} 
+            obats={obats} 
+            pegawais={pegawais} 
+            tenagaMedisList={tenagaMedisList} 
+            penyakits={penyakits} 
+            query={query} 
+        />
+    );
 }

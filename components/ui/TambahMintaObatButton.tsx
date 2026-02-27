@@ -10,7 +10,32 @@ interface Obat {
     satuan: string;
 }
 
-export default function TambahMintaObatButton({ obats }: { obats: Obat[] }) {
+interface Pegawai {
+    id_pegawai: string | number;
+    nama_pegawai: string;
+}
+
+interface TenagaMedis {
+    id_tenaga_medis: string | number;
+    nama_tenaga_medis: string;
+}
+
+interface Penyakit {
+    id_penyakit: string | number;
+    nama_penyakit: string;
+}
+
+export default function TambahMintaObatButton({ 
+    obats, 
+    pegawais = [], 
+    tenagaMedisList = [], 
+    penyakits = [] 
+}: { 
+    obats: Obat[], 
+    pegawais?: Pegawai[], 
+    tenagaMedisList?: TenagaMedis[], 
+    penyakits?: Penyakit[] 
+}) {
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [barisObat, setBarisObat] = useState([{ id: Date.now() }]);
@@ -43,6 +68,10 @@ export default function TambahMintaObatButton({ obats }: { obats: Obat[] }) {
         setErrorMessage("");
 
         const form = new FormData(e.currentTarget);
+        const id_pegawai = form.get("id_pegawai");
+        const id_tenaga_medis = form.get("id_tenaga_medis");
+        const id_penyakit = form.get("id_penyakit");
+        
         const idObats = form.getAll("id_obat");
         const jumlahs = form.getAll("jumlah");
 
@@ -50,7 +79,13 @@ export default function TambahMintaObatButton({ obats }: { obats: Obat[] }) {
             const res = await fetch("/api/minta-obat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id_obat: idObats, jumlah: jumlahs }),
+                body: JSON.stringify({ 
+                    id_pegawai,
+                    id_tenaga_medis,
+                    id_penyakit,
+                    id_obat: idObats, 
+                    jumlah: jumlahs 
+                }),
             });
 
             const result = await res.json();
@@ -94,6 +129,39 @@ export default function TambahMintaObatButton({ obats }: { obats: Obat[] }) {
                             )}
 
                             <form onSubmit={handleSimpan} className="flex flex-col gap-6" id="form-transaksi">
+                                
+                                {}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-6 border-b border-gray-100">
+                                    <div className="flex flex-col space-y-1.5">
+                                        <label className="text-xs font-semibold text-gray-800">Pasien (Pegawai)</label>
+                                        <select name="id_pegawai" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400 bg-white">
+                                            <option value="">-- Pilih Pasien --</option>
+                                            {pegawais.map(p => (
+                                                <option key={p.id_pegawai} value={p.id_pegawai}>{p.nama_pegawai}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="flex flex-col space-y-1.5">
+                                        <label className="text-xs font-semibold text-gray-800">Pemeriksa (Tenaga Medis)</label>
+                                        <select name="id_tenaga_medis" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400 bg-white">
+                                            <option value="">-- Pilih Dokter --</option>
+                                            {tenagaMedisList.map(t => (
+                                                <option key={t.id_tenaga_medis} value={t.id_tenaga_medis}>{t.nama_tenaga_medis}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="flex flex-col space-y-1.5">
+                                        <label className="text-xs font-semibold text-gray-800">Diagnosa Penyakit</label>
+                                        <select name="id_penyakit" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400 bg-white">
+                                            <option value="">-- Pilih Penyakit --</option>
+                                            {penyakits.map(py => (
+                                                <option key={py.id_penyakit} value={py.id_penyakit}>{py.nama_penyakit}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                {}
+
                                 <div>
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-sm font-bold text-gray-800">Daftar Obat yang Diambil</h3>
@@ -109,7 +177,6 @@ export default function TambahMintaObatButton({ obats }: { obats: Obat[] }) {
                                                     <label className="text-xs font-semibold text-gray-800">Pilih Obat {index + 1}</label>
                                                     <select name="id_obat" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400 bg-white">
                                                         <option value="">-- Pilih Obat --</option>
-                                                        {}
                                                         {obats.map((o: Obat) => (
                                                             <option key={o.id_obat} value={o.id_obat}>
                                                                 {o.nama_obat} (Sisa Stok: {o.stok_saat_ini} {o.satuan})
