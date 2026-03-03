@@ -1,52 +1,52 @@
+'use client'
 import Image from 'next/image'
-import { LayoutDashboard, ClipboardClock, ReceiptText, Pill, MessageCircleQuestion, Frown, Baby, Milk, Syringe   } from 'lucide-react'
 import Link from "next/link"
+import { usePathname } from 'next/navigation'
+import { menuUtama, menuKelola, SidebarItem, menuMedis, menuKelolaMedis } from '@/lib/listMenu'
+
 
 export default function SidebarTenagaMedis(){
+    const pathname = usePathname();
+
+    const NavLink = ({ item }: { item: SidebarItem }) => {
+    const isActive = pathname === item.href
+    const Icon = item.icon
+
+    const baseStyle = "flex space-x-2 items-center rounded-md p-2 transition-all duration-200 ease-in-out scale-95 hover:scale-100"
+    const activeStyle = isActive 
+      ? "bg-blue-700 border-2 border-blue-300 shadow-md scale-100" 
+      : "text-blue-400 hover:bg-blue-800 hover:text-white "
+
+    return (
+      <Link 
+        href={item.href} 
+        className={`${baseStyle} ${activeStyle}`}
+      >
+        <Icon 
+          size={20} 
+          className={`p-1 rounded-md shadow-md ${isActive ? "bg-white text-blue-900" : "bg-gray-200 text-blue-900"}`}
+        />
+        <span className={`text-sm ${isActive ? "text-white" : "text-gray-100"}`}>
+          {item.name}
+        </span>
+      </Link>
+    )
+  }
+
     return(
-        <aside className='p-4 w-1/7 max-h-screen'>
-                <div>    
+        <aside className='p-4 w-1/6 min-h-screen bg-blue-900 rounded-tr-md rounded-br-md shadow-xl sticky top-0'>
+                <div className='space-y-1.5'>    
                     <Image src="/logo-klinik.png" alt='Logo Klinik' width={500} height={500} className="w-24 h-auto"/>
-                    <Link className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out' href="/medis">
-                        <LayoutDashboard size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
-                        <span className='text-sm'>Dashboard</span>
-                    </Link>
+                    <h1 className='text-gray-300 text-base font-medium pt-4 pl-2'>Menu</h1>
+                    {menuMedis.map((item) => (
+                        <NavLink key={item.name} item={item}/>
+                    ))}
                 </div>
-                <div className='space-y-2'>
-                    <h1 className='text-gray-400 text-base font-medium pt-4 pl-2'>Menu</h1>
-                    <Link href="/medis/presensi" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
-                        <ClipboardClock size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
-                        <span className='text-sm'>Presensi</span>
-                    </Link>
-                    <Link href="#" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
-                        <ReceiptText size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
-                        <span className='text-sm'>Kwitansi</span>
-                    </Link>
-                    {/* Link Minta Obat dihidupkan */}
-                    <Link href="/medis/minta-obat" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
-                        <Pill size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
-                        <span className='text-sm'>Minta Obat</span>
-                    </Link>
-                    <Link href="#" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
-                        <MessageCircleQuestion size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
-                        <span className='text-sm'>Konsultasi Dokter</span>
-                    </Link>
-                    <Link href="/medis/penyakit" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
-                        <Syringe size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
-                        <span className='text-sm'>Kelola Penyakit</span>
-                    </Link>
-                    <Link href="#" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
-                        <Frown size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
-                        <span className='text-sm'>Istirahat Sakit</span>
-                    </Link>
-                    <Link href="#" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
-                        <Baby size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
-                        <span className='text-sm'>Istirahat Hamil</span>
-                    </Link>
-                    <Link href="#" className='text-gray-400 flex space-x-2 items-center rounded-md shadow-none hover:bg-gray-50 border-0 hover:border-2 hover:border-blue-300 hover:shadow-md hover:scale-105 p-2 transition-all duration-200 ease-in-out'>
-                        <Milk size={20} className='bg-gray-200 p-1 rounded-md shadow-md'/>
-                        <span className='text-sm'>Laktasi</span>
-                    </Link>
+                <div className='space-y-1.5'>
+                    <h1 className='text-gray-300 text-base font-medium pt-4 pl-2'>Kelola</h1>
+                    {menuKelolaMedis.map((item) => (
+                        <NavLink key={item.name} item={item}/>
+                    ))}
                 </div>
             </aside>
     )

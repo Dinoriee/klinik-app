@@ -1,4 +1,5 @@
 'use client'
+import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -34,7 +35,7 @@ export default function DeleteObatButton({ id_obat }: { id_obat: number }) {
             disabled={isDeleting}
             className="text-red-500 hover:text-red-700 text-xs font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-            {isDeleting ? "Menghapus..." : "Hapus"}
+            <Trash size={20}/>
         </button>
     );
 }
