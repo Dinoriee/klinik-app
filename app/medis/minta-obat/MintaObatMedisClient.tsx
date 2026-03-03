@@ -17,7 +17,6 @@ type ObatOption = {
   satuan: string;
 };
 
-// Tambahan Tipe Data Baru
 type PegawaiOption = { id_pegawai: number; nama_pegawai: string; };
 type TenagaMedisOption = { id_tenaga_medis: number; nama_tenaga_medis: string; };
 type PenyakitOption = { id_penyakit: number; nama_penyakit: string; };
