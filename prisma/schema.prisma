@@ -42,7 +42,7 @@ enum JenisObat {
 }
 
 model User {
-  id_user     Int           @id @default(autoincrement())
+  id_user     String        @id @default(cuid())
   email       String        @unique
   password    String
   name        String
@@ -51,45 +51,53 @@ model User {
 }
 
 model Tenaga_Medis {
-  id_tenaga_medis   Int                     @id @default(autoincrement())
-  id_user           Int                     @unique
+  id_tenaga_medis   String                  @id @default(cuid())
+  id_user           String                  @unique
   kode_tenaga_medis String
+  nik               String                  @unique
   nama_tenaga_medis String
   jabatan           String
   users             User                    @relation(fields: [id_user], references: [id_user])
   permintaanObats   Permintaan_Obat[]
   presensis         Presensi_Tenaga_Medis[]
+
+  @@index([id_tenaga_medis, nik])
 }
 
 model Pegawai {
-  id_pegawai      Int               @id @default(autoincrement())
+  id_pegawai      String            @id @default(cuid())
   nomor_pegawai   String            @unique
+  nik             String            @unique
   nama_pegawai    String
   departemen      String
   permintaanObats Permintaan_Obat[]
   presensis       Presensi[]
+
+  @@index([id_pegawai, nik])
 }
 
 model Penyakit {
-  id_penyakit     Int               @id @default(autoincrement())
+  id_penyakit     String            @id @default(cuid())
   nama_penyakit   String
   permintaan_obat Permintaan_Obat[]
 }
 
 model Permintaan_Obat {
-  id_permintaan     Int                      @id @default(autoincrement())
-  id_pegawai        Int
-  id_tenaga_medis   Int
-  id_penyakit       Int
+  id_permintaan     String                   @id @default(cuid())
+  id_pegawai        String
+  id_tenaga_medis   String
+  id_penyakit       String
   waktu_permintaan  DateTime                 @default(now())
   pegawai           Pegawai                  @relation(fields: [id_pegawai], references: [id_pegawai])
   tenaga_medis      Tenaga_Medis             @relation(fields: [id_tenaga_medis], references: [id_tenaga_medis])
   penyakit          Penyakit                 @relation(fields: [id_penyakit], references: [id_penyakit])
   detail_permintaan Detail_Permintaan_Obat[]
+
+  @@index([id_pegawai, id_tenaga_medis])
 }
 
 model Obat {
-  id_obat           Int                      @id @default(autoincrement())
+  id_obat           String                   @id @default(cuid())
   nama_obat         String
   nama_batch        String
   stok_saat_ini     Int
@@ -102,36 +110,42 @@ model Obat {
 }
 
 model Detail_Permintaan_Obat {
-  id_permintaan   Int
-  id_obat         Int
+  id_permintaan   String
+  id_obat         String
   jumlah_diminta  Int
   permintaan_obat Permintaan_Obat @relation(fields: [id_permintaan], references: [id_permintaan])
   obat            Obat            @relation(fields: [id_obat], references: [id_obat])
 
-  @@id([id_permintaan, id_obat])
+  @@id([id_permintaan])
 }
 
 model Presensi {
-  id_presensi Int          @id @default(autoincrement())
-  id_pegawai  Int
+  id_presensi String       @id @default(cuid())
+  id_pegawai  String
   jam_masuk   DateTime     @default(now())
   jam_keluar  DateTime?
   tipe        TipePresensi
   pegawai     Pegawai      @relation(fields: [id_pegawai], references: [id_pegawai])
+
+  @@index([id_pegawai])
+  @@index([jam_masuk])
 }
 
 model Presensi_Tenaga_Medis {
-  id_presensi     Int           @id @default(autoincrement())
-  id_tenaga_medis Int
+  id_presensi     String        @id @default(cuid())
+  id_tenaga_medis String
   jam_masuk       DateTime      @default(now())
   jam_keluar      DateTime?
   keterangan      PresensiMedis
   tenagaMedis     Tenaga_Medis  @relation(fields: [id_tenaga_medis], references: [id_tenaga_medis])
+
+  @@index([id_tenaga_medis])
+  @@index([jam_masuk])
 }
 
 model Notifikasi {
-  id_notifikasi Int    @id @default(autoincrement())
-  id_obat       Int
+  id_notifikasi String @id @default(cuid())
+  id_obat       String
   pesan         String
   status        String
   obat          Obat   @relation(fields: [id_obat], references: [id_obat])

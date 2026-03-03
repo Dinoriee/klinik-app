@@ -1,9 +1,10 @@
 "use client";
 
+import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
-export default function DeletePenyakitButton({ id_penyakit }: { id_penyakit: number }) {
+export default function DeletePenyakitButton({ id_penyakit }: { id_penyakit: string }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -35,7 +36,7 @@ export default function DeletePenyakitButton({ id_penyakit }: { id_penyakit: num
       disabled={isDeleting}
       className="text-red-500 hover:text-red-700 text-xs font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      {isDeleting ? "Menghapus..." : "Hapus"}
+      <Trash size={20}/>
     </button>
   );
 }

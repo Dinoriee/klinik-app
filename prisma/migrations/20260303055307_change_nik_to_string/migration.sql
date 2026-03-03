@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Pegawai" ALTER COLUMN "nik" SET DATA TYPE TEXT;
+
+-- AlterTable
+ALTER TABLE "Tenaga_Medis" ALTER COLUMN "nik" SET DATA TYPE TEXT;
