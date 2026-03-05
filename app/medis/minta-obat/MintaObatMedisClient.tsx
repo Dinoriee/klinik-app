@@ -1,7 +1,10 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { useState } from "react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import TambahMintaObatButton from "@/components/ui/TambahMintaObatButton";
+import UserAccount from "@/components/ui/userAccount";
+import { useSession } from "next-auth/react";
 
 interface DetailPermintaan {
     jumlah_diminta: number;
@@ -45,22 +48,35 @@ export default function MintaObatMedisClient({
   penyakits: PenyakitOption[];
   query: string;
 }) {
-  const formatTanggal = (tanggalString: string) => {
-    return new Intl.DateTimeFormat("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(tanggalString));
-  };
+    
+    const { data: session } = useSession();
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
+    const formatTanggal = (tanggalString: string) => {
+        return new Intl.DateTimeFormat("id-ID", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        }).format(new Date(tanggalString));
+    };
+    const totalPages = Math.ceil(riwayatList.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentData = riwayatList.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div className="flex flex-col gap-4 relative">
-            <div className="flex justify-between p-4">
+            
+            {}
+            {}
+            {}
+            <div className="flex justify-between items-center p-4">
                 <div className="flex flex-col">
                     <h1 className="text-gray-400">Medis / Transaksi / <span className="text-black font-bold">Minta Obat</span></h1>
                 </div>
+                <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
@@ -77,7 +93,6 @@ export default function MintaObatMedisClient({
                             <button type="submit" className="hidden">Cari</button>
                         </form>
                         
-                        {}
                         <TambahMintaObatButton 
                             obats={obats} 
                             pegawais={pegawais} 
@@ -101,30 +116,68 @@ export default function MintaObatMedisClient({
                             </tr>
                         </thead>
                         <tbody className="divide-y">
-                            {riwayatList.length === 0 ? (
+                            {}
+                            {currentData.length === 0 ? (
                                 <tr><td colSpan={6} className="text-center py-8 text-gray-400">Belum ada transaksi.</td></tr>
                             ) : (
-                                riwayatList.map((riwayat, index) => (
-                                    <tr key={riwayat.id_permintaan} className="hover:bg-gray-50">
-                                        <td className="px-4 py-3">{index + 1}</td>
-                                        <td className="px-4 py-3">{formatTanggal(riwayat.waktu_permintaan)}</td>
-                                        <td className="px-4 py-3 font-medium text-gray-800">{riwayat.pegawai?.nama_pegawai || "-"}</td>
-                                        <td className="px-4 py-3">{riwayat.tenaga_medis?.nama_tenaga_medis || "-"}</td>
-                                        <td className="px-4 py-3">{riwayat.penyakit?.nama_penyakit || "-"}</td>
-                                        <td className="px-4 py-3">
-                                            <ul className="list-disc list-inside text-xs text-gray-600">
-                                                {}
-                                                {riwayat.detail_permintaan?.map((detail: DetailPermintaan, i: number) => (
-                                                    <li key={i}>{detail.obat?.nama_obat} ({detail.jumlah_diminta})</li>
-                                                ))}
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                ))
+                                currentData.map((riwayat, index) => {
+                                    const actualNumber = startIndex + index + 1;
+
+                                    return (
+                                        <tr key={riwayat.id_permintaan} className="hover:bg-gray-50">
+                                            <td className="px-4 py-3">{actualNumber}</td>
+                                            <td className="px-4 py-3">{formatTanggal(riwayat.waktu_permintaan)}</td>
+                                            <td className="px-4 py-3 font-medium text-gray-800">{riwayat.pegawai?.nama_pegawai || "-"}</td>
+                                            <td className="px-4 py-3">{riwayat.tenaga_medis?.nama_tenaga_medis || "-"}</td>
+                                            <td className="px-4 py-3">{riwayat.penyakit?.nama_penyakit || "-"}</td>
+                                            <td className="px-4 py-3">
+                                                <ul className="list-disc list-inside text-xs text-gray-600">
+                                                    {riwayat.detail_permintaan?.map((detail: DetailPermintaan, i: number) => (
+                                                        <li key={i}>{detail.obat?.nama_obat} ({detail.jumlah_diminta})</li>
+                                                    ))}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>
                 </div>
+
+                {}
+                {}
+                {}
+                {riwayatList.length > 0 && (
+                    <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                        <span className="text-sm text-gray-500">
+                            Menampilkan <span className="font-semibold text-gray-900">{startIndex + 1}</span> - <span className="font-semibold text-gray-900">{Math.min(startIndex + itemsPerPage, riwayatList.length)}</span> dari <span className="font-semibold text-gray-900">{riwayatList.length}</span> data
+                        </span>
+                        
+                        <div className="flex items-center space-x-2">
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 rounded-md border text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            
+                            <span className="text-sm font-medium text-gray-700 px-4">
+                                Halaman {currentPage} / {totalPages}
+                            </span>
+                            
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages || totalPages === 0}
+                                className="p-2 rounded-md border text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
             </div>
         </div>
     );

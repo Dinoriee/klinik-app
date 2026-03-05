@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { SquarePen, X } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -47,12 +47,9 @@ export default function EditPegawaiButton({ pegawai }: { pegawai: Pegawai }) {
 
   return (
     <>
-      <button
-        onClick={() => setModalOpen(true)}
-        className="text-blue-500 hover:text-blue-700 text-xs font-medium"
-      >
-        Edit
-      </button>
+      <button onClick={() => setModalOpen(true)} className="text-yellow-300 hover:text-yellow-600 px-3 py-1 rounded-md transition duration-200">
+                <SquarePen size={20}/>
+            </button>
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 text-left">

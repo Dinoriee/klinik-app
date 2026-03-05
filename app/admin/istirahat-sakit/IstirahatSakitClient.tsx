@@ -1,54 +1,59 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-import TambahTenagaMedisButton from "@/components/ui/TambahTenagaMedisButton";
-import EditTenagaMedisButton from "@/components/ui/EditTenagaMedisButton";
-import DeleteTenagaMedisButton from "@/components/ui/DeleteTenagaMedisButton";
-import * as XLSX from "xlsx"; 
+import { Search, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import * as XLSX from "xlsx";
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
 
-interface TenagaMedis {
-    id_tenaga_medis: number | string;
-    kode_tenaga_medis: string;
-    nama_tenaga_medis: string;
-    jabatan: string;
-    users?: {
-        email: string;
-        role: string;
-    } | null;
+interface Pegawai {
+    nik: string;
+    nama_pegawai: string;
+    departemen: string;
 }
 
-export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMedisList: TenagaMedis[], query: string }) {
-    
+interface PresensiSakit {
+    id_presensi: string;
+    jam_masuk: string;
+    tipe: string;
+    pegawai: Pegawai;
+}
+
+export default function IstirahatSakitClient({ dataList, query }: { dataList: PresensiSakit[], query: string }) {
     const { data: session } = useSession();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
-    
+
+    const formatTanggal = (tanggalString: string) => {
+        return new Intl.DateTimeFormat('id-ID', {
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        }).format(new Date(tanggalString));
+    };
+
     const handleExportExcel = () => {
-        const dataToExport = tenagaMedisList.map((tm, index) => {
-            const roleFormatted = tm.users?.role ? tm.users.role.charAt(0).toUpperCase() + tm.users.role.slice(1) : "-";
-            
+        if (dataList.length === 0) return alert("Tidak ada data untuk diexport!");
+
+        const dataToExport = dataList.map((data, index) => {
             return {
                 "No": index + 1,
-                "Kode Tenaga Medis": tm.kode_tenaga_medis,
-                "Nama Lengkap": tm.nama_tenaga_medis,
-                "Jabatan / Spesialisasi": tm.jabatan,
-                "Email Akun": tm.users?.email || "-",
-                "Role Sistem": roleFormatted
+                "Tanggal Sakit": formatTanggal(data.jam_masuk),
+                "NIK": data.pegawai?.nik || "-",
+                "Nama Pegawai": data.pegawai?.nama_pegawai || "-",
+                "Departemen": data.pegawai?.departemen || "-",
+                "Status": "Istirahat Sakit"
             };
         });
 
         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Tenaga Medis");
-        XLSX.writeFile(workbook, "Data_Tenaga_Medis_Klinik.xlsx");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Pegawai Sakit");
+        XLSX.writeFile(workbook, `Rekap_Istirahat_Sakit_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
-    const totalPages = Math.ceil(tenagaMedisList.length / itemsPerPage);
+    const totalPages = Math.ceil(dataList.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = tenagaMedisList.slice(startIndex, startIndex + itemsPerPage);
+    const currentData = dataList.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div className="flex flex-col gap-4 relative">
@@ -58,21 +63,21 @@ export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMe
             {}
             <div className="flex justify-between items-center p-4">
                 <div className="flex flex-col">
-                    <h1 className="text-gray-400">Klinik / Tenaga Medis / <span className="text-black font-bold">Kelola Tenaga Medis</span></h1>
+                    <h1 className="text-gray-400">Admin / <span className="text-black font-bold">Rekap Istirahat Sakit</span></h1>
                 </div>
                 <UserAccount userName={session?.user?.name || "Admin"} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 className="font-bold text-lg text-black">Data Tenaga Medis</h2>
+                    <h2 className="font-bold text-lg text-black">Data Pegawai Sakit</h2>
                     <div className="flex space-x-3">
                         <form method="GET" className="relative flex items-center">
                             <Search size={16} className="absolute left-3 text-gray-400" />
                             <input 
                                 type="text" name="query" defaultValue={query}
                                 className="pl-9 pr-4 py-2 border rounded-md border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                                placeholder="Cari nama/kode..."
+                                placeholder="Cari NIK / Nama / Dept..."
                             />
                             <button type="submit" className="hidden">Cari</button>
                         </form>
@@ -81,10 +86,8 @@ export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMe
                             onClick={handleExportExcel}
                             className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
                         >
-                            Export
+                            <Download size={16} /> Export Excel
                         </button>
-                        
-                        <TambahTenagaMedisButton />
                     </div>
                 </div>
 
@@ -93,39 +96,31 @@ export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMe
                         <thead className="bg-gray-50 border-y text-gray-500">
                             <tr>
                                 <th className="px-4 py-3 font-medium">No</th>
-                                <th className="px-4 py-3 font-medium">Kode</th>
-                                <th className="px-4 py-3 font-medium">Nama</th>
-                                <th className="px-4 py-3 font-medium">Jabatan</th>
-                                <th className="px-4 py-3 font-medium">Email</th>
-                                <th className="px-4 py-3 font-medium">Role</th>
-                                <th className="px-4 py-3 font-medium text-center">Aksi</th>
+                                <th className="px-4 py-3 font-medium">Tanggal</th>
+                                <th className="px-4 py-3 font-medium">NIK</th>
+                                <th className="px-4 py-3 font-medium">Nama Pegawai</th>
+                                <th className="px-4 py-3 font-medium">Departemen</th>
+                                <th className="px-4 py-3 font-medium text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y">
-                            {}
                             {currentData.length === 0 ? (
-                                <tr><td colSpan={7} className="text-center py-6 text-gray-400">Data tenaga medis masih kosong.</td></tr>
+                                <tr><td colSpan={6} className="text-center py-6 text-gray-400">Belum ada data pegawai sakit.</td></tr>
                             ) : (
-                                currentData.map((tm, index) => {
+                                currentData.map((data, index) => {
                                     const actualNumber = startIndex + index + 1;
 
                                     return (
-                                        <tr key={tm.id_tenaga_medis} className="hover:bg-gray-50">
+                                        <tr key={data.id_presensi} className="hover:bg-gray-50">
                                             <td className="px-4 py-3">{actualNumber}</td>
-                                            <td className="px-4 py-3 font-medium text-gray-800">{tm.kode_tenaga_medis}</td>
-                                            <td className="px-4 py-3">{tm.nama_tenaga_medis}</td>
-                                            <td className="px-4 py-3">{tm.jabatan}</td>
-                                            <td className="px-4 py-3">{tm.users?.email || "-"}</td>
-                                            <td className="px-4 py-3">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${tm.users?.role === 'dokter' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                                                    {tm.users?.role ? tm.users.role.charAt(0).toUpperCase() + tm.users.role.slice(1) : "-"}
-                                                </span>
-                                            </td>
+                                            <td className="px-4 py-3">{formatTanggal(data.jam_masuk)}</td>
+                                            <td className="px-4 py-3 font-mono text-gray-600">{data.pegawai?.nik || "-"}</td>
+                                            <td className="px-4 py-3 font-medium text-gray-800">{data.pegawai?.nama_pegawai || "-"}</td>
+                                            <td className="px-4 py-3">{data.pegawai?.departemen || "-"}</td>
                                             <td className="px-4 py-3 text-center">
-                                                <div className="flex justify-center space-x-3 items-center">
-                                                    <EditTenagaMedisButton tm={tm} />
-                                                    <DeleteTenagaMedisButton id_tenaga_medis={tm.id_tenaga_medis as number} />
-                                                </div>
+                                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                                    Sakit
+                                                </span>
                                             </td>
                                         </tr>
                                     );
@@ -136,12 +131,10 @@ export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMe
                 </div>
 
                 {}
-                {}
-                {}
-                {tenagaMedisList.length > 0 && (
+                {dataList.length > 0 && (
                     <div className="flex items-center justify-between mt-6 pt-4 border-t">
                         <span className="text-sm text-gray-500">
-                            Menampilkan <span className="font-semibold text-gray-900">{startIndex + 1}</span> - <span className="font-semibold text-gray-900">{Math.min(startIndex + itemsPerPage, tenagaMedisList.length)}</span> dari <span className="font-semibold text-gray-900">{tenagaMedisList.length}</span> data
+                            Menampilkan <span className="font-semibold text-gray-900">{startIndex + 1}</span> - <span className="font-semibold text-gray-900">{Math.min(startIndex + itemsPerPage, dataList.length)}</span> dari <span className="font-semibold text-gray-900">{dataList.length}</span> data
                         </span>
                         
                         <div className="flex items-center space-x-2">
