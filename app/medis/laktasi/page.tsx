@@ -1,22 +1,11 @@
 import { AuthOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
-import prisma from "@/lib/db";
 import UserAccount from "@/components/ui/userAccount";
-import LaktasiButton from "@/components/ui/LaktasiButton";
-import { ensureAktivitasMedisTable, getRiwayatAktivitasMedis } from "@/lib/medisAktivitas";
+import ScannerLaktasi from "@/components/ui/ScannerLaktasi";
+import InputNikLaktasi from "@/components/ui/InputNikLaktasi";
 
 const LaktasiMedisPage = async () => {
   const session = await getServerSession(AuthOptions);
-  await ensureAktivitasMedisTable();
-
-  const tenagaMedis = await prisma.tenaga_Medis.findMany({
-    select: {
-      id_tenaga_medis: true,
-      nama_tenaga_medis: true,
-    },
-  });
-
-  const riwayatLaktasi = await getRiwayatAktivitasMedis("laktasi");
 
   return (
     <div>
@@ -30,49 +19,17 @@ const LaktasiMedisPage = async () => {
         <UserAccount userName={session?.user?.name} />
       </div>
 
-      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md mx-4 mb-4">
-        <div className="flex justify-between items-center border-b pb-4">
-          <h2 className="font-bold text-black">Sesi Laktasi</h2>
-          <LaktasiButton tenagaMedis={tenagaMedis} />
-        </div>
-
-        <div className="overflow-x-auto mt-4">
-          <table className="w-full border-collapse text-left text-sm">
-            <thead className="bg-gray-200 text-gray-700">
-              <tr>
-                <th className="p-3 rounded-tl-md border-b border-gray-300">Nama Tenaga Medis</th>
-                <th className="p-3 border-b border-gray-300">Tanggal</th>
-                <th className="p-3 border-b border-gray-300">Mulai</th>
-                <th className="p-3 border-b border-gray-300">Selesai</th>
-                <th className="p-3 border-b border-gray-300 rounded-tr-md">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {riwayatLaktasi.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-6 text-center text-gray-400">
-                    Belum ada data laktasi.
-                  </td>
-                </tr>
-              ) : (
-                riwayatLaktasi.map((item) => (
-                  <tr key={item.id_presensi} className="border-b hover:bg-gray-100 transition duration-200">
-                    <td className="p-3 font-medium text-gray-800">{item.nama_tenaga_medis || "-"}</td>
-                    <td className="p-3 text-gray-500">{item.jam_masuk.toLocaleDateString()}</td>
-                    <td className="p-3 text-gray-500">{item.jam_masuk.toLocaleTimeString()}</td>
-                    <td className="p-3 text-gray-500">
-                      {item.jam_keluar ? new Date(item.jam_keluar).toLocaleTimeString() : "Masih berlangsung"}
-                    </td>
-                    <td className="p-3">
-                      <span className="bg-cyan-100 text-cyan-700 px-2 py-1 rounded-md text-xs font-semibold">
-                        Laktasi
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      <div className="mx-4 mb-4 space-y-4">
+        <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md">
+          <div className="flex justify-between items-center border-b pb-4">
+            <h2 className="font-bold text-black">Pengajuan Laktasi</h2>
+          </div>
+          <div className="mt-4">
+            <ScannerLaktasi />
+          </div>
+          <div className="mt-4">
+            <InputNikLaktasi />
+          </div>
         </div>
       </div>
     </div>

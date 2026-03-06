@@ -1,132 +1,155 @@
-"use client";
+'use client'
 
-import { Search } from "lucide-react";
-import TambahObatButton from "@/components/ui/TambahObatButton"; 
-import EditObatButton from "@/components/ui/EditObatButton";     
-import DeleteObatButton from "@/components/ui/DeleteObatButton"; 
-import * as XLSX from "xlsx"; 
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Plus, Search, ChevronLeft, ChevronRight } from "lucide-react"
+import EditObatButton from "@/components/ui/EditObatButton"
+import DeleteObatButton from "@/components/ui/DeleteObatButton" 
+import { useSession } from "next-auth/react"
+import UserAccount from "@/components/ui/userAccount"
 
 interface Obat {
-    idObat: number;
-    namaObat: string;
-    namaBatch: string;
-    jenisObat: string;
-    stokSaatIni: number;
-    satuan: string;
-    expiredDate: string;
-    reorderLevel: number;
+  idObat: number | string; 
+  namaObat: string;
+  namaBatch: string;
+  jenisObat: string;
+  stokSaatIni: number;
+  satuan: string;
+  expiredDate: string;
+  reorderLevel: number;
 }
 
-export default function ObatClient({ obatList, query }: { obatList: Obat[], query: string }) {
+interface ObatClientProps {
+  obatList: Obat[];
+  query: string;
+}
 
-    const formatTanggal = (tanggalString: string) => {
-        return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(tanggalString));
-    };
+export default function ObatClient({ obatList, query }: ObatClientProps) {
+  
+  const { data: session } = useSession()
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(obatList.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentData = obatList.slice(startIndex, startIndex + itemsPerPage);
 
-    const tanggalHariIni = new Date();
-    const handleExportExcel = () => {
-        const dataToExport = obatList.map((obat, index) => {
-            const isExpired = new Date(obat.expiredDate) < tanggalHariIni;
-            const isMenipis = obat.stokSaatIni <= obat.reorderLevel;
-            
-            let status = "Aman";
-            if (isExpired) status = "Kedaluwarsa";
-            else if (isMenipis) status = "Menipis";
+  return (
+    <div className="space-y-6 w-full relative">
+      
+      {}
+      {}
+      {}
+      <div className="w-full flex justify-end mb-2">
+        <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
+      </div>
 
-            return {
-                "No": index + 1,
-                "Nama Obat": obat.namaObat,
-                "Batch": obat.namaBatch,
-                "Jenis": obat.jenisObat.charAt(0).toUpperCase() + obat.jenisObat.slice(1),
-                "Stok Saat Ini": `${obat.stokSaatIni} ${obat.satuan}`,
-                "Batas Minimum (Reorder)": obat.reorderLevel,
-                "Tanggal Kedaluwarsa": formatTanggal(obat.expiredDate),
-                "Status": status
-            };
-        });
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Stok Obat");
-        XLSX.writeFile(workbook, "Data_Stok_Obat_Klinik.xlsx");
-    };
-
-    return (
-        <div className="flex flex-col gap-4 relative">
-            <div className="flex justify-between p-4">
-                <div className="flex flex-col">
-                    <h1 className="text-gray-400">Klinik / Obat / <span className="text-black font-bold">Kelola Obat</span></h1>
-                </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
-                <div className="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 className="font-bold text-lg text-black">Daftar Stok Obat</h2>
-                    <div className="flex space-x-3">
-                        <form method="GET" className="relative flex items-center">
-                            <Search size={16} className="absolute left-3 text-gray-400" />
-                            <input 
-                                type="text" name="query" defaultValue={query}
-                                className="pl-9 pr-4 py-2 border rounded-md border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                                placeholder="Cari obat / batch..."
-                            />
-                            <button type="submit" className="hidden">Cari</button>
-                        </form>
-                        
-                        {}
-                        
-                        <TambahObatButton />
-                    </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-gray-50 border-y text-gray-500">
-                            <tr>
-                                <th className="px-4 py-3 font-medium">No</th>
-                                <th className="px-4 py-3 font-medium">Nama Obat</th>
-                                <th className="px-4 py-3 font-medium">Batch</th>
-                                <th className="px-4 py-3 font-medium">Jenis</th>
-                                <th className="px-4 py-3 font-medium text-center">Stok</th>
-                                <th className="px-4 py-3 font-medium">Expired Date</th>
-                                <th className="px-4 py-3 font-medium text-center">Status</th>
-                                <th className="px-4 py-3 font-medium text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y">
-                            {obatList.length === 0 ? (
-                                <tr><td colSpan={8} className="text-center py-6 text-gray-400">Stok obat masih kosong.</td></tr>
-                            ) : (
-                                obatList.map((obat, index) => {
-                                    const isExpired = new Date(obat.expiredDate) < tanggalHariIni;
-                                    const isMenipis = obat.stokSaatIni <= obat.reorderLevel;
-
-                                    return (
-                                        <tr key={obat.idObat} className="hover:bg-gray-50">
-                                            <td className="px-4 py-3">{index + 1}</td>
-                                            <td className="px-4 py-3 font-medium text-gray-800">{obat.namaObat}</td>
-                                            <td className="px-4 py-3">{obat.namaBatch}</td>
-                                            <td className="px-4 py-3 capitalize">{obat.jenisObat}</td>
-                                            <td className="px-4 py-3 text-center font-medium">{obat.stokSaatIni} {obat.satuan}</td>
-                                            <td className="px-4 py-3">{formatTanggal(obat.expiredDate)}</td>
-                                            <td className="px-4 py-3 text-center">
-                                                {isExpired ? <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Kedaluwarsa</span>
-                                                : isMenipis ? <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Menipis</span>
-                                                : <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Aman</span>}
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <div className="flex justify-center space-x-3 items-center">
-                                                    <EditObatButton obat={obat} />
-                                                    <DeleteObatButton idObat={obat.idObat} />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold tracking-tight text-gray-800">Daftar Obat</h2>
+        
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+            <Input 
+              type="text"
+              placeholder="Cari nama atau batch obat..." 
+              defaultValue={query} 
+              className="pl-9 bg-white" 
+            />
+          </div>
+          
+          <Link href="/medis/kelola-obat/tambah">
+            <Button className="flex items-center gap-1">
+              <Plus className="h-4 w-4" /> 
+              <span>Tambah Obat</span>
+            </Button>
+          </Link>
         </div>
-    );
+      </div>
+
+      <div className="rounded-md border bg-white shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nama Obat</TableHead>
+              <TableHead>Batch</TableHead>
+              <TableHead>Stok</TableHead>
+              <TableHead>Expired</TableHead>
+              <TableHead className="text-right pr-4">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {}
+            {currentData.length > 0 ? (
+              currentData.map((obat) => (
+                <TableRow key={obat.idObat}>
+                  <TableCell className="font-medium text-gray-900">{obat.namaObat}</TableCell>
+                  <TableCell>{obat.namaBatch}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${obat.stokSaatIni <= obat.reorderLevel ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                      {obat.stokSaatIni} {obat.satuan}
+                    </span>
+                  </TableCell>
+                  <TableCell>{new Date(obat.expiredDate).toLocaleDateString('id-ID')}</TableCell>
+                  
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2 pr-2">
+                      <EditObatButton obat={obat} />
+                      <DeleteObatButton idObat={obat.idObat} /> 
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center h-32 text-gray-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <p>Tidak ada data obat yang ditemukan.</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {}
+      {}
+      {}
+      {obatList.length > 0 && (
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-sm text-gray-500">
+            Menampilkan <span className="font-medium text-gray-900">{startIndex + 1}</span> - <span className="font-medium text-gray-900">{Math.min(startIndex + itemsPerPage, obatList.length)}</span> dari <span className="font-medium text-gray-900">{obatList.length}</span> data
+          </span>
+          
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            
+            <span className="text-sm font-medium text-gray-700 px-2">
+              Halaman {currentPage} / {totalPages}
+            </span>
+            
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || totalPages === 0}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+    </div>
+  )
 }

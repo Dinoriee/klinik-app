@@ -27,7 +27,7 @@ export const menuUtama: SidebarItem[] = [
   { name: 'Konsultasi Dokter', href: '#', icon: MessageCircleQuestion },
   { name: 'Istirahat Sakit', href: '#', icon: Frown },
   { name: 'Istirahat Hamil', href: '/admin/istirahat-hamil', icon: Baby },
-  { name: 'Laktasi', href: '#', icon: Milk },
+  { name: 'Laktasi', href: '/admin/laktasi', icon: Milk },
 ]
 
 export const menuKelola: SidebarItem[] = [

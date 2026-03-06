@@ -12,26 +12,53 @@ export async function POST(req: Request) {
   try {
     await ensureAktivitasMedisTable();
 
-    const { id_tenaga_medis, nama } = await req.json();
+    const { id_tenaga_medis, nik, nama } = await req.json();
+    const trimmedNik = typeof nik === "string" ? nik.trim() : "";
 
-    const parsedId = Number(id_tenaga_medis);
-    if (!parsedId) {
-      return NextResponse.json({ message: "ID tenaga medis tidak valid." }, { status: 400 });
+    type TenagaMedisLookup = {
+      id_tenaga_medis: number;
+      nama_tenaga_medis: string;
+    };
+
+    let tenagaMedis: TenagaMedisLookup | null = null;
+    if (id_tenaga_medis !== undefined && id_tenaga_medis !== null && id_tenaga_medis !== "") {
+      const idAsNumber = Number(id_tenaga_medis);
+      if (!Number.isNaN(idAsNumber)) {
+        tenagaMedis = await prisma.tenaga_Medis.findUnique({
+          where: { id_tenaga_medis: idAsNumber },
+          select: { id_tenaga_medis: true, nama_tenaga_medis: true },
+        });
+      }
     }
 
-    const tenagaMedis = await prisma.tenaga_Medis.findUnique({
-      where: {
-        id_tenaga_medis: parsedId,
-      },
-    });
+    if (!tenagaMedis && trimmedNik) {
+      try {
+        const result = await prisma.$queryRaw<TenagaMedisLookup[]>`
+          SELECT id_tenaga_medis, nama_tenaga_medis
+          FROM "Tenaga_Medis"
+          WHERE nik = ${trimmedNik}
+          LIMIT 1
+        `;
+        if (result.length > 0) tenagaMedis = result[0];
+      } catch {
+        tenagaMedis = await prisma.tenaga_Medis.findFirst({
+          where: { kode_tenaga_medis: trimmedNik },
+          select: { id_tenaga_medis: true, nama_tenaga_medis: true },
+        });
+      }
+    }
 
-    const idTenagaMedis = String(parsedId);
+    if (!tenagaMedis) {
+      return NextResponse.json({ message: "Tenaga medis tidak ditemukan." }, { status: 404 });
+    }
+
+    const idTenagaMedis = String(tenagaMedis.id_tenaga_medis);
     const existingPresensiId = await findTodayPresensiIdByJenis(idTenagaMedis, "laktasi");
 
     if (!existingPresensiId) {
       const created = await prisma.presensi_Tenaga_Medis.create({
         data: {
-          id_tenaga_medis: parsedId,
+          id_tenaga_medis: tenagaMedis.id_tenaga_medis,
           keterangan: "izin",
         },
       });

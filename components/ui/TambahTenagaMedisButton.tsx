@@ -7,39 +7,51 @@ export default function TambahTenagaMedisButton() {
     const router = useRouter();
     const [isModalOpen, setModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
     const [kode, setKode] = useState("");
     const [nama, setNama] = useState("");
     const [jabatan, setJabatan] = useState("");
     const [role, setRole] = useState("dokter");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [nik, setNik] = useState(""); 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
-        const res = await fetch('/api/tenaga-medis', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                kode_tenaga_medis: kode,
-                nama_tenaga_medis: nama,
-                jabatan: jabatan,
-                role: role,
-                email: email,
-                password: password
-            })
-        });
+        try {
+            const res = await fetch('/api/tenaga-medis', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    kode_tenaga_medis: kode,
+                    nama_tenaga_medis: nama,
+                    jabatan: jabatan,
+                    role: role,
+                    email: email,
+                    password: password,
+                    nik: nik 
+                })
+            });
 
-        if (res.ok) {
-            setModalOpen(false);
-            setKode(""); setNama(""); setJabatan(""); setRole("dokter"); setEmail(""); setPassword("");
-            router.refresh(); 
-        } else {
-            alert("Gagal menyimpan data tenaga medis");
+            const result = await res.json();
+
+            if (res.ok) {
+                setModalOpen(false);
+               
+                setKode(""); setNama(""); setJabatan(""); setRole("dokter"); setEmail(""); setPassword(""); setNik("");
+                router.refresh(); 
+                alert("Berhasil menyimpan data tenaga medis!");
+            } else {
+                
+                alert(result.message || "Gagal menyimpan data tenaga medis");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Terjadi kesalahan pada jaringan/server.");
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     }
 
     return (
@@ -60,22 +72,32 @@ export default function TambahTenagaMedisButton() {
                         </div>
 
                         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+                            {}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col space-y-1.5">
                                     <label className="text-sm font-semibold text-gray-800">Kode Tenaga Medis</label>
                                     <input type="text" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={kode} onChange={(e) => setKode(e.target.value)}/>
                                 </div>
                                 <div className="flex flex-col space-y-1.5">
-                                    <label className="text-sm font-semibold text-gray-800">Nama Lengkap</label>
-                                    <input type="text" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={nama} onChange={(e) => setNama(e.target.value)}/>
+                                    <label className="text-sm font-semibold text-gray-800">NIK (Nomor Induk Kependudukan)</label>
+                                    <input type="text" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={nik} onChange={(e) => setNik(e.target.value)} placeholder="Masukkan 16 digit NIK..."/>
                                 </div>
                             </div>
 
+                            {}
                             <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col space-y-1.5">
+                                    <label className="text-sm font-semibold text-gray-800">Nama Lengkap</label>
+                                    <input type="text" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={nama} onChange={(e) => setNama(e.target.value)}/>
+                                </div>
                                 <div className="flex flex-col space-y-1.5">
                                     <label className="text-sm font-semibold text-gray-800">Jabatan / Spesialisasi</label>
                                     <input type="text" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={jabatan} onChange={(e) => setJabatan(e.target.value)}/>
                                 </div>
+                            </div>
+
+                            {}
+                            <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col space-y-1.5">
                                     <label className="text-sm font-semibold text-gray-800">Role Sistem</label>
                                     <select required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400 bg-white" value={role} onChange={(e) => setRole(e.target.value)}>
@@ -83,13 +105,14 @@ export default function TambahTenagaMedisButton() {
                                         <option value="perawat">Perawat</option>
                                     </select>
                                 </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col space-y-1.5">
                                     <label className="text-sm font-semibold text-gray-800">Email Akun</label>
                                     <input type="email" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={email} onChange={(e) => setEmail(e.target.value)}/>
                                 </div>
+                            </div>
+                            
+                            {}
+                            <div className="grid grid-cols-1 gap-4">
                                 <div className="flex flex-col space-y-1.5">
                                     <label className="text-sm font-semibold text-gray-800">Password Akun</label>
                                     <input type="password" required className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400" value={password} onChange={(e) => setPassword(e.target.value)}/>

@@ -1,41 +1,21 @@
 'use client'
-import { Trash } from "lucide-react";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
 
-export default function DeleteObatButton({ id_obat }: { id_obat: number }) {
-    const router = useRouter();
-    const [isDeleting, setIsDeleting] = useState(false);
+import React from 'react'
+import { Button } from "@/components/ui/button"
+import { Trash2 } from "lucide-react"
 
-    const handleDelete = async () => {
-        if (!confirm("Yakin ingin menghapus obat ini?")) return;
-        
-        setIsDeleting(true);
-        try {
-            const res = await fetch(`/api/obat?id_obat=${id_obat}`, { 
-                method: "DELETE" 
-            });
-            
-            if (res.ok) {
-                router.refresh();
-            } else {
-                alert("Gagal menghapus data obat.");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Terjadi kesalahan sistem.");
-        } finally {
-            setIsDeleting(false);
-        }
-    };
+interface DeleteObatProps {
+  idObat: number | string; 
+}
 
-    return (
-        <button 
-            onClick={handleDelete} 
-            disabled={isDeleting}
-            className="text-red-500 hover:text-red-700 text-xs font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-            <Trash size={20}/>
-        </button>
-    );
+export default function DeleteObatButton({ idObat }: DeleteObatProps) {
+  const handleDelete = () => {
+    console.log("Menghapus obat dengan ID:", idObat);
+  };
+
+  return (
+    <Button variant="destructive" size="icon" onClick={handleDelete}>
+      <Trash2 className="h-4 w-4" />
+    </Button>
+  )
 }
