@@ -1,7 +1,12 @@
 "use client";
 
-import { Search, Download } from "lucide-react";
+import { useState } from "react";
+import { Search, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import * as XLSX from "xlsx";
+
+// IMPORT NEXT-AUTH DAN USER ACCOUNT
+import UserAccount from "@/components/ui/userAccount";
+import { useSession } from "next-auth/react";
 
 interface ObatDetail {
     obat?: { nama_obat: string };
@@ -24,6 +29,12 @@ export default function MintaObatClient({
     riwayatList: RiwayatPermintaan[], 
     query: string 
 }) {
+    // --- MENGAMBIL DATA SESSION USER ---
+    const { data: session } = useSession();
+
+    // --- STATE UNTUK PAGINATION ---
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
     
     const formatTanggal = (tanggalString: string) => {
         return new Intl.DateTimeFormat('id-ID', {
@@ -61,12 +72,22 @@ export default function MintaObatClient({
         XLSX.writeFile(workbook, `Rekap_Obat_Keluar_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
+    // --- LOGIKA PEMOTONGAN DATA (PAGINATION) ---
+    const totalPages = Math.ceil(riwayatList.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentData = riwayatList.slice(startIndex, startIndex + itemsPerPage);
+
     return (
         <div className="flex flex-col gap-4 relative">
-            <div className="flex justify-between p-4">
+            
+            {/* ========================================= */}
+            {/* HEADER: USER ACCOUNT DI KANAN ATAS          */}
+            {/* ========================================= */}
+            <div className="flex justify-between items-center p-4">
                 <div className="flex flex-col">
                     <h1 className="text-gray-400">Klinik / Transaksi / <span className="text-black font-bold">Minta Obat (Log Aktivitas)</span></h1>
                 </div>
+                <UserAccount userName={session?.user?.name || "Admin"} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
@@ -83,7 +104,6 @@ export default function MintaObatClient({
                             <button type="submit" className="hidden">Cari</button>
                         </form>
                         
-                        {}
                         <button 
                             onClick={exportToExcel}
                             className="flex items-center gap-2 border border-blue-400 text-blue-500 hover:bg-blue-50 px-4 py-2 rounded-md transition-colors text-sm font-medium"
@@ -107,29 +127,69 @@ export default function MintaObatClient({
                             </tr>
                         </thead>
                         <tbody className="divide-y">
-                            {riwayatList.length === 0 ? (
+                            {/* Menggunakan currentData yang sudah dipotong 5 baris */}
+                            {currentData.length === 0 ? (
                                 <tr><td colSpan={6} className="text-center py-8 text-gray-400">Belum ada transaksi permintaan obat.</td></tr>
                             ) : (
-                                riwayatList.map((riwayat, index) => (
-                                    <tr key={riwayat.id_permintaan} className="hover:bg-gray-50">
-                                        <td className="px-4 py-3">{index + 1}</td>
-                                        <td className="px-4 py-3">{formatTanggal(riwayat.waktu_permintaan)}</td>
-                                        <td className="px-4 py-3 font-medium text-gray-800">{riwayat.pegawai?.nama_pegawai || "-"}</td>
-                                        <td className="px-4 py-3">{riwayat.tenaga_medis?.nama_tenaga_medis || "-"}</td>
-                                        <td className="px-4 py-3">{riwayat.penyakit?.nama_penyakit || "-"}</td>
-                                        <td className="px-4 py-3">
-                                            <ul className="list-disc list-inside text-xs text-gray-600">
-                                                {riwayat.detail_permintaan?.map((detail, i) => (
-                                                    <li key={i}>{detail.obat?.nama_obat} ({detail.jumlah_diminta})</li>
-                                                ))}
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                ))
+                                currentData.map((riwayat, index) => {
+                                    // Hitung nomor urut asli sesuai keseluruhan data
+                                    const actualNumber = startIndex + index + 1;
+                                    
+                                    return (
+                                        <tr key={riwayat.id_permintaan} className="hover:bg-gray-50">
+                                            <td className="px-4 py-3">{actualNumber}</td>
+                                            <td className="px-4 py-3">{formatTanggal(riwayat.waktu_permintaan)}</td>
+                                            <td className="px-4 py-3 font-medium text-gray-800">{riwayat.pegawai?.nama_pegawai || "-"}</td>
+                                            <td className="px-4 py-3">{riwayat.tenaga_medis?.nama_tenaga_medis || "-"}</td>
+                                            <td className="px-4 py-3">{riwayat.penyakit?.nama_penyakit || "-"}</td>
+                                            <td className="px-4 py-3">
+                                                <ul className="list-disc list-inside text-xs text-gray-600">
+                                                    {riwayat.detail_permintaan?.map((detail, i) => (
+                                                        <li key={i}>{detail.obat?.nama_obat} ({detail.jumlah_diminta})</li>
+                                                    ))}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>
                 </div>
+
+                {}
+                {}
+                {}
+                {riwayatList.length > 0 && (
+                    <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                        <span className="text-sm text-gray-500">
+                            Menampilkan <span className="font-semibold text-gray-900">{startIndex + 1}</span> - <span className="font-semibold text-gray-900">{Math.min(startIndex + itemsPerPage, riwayatList.length)}</span> dari <span className="font-semibold text-gray-900">{riwayatList.length}</span> data
+                        </span>
+                        
+                        <div className="flex items-center space-x-2">
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 rounded-md border text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            
+                            <span className="text-sm font-medium text-gray-700 px-4">
+                                Halaman {currentPage} / {totalPages}
+                            </span>
+                            
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages || totalPages === 0}
+                                className="p-2 rounded-md border text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
+                )}
+                
             </div>
         </div>
     );

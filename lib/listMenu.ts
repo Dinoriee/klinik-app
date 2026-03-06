@@ -26,8 +26,8 @@ export const menuUtama: SidebarItem[] = [
   { name: 'Minta Obat', href: '/admin/minta-obat', icon: Pill },
   { name: 'Konsultasi Dokter', href: '#', icon: MessageCircleQuestion },
   { name: 'Istirahat Sakit', href: '#', icon: Frown },
-  { name: 'Istirahat Hamil', href: '#', icon: Baby },
-  { name: 'Laktasi', href: '#', icon: Milk },
+  { name: 'Istirahat Hamil', href: '/admin/istirahat-hamil', icon: Baby },
+  { name: 'Laktasi', href: '/admin/laktasi', icon: Milk },
 ]
 
 export const menuKelola: SidebarItem[] = [
@@ -45,8 +45,8 @@ export const menuMedis: SidebarItem[] = [
   { name: 'Minta Obat', href: '/medis/minta-obat', icon: Pill },
   { name: 'Konsultasi Dokter', href: '#', icon: MessageCircleQuestion },
   { name: 'Istirahat Sakit', href: '#', icon: Frown },
-  { name: 'Istirahat Hamil', href: '#', icon: Baby },
-  { name: 'Laktasi', href: '#', icon: Milk },
+  { name: 'Istirahat Hamil', href: '/medis/istirahat-hamil', icon: Baby },
+  { name: 'Laktasi', href: '/medis/laktasi', icon: Milk },
 ]
 
 export const menuKelolaMedis: SidebarItem[] = [

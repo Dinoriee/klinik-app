@@ -1,87 +1,84 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-import TambahObatButton from "@/components/ui/TambahObatButton"; 
-import EditObatButton from "@/components/ui/EditObatButton";     
-import DeleteObatButton from "@/components/ui/DeleteObatButton"; 
-import * as XLSX from "xlsx"; 
+import { Search, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import * as XLSX from "xlsx";
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
 
-interface Obat {
-    id_obat: number;
-    nama_obat: string;
-    nama_batch: string;
-    jenis_obat: string;
-    stok_saat_ini: number;
-    satuan: string;
-    expired_date: string;
-    reorder_level: number;
+interface RekamMedis {
+    id_rekam_medis: string;
+    tanggal_periksa: string;
+    keluhan: string;
+    diagnosa: string;
+    tindakan: string | null;
+    status_perawatan: string;
+    pegawai: { nama_pegawai: string };
+    tenaga_medis: { nama_tenaga_medis: string };
 }
 
-export default function ObatClient({ obatList, query }: { obatList: Obat[], query: string }) {
+export default function KonsultasiAdminClient({ rekamList, query }: { rekamList: RekamMedis[], query: string }) {
     const { data: session } = useSession();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
     const formatTanggal = (tanggalString: string) => {
-        return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(tanggalString));
+        return new Intl.DateTimeFormat('id-ID', {
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        }).format(new Date(tanggalString));
     };
 
-    const tanggalHariIni = new Date();
-    
     const handleExportExcel = () => {
-        const dataToExport = obatList.map((obat, index) => {
-            const isExpired = new Date(obat.expired_date) < tanggalHariIni;
-            const isMenipis = obat.stok_saat_ini <= obat.reorder_level;
-            
-            let status = "Aman";
-            if (isExpired) status = "Kedaluwarsa";
-            else if (isMenipis) status = "Menipis";
+        if (rekamList.length === 0) return alert("Tidak ada data untuk diexport!");
 
+        const dataToExport = rekamList.map((rekam, index) => {
             return {
                 "No": index + 1,
-                "Nama Obat": obat.nama_obat,
-                "Batch": obat.nama_batch,
-                "Jenis": obat.jenis_obat.charAt(0).toUpperCase() + obat.jenis_obat.slice(1),
-                "Stok Saat Ini": `${obat.stok_saat_ini} ${obat.satuan}`,
-                "Batas Minimum (Reorder)": obat.reorder_level,
-                "Tanggal Kedaluwarsa": formatTanggal(obat.expired_date),
-                "Status": status
+                "Tanggal Periksa": formatTanggal(rekam.tanggal_periksa),
+                "Nama Pasien": rekam.pegawai?.nama_pegawai || "-",
+                "Dokter Pemeriksa": rekam.tenaga_medis?.nama_tenaga_medis || "-",
+                "Keluhan": rekam.keluhan,
+                "Diagnosa": rekam.diagnosa,
+                "Tindakan / Resep": rekam.tindakan || "-",
+                "Status Perawatan": rekam.status_perawatan === "rawat_inap" ? "Rawat Inap" : "Rawat Jalan"
             };
         });
+
         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Stok Obat");
-        XLSX.writeFile(workbook, "Data_Stok_Obat_Klinik.xlsx");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Data Rekam Medis");
+        XLSX.writeFile(workbook, `Rekap_Rekam_Medis_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
-    const totalPages = Math.ceil(obatList.length / itemsPerPage);
+    const totalPages = Math.ceil(rekamList.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentData = obatList.slice(startIndex, startIndex + itemsPerPage);
+    const currentData = rekamList.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div className="flex flex-col gap-4 relative">
             
             {}
+            {}
+            {}
+            {}
             <div className="flex justify-between items-center p-4">
                 <div className="flex flex-col">
-                    <h1 className="text-gray-400">Klinik / Obat / <span className="text-black font-bold">Kelola Obat</span></h1>
+                    <h1 className="text-gray-400">Admin / <span className="text-black font-bold">Riwayat Konsultasi (Rekam Medis)</span></h1>
                 </div>
                 <UserAccount userName={session?.user?.name || "Admin"} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 className="font-bold text-lg text-black">Daftar Stok Obat</h2>
+                    <h2 className="font-bold text-lg text-black">Data Riwayat Konsultasi</h2>
                     <div className="flex space-x-3">
                         <form method="GET" className="relative flex items-center">
                             <Search size={16} className="absolute left-3 text-gray-400" />
                             <input 
                                 type="text" name="query" defaultValue={query}
                                 className="pl-9 pr-4 py-2 border rounded-md border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                                placeholder="Cari obat / batch..."
+                                placeholder="Cari Pasien/Dokter/Diagnosa..."
                             />
                             <button type="submit" className="hidden">Cari</button>
                         </form>
@@ -90,10 +87,8 @@ export default function ObatClient({ obatList, query }: { obatList: Obat[], quer
                             onClick={handleExportExcel}
                             className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
                         >
-                            Export
+                            <Download size={16} /> Export Excel
                         </button>
-                        
-                        <TambahObatButton />
                     </div>
                 </div>
 
@@ -102,42 +97,37 @@ export default function ObatClient({ obatList, query }: { obatList: Obat[], quer
                         <thead className="bg-gray-50 border-y text-gray-500">
                             <tr>
                                 <th className="px-4 py-3 font-medium">No</th>
-                                <th className="px-4 py-3 font-medium">Nama Obat</th>
-                                <th className="px-4 py-3 font-medium">Batch</th>
-                                <th className="px-4 py-3 font-medium">Jenis</th>
-                                <th className="px-4 py-3 font-medium text-center">Stok</th>
-                                <th className="px-4 py-3 font-medium">Expired Date</th>
+                                <th className="px-4 py-3 font-medium">Tanggal</th>
+                                <th className="px-4 py-3 font-medium">Pasien</th>
+                                <th className="px-4 py-3 font-medium">Dokter</th>
+                                <th className="px-4 py-3 font-medium">Keluhan & Diagnosa</th>
                                 <th className="px-4 py-3 font-medium text-center">Status</th>
-                                <th className="px-4 py-3 font-medium text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y">
                             {currentData.length === 0 ? (
-                                <tr><td colSpan={8} className="text-center py-6 text-gray-400">Stok obat masih kosong.</td></tr>
+                                <tr><td colSpan={6} className="text-center py-6 text-gray-400">Belum ada riwayat rekam medis.</td></tr>
                             ) : (
-                                currentData.map((obat, index) => {
-                                    const isExpired = new Date(obat.expired_date) < tanggalHariIni;
-                                    const isMenipis = obat.stok_saat_ini <= obat.reorder_level;
+                                currentData.map((rekam, index) => {
                                     const actualNumber = startIndex + index + 1;
+                                    const isRawatInap = rekam.status_perawatan === "rawat_inap";
 
                                     return (
-                                        <tr key={obat.id_obat} className="hover:bg-gray-50">
+                                        <tr key={rekam.id_rekam_medis} className="hover:bg-gray-50">
                                             <td className="px-4 py-3">{actualNumber}</td>
-                                            <td className="px-4 py-3 font-medium text-gray-800">{obat.nama_obat}</td>
-                                            <td className="px-4 py-3">{obat.nama_batch}</td>
-                                            <td className="px-4 py-3 capitalize">{obat.jenis_obat}</td>
-                                            <td className="px-4 py-3 text-center font-medium">{obat.stok_saat_ini} {obat.satuan}</td>
-                                            <td className="px-4 py-3">{formatTanggal(obat.expired_date)}</td>
-                                            <td className="px-4 py-3 text-center">
-                                                {isExpired ? <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Kedaluwarsa</span>
-                                                : isMenipis ? <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Menipis</span>
-                                                : <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Aman</span>}
+                                            <td className="px-4 py-3 whitespace-nowrap">{formatTanggal(rekam.tanggal_periksa)}</td>
+                                            <td className="px-4 py-3 font-medium text-gray-800">{rekam.pegawai?.nama_pegawai || "-"}</td>
+                                            <td className="px-4 py-3">{rekam.tenaga_medis?.nama_tenaga_medis || "-"}</td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-xs text-gray-500 truncate max-w-[200px]">Keluhan: {rekam.keluhan}</span>
+                                                    <span className="font-medium text-blue-700">Dx: {rekam.diagnosa}</span>
+                                                </div>
                                             </td>
                                             <td className="px-4 py-3 text-center">
-                                                <div className="flex justify-center space-x-3 items-center">
-                                                    <EditObatButton obat={obat} />
-                                                    <DeleteObatButton id_obat={obat.id_obat} />
-                                                </div>
+                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isRawatInap ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                                                    {isRawatInap ? 'Rawat Inap' : 'Rawat Jalan'}
+                                                </span>
                                             </td>
                                         </tr>
                                     );
@@ -148,10 +138,10 @@ export default function ObatClient({ obatList, query }: { obatList: Obat[], quer
                 </div>
 
                 {}
-                {obatList.length > 0 && (
+                {rekamList.length > 0 && (
                     <div className="flex items-center justify-between mt-6 pt-4 border-t">
                         <span className="text-sm text-gray-500">
-                            Menampilkan <span className="font-semibold text-gray-900">{startIndex + 1}</span> - <span className="font-semibold text-gray-900">{Math.min(startIndex + itemsPerPage, obatList.length)}</span> dari <span className="font-semibold text-gray-900">{obatList.length}</span> data
+                            Menampilkan <span className="font-semibold text-gray-900">{startIndex + 1}</span> - <span className="font-semibold text-gray-900">{Math.min(startIndex + itemsPerPage, rekamList.length)}</span> dari <span className="font-semibold text-gray-900">{rekamList.length}</span> data
                         </span>
                         
                         <div className="flex items-center space-x-2">
