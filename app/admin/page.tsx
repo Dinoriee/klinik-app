@@ -1,94 +1,152 @@
-import { Pill, Search, Smile, User } from "lucide-react";
+import { Pill, Smile, User } from "lucide-react";
 import { AuthOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/db";
-import TambahUserButton from "@/components/ui/TambahUserButton";
-import EditUserButton from "@/components/ui/EditUserButton";
-import DeleteUserButton from "@/components/ui/DeleteUserButton";
 import UserAccount from "@/components/ui/userAccount";
 import PengunjungMonth from "@/components/pengunjungMonth";
 import PengunjungDaily from "@/components/pengunjungDaily";
 
-interface PengunjungBulanan{
+// 1. Definisikan Interface Secara Lengkap 🤓
+interface PengunjungBulanan {
   bulan: string;
   total: number;
 }
 
-interface PengunjungHarian{
+interface Pengunjung1Bulan {
+  tanggal: string;
+  total: number;
+}
+
+interface PengunjungMingguan {
+  hari: string;
+  total: number;
+}
+
+interface PengunjungHarian {
   jam: string;
   total: number;
 }
 
-const now = new Date();
-const startOfToday = new Date(now.setHours(0, 0, 0, 0));
-const endOfToday = new Date(now.setHours(23, 59, 59, 59));
+export interface ChartData {
+  month: PengunjungBulanan[];
+  monthly: Pengunjung1Bulan[];
+  weekly: PengunjungMingguan[];
+}
 
 const DashboardAdmin = async () => {
   const session = await getServerSession(AuthOptions);
-  console.log(session);
+  
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+  
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const startOfMonth = new Date(year, month, 1);
+  
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
 
-  const [users, medisCount] = await Promise.all([prisma.tenaga_Medis.findMany({
-    orderBy: {
-      id_user: "desc",
-    },
-  }),
-  prisma.tenaga_Medis.count()
-]);
-
-const [obat, obatCount] = await Promise.all([prisma.obat.findMany({
-    orderBy: {
-      id_obat: "desc",
-    },
-  }),
-  prisma.obat.count()
-]); 
-
-const [pengunjung, pengunjungCount] = await Promise.all([prisma.presensi.findMany({
-    orderBy: {
-      id_presensi: "desc",
-    },
-  }),
-  prisma.presensi.count({
-    where:{
-      jam_masuk:{
-        gte: startOfToday,
-        lte: endOfToday,
+  const [medisCount, obatCount, pengunjung, pengunjungCount] = await Promise.all([
+    prisma.tenaga_Medis.count(),
+    prisma.obat.count(),
+    prisma.presensi.findMany({
+      orderBy: { jam_masuk: "desc" },
+    }),
+    prisma.presensi.count({
+      where: {
+        jam_masuk: { gte: startOfToday, lte: endOfToday }
       }
-    }
-  })
-]);
+    })
+  ]);
 
-const monthData = pengunjung.reduce((acc: Record<string, PengunjungBulanan>, item) => {
-  const namaBulan = new Intl.DateTimeFormat("id-ID", {month: "long"}).format(item.jam_masuk);
+  const days = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+  const weeklyTemplate = days.reduce<Record<string, PengunjungMingguan>>((acc, day) => {
+    acc[day] = { hari: day, total: 0 };
+    return acc;
+  }, {});
 
-  if(!acc[namaBulan]) {
-    acc[namaBulan] = { bulan: namaBulan, total: 0};
+  const weeklyDataResult = pengunjung
+    .filter(p => new Date(p.jam_masuk) >= startOfWeek)
+    .reduce((acc, item) => {
+      const hari = new Intl.DateTimeFormat("id-ID", { weekday: "short" }).format(new Date(item.jam_masuk));
+      if (acc[hari]) acc[hari].total += 1;
+      return acc;
+    }, { ...weeklyTemplate });
+
+  const groupedWeeklyData = Object.values(weeklyDataResult);
+
+  const oneMonthTemplate: Record<string, Pengunjung1Bulan> = {};
+  for (let i = 1; i <= lastDay; i++) {
+    const label = i.toString().padStart(2, '0');
+    oneMonthTemplate[label] = { tanggal: label, total: 0 };
   }
 
-  acc[namaBulan].total += 1;
-  return acc
-}, {});
+  const monthlyDataResult = pengunjung
+    .filter(p => new Date(p.jam_masuk) >= startOfMonth)
+    .reduce((acc, item) => {
+      const tanggalData = new Intl.DateTimeFormat("id-ID", { day: "2-digit" }).format(new Date(item.jam_masuk));
+      if (acc[tanggalData]) acc[tanggalData].total += 1;
+      return acc;
+    }, { ...oneMonthTemplate });
 
-const groupedMonthData = Object.values(monthData);
+  const groupedMonthlyData = Object.values(monthlyDataResult);
 
-const hoursTemplate: Record<string, PengunjungHarian> = {};
+  const monthDataResult = pengunjung.reduce<Record<string, PengunjungBulanan>>((acc, item) => {
+    const namaBulan = new Intl.DateTimeFormat("id-ID", { month: "long" }).format(new Date(item.jam_masuk));
+    if (!acc[namaBulan]) {
+      acc[namaBulan] = { bulan: namaBulan, total: 0 };
+    }
+    acc[namaBulan].total += 1;
+    return acc;
+  }, {});
+
+  const groupedMonthData = Object.values(monthDataResult);
+  groupedMonthData.splice(0,2);
+
+  const hoursTemplate: Record<string, PengunjungHarian> = {};
+
 for (let i = 0; i < 24; i++) {
+
   const label = i.toString().padStart(2, '0');
+
   hoursTemplate[label] = { jam: `${label}:00`, total: 0 };
+
 }
+
+
 
 const dataHariIni = pengunjung.filter(p => new Date(p.jam_masuk) >= startOfToday);
 
+
+
 const dailyData = dataHariIni.reduce((acc, item) => {
+
   const jam = new Intl.DateTimeFormat("id-ID", { hour: "2-digit" }).format(new Date(item.jam_masuk));
+
   if (acc[jam]) {
+
     acc[jam].total += 1;
+
   }
-  
+
+ 
+
   return acc;
+
 }, { ...hoursTemplate });
+
 const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCompare(b.jam));
 
+
+
+  const groupedData: ChartData = {
+    month: groupedMonthData,
+    monthly: groupedMonthlyData,
+    weekly: groupedWeeklyData,
+  };
 
   return (
     <div>
@@ -97,42 +155,41 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
           <h1 className="text-gray-400">
             Klinik<span className="text-black"> / Presensi</span>
           </h1>
-          <span className="text-black font-bold">Presensi</span>
+          <span className="text-black font-bold">Dashboard Admin</span>
         </div>
-        {}
         <div className="flex space-x-1">
-          <UserAccount userName={session?.user?.name}/>
+          <UserAccount userName={session?.user?.name || "Guest"} />
         </div>
       </div>
+
       <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md">
-        <div className="flex justify-between">
-          <div className="flex items-center  space-x-3">
-            <User size={36} className="bg-green-500 text-white p-1 rounded-md shadow-md"/>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
+            <User size={36} className="bg-green-500 text-white p-2 rounded-md" />
             <div className="flex flex-col">
-                <span className="text-xl font-bold">Jumlah user</span>
-                <span className="font-black text-green-600">{medisCount}</span>
+              <span className="text-sm font-medium">Jumlah User</span>
+              <span className="text-2xl font-bold text-green-600">{medisCount}</span>
             </div>
           </div>
-          <div className="flex items-center  space-x-3">
-            <Pill size={36} className="bg-blue-500 text-white p-1 rounded-md shadow-md"/>
+          <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
+            <Pill size={36} className="bg-blue-500 text-white p-2 rounded-md" />
             <div className="flex flex-col">
-                <span className="text-xl font-bold">Jumlah Obat</span>
-                <span className="font-black text-blue-600">{obatCount}</span>
+              <span className="text-sm font-medium">Jumlah Obat</span>
+              <span className="text-2xl font-bold text-blue-600">{obatCount}</span>
             </div>
           </div>
-          <div className="flex items-center  space-x-3">
-            <Smile size={36} className="bg-red-500 text-white p-1 rounded-md shadow-md"/>
+          <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
+            <Smile size={36} className="bg-red-500 text-white p-2 rounded-md" />
             <div className="flex flex-col">
-                <span className="text-xl font-bold">Kunjungan Hari Ini</span>
-                <span className="font-black text-red-600">{pengunjungCount}</span>
+              <span className="text-sm font-medium">Kunjungan Hari Ini</span>
+              <span className="text-2xl font-bold text-red-600">{pengunjungCount}</span>
             </div>
-          </div>
-          <div className="flex space-x-2 p-2">
           </div>
         </div>
-        <div className="flex justify-between pt-10 space-x-10">
-          <PengunjungMonth chartData={groupedMonthData}/>
-          <PengunjungDaily chartData={groupedDailyData}/>
+
+        <div className="flex flex-col lg:flex-row justify-between pt-10 gap-10">
+          <PengunjungMonth chartData={groupedData} />
+          <PengunjungDaily chartData={groupedDailyData} />
         </div>
       </div>
     </div>

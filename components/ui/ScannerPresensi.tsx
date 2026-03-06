@@ -5,7 +5,7 @@ import { PuffLoader } from "react-spinners";
 import { toast } from "sonner";
 
 interface TenagaMedis{
-    id_tenaga_medis: number;
+    id_tenaga_medis: string;
     nama_tenaga_medis: string;
 }
 
