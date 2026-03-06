@@ -12,16 +12,22 @@ export default async function KelolaObat({
     const obatList = await prisma.obat.findMany({
         where: {
             OR: [
-                { namaObat: { contains: query, mode: 'insensitive' } },
-                { namaBatch: { contains: query, mode: 'insensitive' } },
+                { nama_obat: { contains: query, mode: 'insensitive' } },
+                { nama_batch: { contains: query, mode: 'insensitive' } },
             ]
         },
-        orderBy: { idObat: 'desc' } 
+        orderBy: { id_obat: 'desc' } 
     });
 
     const serializedObatList = obatList.map(obat => ({
-        ...obat,
-        expiredDate: obat.expiredDate.toISOString() 
+        idObat: obat.id_obat,
+        namaObat: obat.nama_obat,
+        namaBatch: obat.nama_batch,
+        jenisObat: obat.jenis_obat,
+        stokSaatIni: obat.stok_saat_ini,
+        satuan: obat.satuan,
+        expiredDate: obat.expired_date.toISOString(),
+        reorderLevel: obat.reorder_level,
     }));
 
     return <ObatClient obatList={serializedObatList} query={query} />;
