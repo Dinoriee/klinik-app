@@ -4,14 +4,12 @@ import React from 'react'
 import { Button } from "@/components/ui/button"
 import { Trash2 } from "lucide-react"
 
-// Sesuaikan interface agar menerima idObat berupa string
 interface DeleteObatProps {
-  idObat: string; 
+  idObat: number | string; 
 }
 
 export default function DeleteObatButton({ idObat }: DeleteObatProps) {
   const handleDelete = () => {
-    // Logika delete Anda di sini, pastikan menggunakan idObat (string)
     console.log("Menghapus obat dengan ID:", idObat);
   };
 

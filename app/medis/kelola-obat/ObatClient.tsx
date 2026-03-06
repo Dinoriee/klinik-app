@@ -12,7 +12,7 @@ import { useSession } from "next-auth/react"
 import UserAccount from "@/components/ui/userAccount"
 
 interface Obat {
-  idObat: string; 
+  idObat: number | string; 
   namaObat: string;
   namaBatch: string;
   jenisObat: string;

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Search } from "lucide-react";
 import TambahPegawaiButton from "@/components/ui/TambahPegawaiButton";
 import EditPegawaiButton from "@/components/ui/EditPegawaiButton";
@@ -15,10 +16,25 @@ type Pegawai = {
 export default function PegawaiClient({
   pegawaiList,
   query,
+  currentPage,
+  totalPages,
+  totalData,
+  pageSize,
 }: {
   pegawaiList: Pegawai[];
   query: string;
+  currentPage: number;
+  totalPages: number;
+  totalData: number;
+  pageSize: number;
 }) {
+  const buildPageHref = (page: number) => {
+    const params = new URLSearchParams();
+    if (query) params.set("query", query);
+    params.set("page", String(page));
+    return `?${params.toString()}`;
+  };
+
   return (
     <div className="flex flex-col gap-4 relative">
       <div className="flex justify-between p-4">
@@ -71,7 +87,7 @@ export default function PegawaiClient({
               ) : (
                 pegawaiList.map((pegawai, index) => (
                   <tr key={pegawai.id_pegawai} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">{index + 1}</td>
+                    <td className="px-4 py-3">{(currentPage - 1) * pageSize + index + 1}</td>
                     <td className="px-4 py-3 font-medium text-gray-800">{pegawai.nomor_pegawai}</td>
                     <td className="px-4 py-3">{pegawai.nama_pegawai}</td>
                     <td className="px-4 py-3">{pegawai.departemen}</td>
@@ -86,6 +102,33 @@ export default function PegawaiClient({
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-sm text-gray-500">
+            Menampilkan {pegawaiList.length} dari {totalData} data
+          </p>
+          <div className="flex items-center gap-2">
+            <Link
+              href={buildPageHref(Math.max(1, currentPage - 1))}
+              className={`px-3 py-1 rounded-md border text-sm ${
+                currentPage <= 1 ? "pointer-events-none opacity-50" : "hover:bg-gray-50"
+              }`}
+            >
+              Prev
+            </Link>
+            <span className="text-sm text-gray-600">
+              Halaman {currentPage} / {totalPages}
+            </span>
+            <Link
+              href={buildPageHref(Math.min(totalPages, currentPage + 1))}
+              className={`px-3 py-1 rounded-md border text-sm ${
+                currentPage >= totalPages ? "pointer-events-none opacity-50" : "hover:bg-gray-50"
+              }`}
+            >
+              Next
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -4,9 +4,8 @@ import React from 'react'
 import { Button } from "@/components/ui/button"
 import { Pencil } from "lucide-react"
 
-// UPDATE: idObat sekarang wajib string!
 interface Obat {
-  idObat: string; 
+  idObat: number | string; 
   namaObat: string;
   namaBatch: string;
   jenisObat: string;

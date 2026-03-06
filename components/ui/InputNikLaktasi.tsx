@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
 
-export default function InputNikIstirahatHamil() {
+export default function InputNikLaktasi() {
   const [nik, setNik] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,7 +16,7 @@ export default function InputNikIstirahatHamil() {
 
     setIsLoading(true);
     try {
-      const res = await fetch("/api/tenaga-medis/istirahat-hamil", {
+      const res = await fetch("/api/tenaga-medis/laktasi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nik: nik.trim() }),
@@ -27,7 +27,7 @@ export default function InputNikIstirahatHamil() {
         toast.success(data.message);
         setNik("");
       } else {
-        toast.error(data.message || "Gagal memproses istirahat hamil.");
+        toast.error(data.message || "Gagal memproses laktasi.");
       }
     } catch (error) {
       console.error(error);
