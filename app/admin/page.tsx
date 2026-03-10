@@ -5,8 +5,8 @@ import prisma from "@/lib/db";
 import UserAccount from "@/components/ui/userAccount";
 import PengunjungMonth from "@/components/pengunjungMonth";
 import PengunjungDaily from "@/components/pengunjungDaily";
+import ShowMedicineDetail from "@/components/ui/showMedicineDetail";
 
-// 1. Definisikan Interface Secara Lengkap 🤓
 interface PengunjungBulanan {
   bulan: string;
   total: number;
@@ -80,7 +80,7 @@ const DashboardAdmin = async () => {
 
   const oneMonthTemplate: Record<string, Pengunjung1Bulan> = {};
   for (let i = 1; i <= lastDay; i++) {
-    const label = i.toString().padStart(2, '0');
+    const label = i.toString();
     oneMonthTemplate[label] = { tanggal: label, total: 0 };
   }
 
@@ -131,9 +131,6 @@ const dailyData = dataHariIni.reduce((acc, item) => {
     acc[jam].total += 1;
 
   }
-
- 
-
   return acc;
 
 }, { ...hoursTemplate });
@@ -171,12 +168,15 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
               <span className="text-2xl font-bold text-green-600">{medisCount}</span>
             </div>
           </div>
-          <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
-            <Pill size={36} className="bg-blue-500 text-white p-2 rounded-md" />
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">Jumlah Obat</span>
-              <span className="text-2xl font-bold text-blue-600">{obatCount}</span>
+          <div className="flex items-center p-4 bg-white rounded-lg shadow-sm justify-between">
+            <div className="flex flex-row items-center space-x-3">  
+              <Pill size={36} className="bg-blue-500 text-white p-2 rounded-md" />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">Jumlah Obat</span>
+                <span className="text-2xl font-bold text-blue-600">{obatCount}</span>
+              </div>
             </div>
+            <ShowMedicineDetail/>
           </div>
           <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
             <Smile size={36} className="bg-red-500 text-white p-2 rounded-md" />

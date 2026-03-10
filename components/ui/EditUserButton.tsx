@@ -7,7 +7,7 @@ interface TenagaMedis {
 }
 
 interface User {
-  id_user: number;
+  id_user: string;
   email: string;
   name: string;
   tenagaMedis?: TenagaMedis | null;

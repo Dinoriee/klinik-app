@@ -6,12 +6,6 @@ export async function POST(req: Request) {
   try{
     const { id_tenaga_medis, keterangan, nama } = await req.json();
 
-    const findId = await prisma.tenaga_Medis.findFirst({
-        where:{
-            nama_tenaga_medis: nama,
-        }
-    })
-
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
     
@@ -20,7 +14,7 @@ export async function POST(req: Request) {
 
     const existing = await prisma.presensi_Tenaga_Medis.findFirst({
         where:{
-            id_tenaga_medis: id_tenaga_medis || findId?.id_tenaga_medis,
+            id_tenaga_medis: id_tenaga_medis,
             jam_masuk: {
                 gte: startOfDay,
                 lte: endOfDay,
@@ -30,7 +24,7 @@ export async function POST(req: Request) {
 
     const getName = await prisma.tenaga_Medis.findUnique({
         where:{
-            id_tenaga_medis: id_tenaga_medis || findId?.id_tenaga_medis,
+            id_tenaga_medis: id_tenaga_medis,
         },
     });
     
@@ -38,7 +32,7 @@ export async function POST(req: Request) {
     if(!existing) {
         await prisma.presensi_Tenaga_Medis.create({
             data:{
-                id_tenaga_medis: id_tenaga_medis || findId?.id_tenaga_medis,
+                id_tenaga_medis: id_tenaga_medis,
                 keterangan: keterangan || 'hadir',
             },
         });

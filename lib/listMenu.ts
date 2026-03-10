@@ -24,8 +24,8 @@ export const menuUtama: SidebarItem[] = [
   { name: 'Presensi', href: '/admin/presensi', icon: ClipboardClock },
   { name: 'Kwitansi', href: '#', icon: ReceiptText },
   { name: 'Minta Obat', href: '/admin/minta-obat', icon: Pill },
-  { name: 'Konsultasi Dokter', href: '#', icon: MessageCircleQuestion },
-  { name: 'Istirahat Sakit', href: '#', icon: Frown },
+  { name: 'Konsultasi Dokter', href: '/admin/konsultasi-dokter', icon: MessageCircleQuestion },
+  { name: 'Istirahat Sakit', href: '/admin/istirahat-sakit', icon: Frown },
   { name: 'Istirahat Hamil', href: '/admin/istirahat-hamil', icon: Baby },
   { name: 'Laktasi', href: '/admin/laktasi', icon: Milk },
 ]
@@ -43,8 +43,8 @@ export const menuMedis: SidebarItem[] = [
   { name: 'Presensi', href: '/medis/presensi', icon: ClipboardClock },
   { name: 'Kwitansi', href: '#', icon: ReceiptText },
   { name: 'Minta Obat', href: '/medis/minta-obat', icon: Pill },
-  { name: 'Konsultasi Dokter', href: '#', icon: MessageCircleQuestion },
-  { name: 'Istirahat Sakit', href: '#', icon: Frown },
+  { name: 'Konsultasi Dokter', href: '/medis/konsultasi-dokter', icon: MessageCircleQuestion },
+  { name: 'Istirahat Sakit', href: 'istirahat-sakit', icon: Frown },
   { name: 'Istirahat Hamil', href: '/medis/istirahat-hamil', icon: Baby },
   { name: 'Laktasi', href: '/medis/laktasi', icon: Milk },
 ]
