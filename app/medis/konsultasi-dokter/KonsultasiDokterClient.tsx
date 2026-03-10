@@ -140,6 +140,7 @@ export default function KonsultasiDokterClient() {
             <button
               onClick={() => inputRef.current?.focus()}
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 text-sm rounded-md transition duration-200 font-medium"
+              suppressHydrationWarning
             >
               Input Manual
             </button>
@@ -159,11 +160,13 @@ export default function KonsultasiDokterClient() {
               value={manualNik}
               onChange={(e) => setManualNik(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && prosesCariNIK(manualNik)}
+              suppressHydrationWarning
             />
             <button
               onClick={() => prosesCariNIK(manualNik)}
               disabled={isLoading}
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 text-sm rounded-md font-medium transition duration-200 disabled:opacity-50"
+              suppressHydrationWarning
             >
               {isLoading ? "Cari..." : "Cari"}
             </button>
@@ -192,12 +195,14 @@ export default function KonsultasiDokterClient() {
             <button
               onClick={mulaiKonsultasi}
               className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 text-sm rounded-md font-medium transition duration-200"
+              suppressHydrationWarning
             >
               Mulai Konsultasi
             </button>
             <button
               onClick={batalkanKonsultasi}
               className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 text-sm rounded-md font-medium transition duration-200"
+              suppressHydrationWarning
             >
               Ganti Pegawai
             </button>
@@ -220,6 +225,7 @@ export default function KonsultasiDokterClient() {
             <button
               onClick={batalkanKonsultasi}
               className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 text-sm rounded-md font-medium transition duration-200"
+              suppressHydrationWarning
             >
               Ganti Pegawai
             </button>
@@ -236,6 +242,7 @@ export default function KonsultasiDokterClient() {
                 className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                 rows={3}
                 required
+                suppressHydrationWarning
               />
             </div>
 
@@ -249,6 +256,7 @@ export default function KonsultasiDokterClient() {
                   name="tensi"
                   placeholder="Contoh: 120/80"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                  suppressHydrationWarning
                 />
               </div>
               <div>
@@ -261,6 +269,7 @@ export default function KonsultasiDokterClient() {
                   name="suhu"
                   placeholder="Contoh: 37.5"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                  suppressHydrationWarning
                 />
               </div>
             </div>
@@ -275,6 +284,7 @@ export default function KonsultasiDokterClient() {
                 placeholder="Masukkan hasil diagnosa..."
                 className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                 required
+                suppressHydrationWarning
               />
             </div>
 
@@ -287,6 +297,7 @@ export default function KonsultasiDokterClient() {
                 placeholder="Catat tindakan atau resep obat di sini..."
                 className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                 rows={3}
+                suppressHydrationWarning
               />
             </div>
 
@@ -298,6 +309,7 @@ export default function KonsultasiDokterClient() {
                 name="status_perawatan"
                 className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
                 required
+                suppressHydrationWarning
               >
                 <option value="rawat_jalan">Rawat Jalan (Biasa)</option>
                 <option value="rawat_inap">Rawat Inap (Otomatis Buat Kwitansi)</option>
@@ -309,6 +321,7 @@ export default function KonsultasiDokterClient() {
                 type="submit"
                 disabled={isSavingForm}
                 className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 text-sm rounded-md font-medium transition duration-200 disabled:opacity-50"
+                suppressHydrationWarning
               >
                 {isSavingForm ? "Menyimpan..." : "Simpan Rekam Medis"}
               </button>
@@ -316,6 +329,7 @@ export default function KonsultasiDokterClient() {
                 type="button"
                 onClick={batalkanKonsultasi}
                 className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 text-sm rounded-md font-medium transition duration-200"
+                suppressHydrationWarning
               >
                 Batal
               </button>

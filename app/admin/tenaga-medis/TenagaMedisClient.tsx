@@ -5,7 +5,6 @@ import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import TambahTenagaMedisButton from "@/components/ui/TambahTenagaMedisButton";
 import EditTenagaMedisButton from "@/components/ui/EditTenagaMedisButton";
 import DeleteTenagaMedisButton from "@/components/ui/DeleteTenagaMedisButton";
-import * as XLSX from "xlsx"; 
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
 
@@ -26,24 +25,30 @@ export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMe
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     
-    const handleExportExcel = () => {
-        const dataToExport = tenagaMedisList.map((tm, index) => {
-            const roleFormatted = tm.users?.role ? tm.users.role.charAt(0).toUpperCase() + tm.users.role.slice(1) : "-";
-            
-            return {
-                "No": index + 1,
-                "Kode Tenaga Medis": tm.kode_tenaga_medis,
-                "Nama Lengkap": tm.nama_tenaga_medis,
-                "Jabatan / Spesialisasi": tm.jabatan,
-                "Email Akun": tm.users?.email || "-",
-                "Role Sistem": roleFormatted
-            };
-        });
+    const handleExportExcel = async () => {
+        try {
+            const XLSX = await import("xlsx");
+            const dataToExport = tenagaMedisList.map((tm, index) => {
+                const roleFormatted = tm.users?.role ? tm.users.role.charAt(0).toUpperCase() + tm.users.role.slice(1) : "-";
+                
+                return {
+                    "No": index + 1,
+                    "Kode Tenaga Medis": tm.kode_tenaga_medis,
+                    "Nama Lengkap": tm.nama_tenaga_medis,
+                    "Jabatan / Spesialisasi": tm.jabatan,
+                    "Email Akun": tm.users?.email || "-",
+                    "Role Sistem": roleFormatted
+                };
+            });
 
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Tenaga Medis");
-        XLSX.writeFile(workbook, "Data_Tenaga_Medis_Klinik.xlsx");
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Tenaga Medis");
+            XLSX.writeFile(workbook, "Data_Tenaga_Medis_Klinik.xlsx");
+        } catch (error) {
+            console.error("Error exporting Excel:", error);
+            alert("Gagal mengexport file Excel");
+        }
     };
 
     const totalPages = Math.ceil(tenagaMedisList.length / itemsPerPage);

@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import { Search, ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
-import * as XLSX from "xlsx";
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import EditObatButton from "@/components/ui/EditObatButton";
+import DeleteObatButton from "@/components/ui/DeleteObatButton";
+
 interface Obat {
-    id_obat: string;    nama_obat: string;
+    id_obat: string;
+    nama_obat: string;
     nama_batch: string;
     jenis_obat: string;
     stok_saat_ini: number;
@@ -82,30 +85,36 @@ export default function ObatClient({ obatList, query }: { obatList: Obat[], quer
         }
     };
     
-    const handleExportExcel = () => {
-        const dataToExport = obatList.map((obat, index) => {
-            const isExpired = new Date(obat.expired_date) < tanggalHariIni;
-            const isMenipis = obat.stok_saat_ini <= obat.reorder_level;
-            
-            let status = "Aman";
-            if (isExpired) status = "Kedaluwarsa";
-            else if (isMenipis) status = "Menipis";
+    const handleExportExcel = async () => {
+        try {
+            const XLSX = await import("xlsx");
+            const dataToExport = obatList.map((obat, index) => {
+                const isExpired = new Date(obat.expired_date) < tanggalHariIni;
+                const isMenipis = obat.stok_saat_ini <= obat.reorder_level;
+                
+                let status = "Aman";
+                if (isExpired) status = "Kedaluwarsa";
+                else if (isMenipis) status = "Menipis";
 
-            return {
-                "No": index + 1,
-                "Nama Obat": obat.nama_obat,
-                "Batch": obat.nama_batch,
-                "Jenis": obat.jenis_obat.charAt(0).toUpperCase() + obat.jenis_obat.slice(1),
-                "Stok Saat Ini": `${obat.stok_saat_ini} ${obat.satuan}`,
-                "Batas Minimum (Reorder)": obat.reorder_level,
-                "Tanggal Kedaluwarsa": formatTanggal(obat.expired_date),
-                "Status": status
-            };
-        });
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Stok Obat");
-        XLSX.writeFile(workbook, "Data_Stok_Obat_Klinik.xlsx");
+                return {
+                    "No": index + 1,
+                    "Nama Obat": obat.nama_obat,
+                    "Batch": obat.nama_batch,
+                    "Jenis": obat.jenis_obat.charAt(0).toUpperCase() + obat.jenis_obat.slice(1),
+                    "Stok Saat Ini": `${obat.stok_saat_ini} ${obat.satuan}`,
+                    "Batas Minimum (Reorder)": obat.reorder_level,
+                    "Tanggal Kedaluwarsa": formatTanggal(obat.expired_date),
+                    "Status": status
+                };
+            });
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Stok Obat");
+            XLSX.writeFile(workbook, "Data_Stok_Obat_Klinik.xlsx");
+        } catch (error) {
+            console.error("Error exporting Excel:", error);
+            toast.error("Gagal mengexport file Excel");
+        }
     };
 
     const totalPages = Math.ceil(obatList.length / itemsPerPage);
@@ -164,11 +173,12 @@ export default function ObatClient({ obatList, query }: { obatList: Obat[], quer
                                 <th className="px-4 py-3 font-medium">Batas Reorder</th>
                                 <th className="px-4 py-3 font-medium">Expired</th>
                                 <th className="px-4 py-3 font-medium text-center">Status</th>
+                                <th className="px-4 py-3 font-medium text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y">
                             {currentData.length === 0 ? (
-                                <tr><td colSpan={8} className="text-center py-6 text-gray-400">Tidak ada data obat.</td></tr>
+                                <tr><td colSpan={9} className="text-center py-6 text-gray-400">Tidak ada data obat.</td></tr>
                             ) : (
                                 currentData.map((obat, index) => {
                                     const actualNumber = startIndex + index + 1;
@@ -202,6 +212,12 @@ export default function ObatClient({ obatList, query }: { obatList: Obat[], quer
                                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}>
                                                     {statusText}
                                                 </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <div className="flex justify-center space-x-3 items-center">
+                                                    <EditObatButton obat={obat} />
+                                                    <DeleteObatButton id_obat={obat.id_obat} />
+                                                </div>
                                             </td>
                                         </tr>
                                     );

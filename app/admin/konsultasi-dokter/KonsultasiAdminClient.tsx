@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Search, Download, ChevronLeft, ChevronRight, X } from "lucide-react";
-import * as XLSX from "xlsx";
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
 
@@ -32,29 +31,35 @@ export default function KonsultasiAdminClient({ rekamList, query }: { rekamList:
         }).format(new Date(tanggalString));
     };
 
-    const handleExportExcel = () => {
+    const handleExportExcel = async () => {
         if (rekamList.length === 0) return alert("Tidak ada data untuk diexport!");
 
-        const dataToExport = rekamList.map((rekam, index) => {
-            return {
-                "No": index + 1,
-                "Tanggal Periksa": formatTanggal(rekam.tanggal_periksa),
-                "Nama Pasien": rekam.pegawai?.nama_pegawai || "-",
-                "NIK Pasien": rekam.pegawai?.nik || "-",
-                "Dokter Pemeriksa": rekam.tenaga_medis?.nama_tenaga_medis || "-",
-                "Keluhan": rekam.keluhan,
-                "Tekanan Darah": rekam.tensi || "-",
-                "Suhu Tubuh": rekam.suhu ? `${rekam.suhu}°C` : "-",
-                "Diagnosa": rekam.diagnosa,
-                "Tindakan / Resep": rekam.tindakan || "-",
-                "Status Perawatan": rekam.status_perawatan === "rawat_inap" ? "Rawat Inap" : "Rawat Jalan"
-            };
-        });
+        try {
+            const XLSX = await import("xlsx");
+            const dataToExport = rekamList.map((rekam, index) => {
+                return {
+                    "No": index + 1,
+                    "Tanggal Periksa": formatTanggal(rekam.tanggal_periksa),
+                    "Nama Pasien": rekam.pegawai?.nama_pegawai || "-",
+                    "NIK Pasien": rekam.pegawai?.nik || "-",
+                    "Dokter Pemeriksa": rekam.tenaga_medis?.nama_tenaga_medis || "-",
+                    "Keluhan": rekam.keluhan,
+                    "Tekanan Darah": rekam.tensi || "-",
+                    "Suhu Tubuh": rekam.suhu ? `${rekam.suhu}°C` : "-",
+                    "Diagnosa": rekam.diagnosa,
+                    "Tindakan / Resep": rekam.tindakan || "-",
+                    "Status Perawatan": rekam.status_perawatan === "rawat_inap" ? "Rawat Inap" : "Rawat Jalan"
+                };
+            });
 
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Data Rekam Medis");
-        XLSX.writeFile(workbook, `Rekap_Rekam_Medis_${new Date().toISOString().split('T')[0]}.xlsx`);
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Data Rekam Medis");
+            XLSX.writeFile(workbook, `Rekap_Rekam_Medis_${new Date().toISOString().split('T')[0]}.xlsx`);
+        } catch (error) {
+            console.error("Error exporting Excel:", error);
+            alert("Gagal mengexport file Excel");
+        }
     };
 
     const totalPages = Math.ceil(rekamList.length / itemsPerPage);
@@ -88,6 +93,7 @@ export default function KonsultasiAdminClient({ rekamList, query }: { rekamList:
                         <button 
                             onClick={handleExportExcel}
                             className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
+                            suppressHydrationWarning
                         >
                             <Download size={16} /> Export Excel
                         </button>
@@ -114,7 +120,7 @@ export default function KonsultasiAdminClient({ rekamList, query }: { rekamList:
                                         <th className="px-4 py-3 font-medium text-center">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y">
+                                <tbody className="divide-y" suppressHydrationWarning>
                                     {currentData.map((rekam, index) => {
                                         const actualNumber = startIndex + index + 1;
                                         const isRawatInap = rekam.status_perawatan === "rawat_inap";
@@ -162,6 +168,7 @@ export default function KonsultasiAdminClient({ rekamList, query }: { rekamList:
                                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                         disabled={currentPage === 1}
                                         className="p-2 rounded-md border text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        suppressHydrationWarning
                                     >
                                         <ChevronLeft size={16} />
                                     </button>
@@ -174,6 +181,7 @@ export default function KonsultasiAdminClient({ rekamList, query }: { rekamList:
                                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                         disabled={currentPage === totalPages || totalPages === 0}
                                         className="p-2 rounded-md border text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        suppressHydrationWarning
                                     >
                                         <ChevronRight size={16} />
                                     </button>
@@ -262,6 +270,7 @@ export default function KonsultasiAdminClient({ rekamList, query }: { rekamList:
                                 <button
                                     onClick={() => setSelectedRekam(null)}
                                     className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 rounded-md transition"
+                                    suppressHydrationWarning
                                 >
                                     Tutup
                                 </button>

@@ -22,7 +22,7 @@ export interface SidebarItem {
 export const menuUtama: SidebarItem[] = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Presensi', href: '/admin/presensi', icon: ClipboardClock },
-  { name: 'Kwitansi', href: '#', icon: ReceiptText },
+  { name: 'Kwitansi', href: '/admin/kwitansi', icon: ReceiptText },
   { name: 'Minta Obat', href: '/admin/minta-obat', icon: Pill },
   { name: 'Konsultasi Dokter', href: '/admin/konsultasi-dokter', icon: MessageCircleQuestion },
   { name: 'Istirahat Sakit', href: '/admin/istirahat-sakit', icon: Frown },
@@ -41,7 +41,7 @@ export const menuKelola: SidebarItem[] = [
 export const menuMedis: SidebarItem[] = [
   { name: 'Dashboard', href: '/medis', icon: LayoutDashboard },
   { name: 'Presensi', href: '/medis/presensi', icon: ClipboardClock },
-  { name: 'Kwitansi', href: '#', icon: ReceiptText },
+  { name: 'Kwitansi', href: '/medis/kwitansi', icon: ReceiptText },
   { name: 'Minta Obat', href: '/medis/minta-obat', icon: Pill },
   { name: 'Konsultasi Dokter', href: '/medis/konsultasi-dokter', icon: MessageCircleQuestion },
   { name: 'Istirahat Sakit', href: 'istirahat-sakit', icon: Frown },
