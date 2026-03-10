@@ -15,10 +15,14 @@ interface Obat {
   reorderLevel: number;
 }
 
-export default function EditObatButton({ obat }: { obat: Obat }) {
+interface EditObatButtonProps {
+  obat: Obat;
+  onEdit: (obat: Obat) => void;
+}
+
+export default function EditObatButton({ obat, onEdit }: EditObatButtonProps) {
   const handleEdit = () => {
-    console.log("Editing obat ID:", obat.idObat);
-    // Nanti masukkan logika modal/edit di sini
+    onEdit(obat);
   };
 
   return (

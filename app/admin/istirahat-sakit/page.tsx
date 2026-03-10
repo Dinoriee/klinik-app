@@ -1,37 +1,45 @@
 import prisma from "@/lib/db";
 import IstirahatSakitClient from "./IstirahatSakitClient";
 
-export default async function IstirahatSakitPage({
+export const dynamic = "force-dynamic";
+
+export default async function IstirahatSakitAdminPage({
     searchParams,
 }: {
-    searchParams: Promise<{ query?: string }>
+    searchParams: { query?: string };
 }) {
-    const resolvedSearchParams = await searchParams;
-    const query = resolvedSearchParams.query || "";
-    const presensiSakit = await prisma.presensi.findMany({
+    const query = searchParams.query || "";
+
+    const dataList = await prisma.presensi.findMany({
         where: {
             tipe: "sakit",
-            pegawai: {
+            ...(query && {
                 OR: [
-                    { nama_pegawai: { contains: query, mode: "insensitive" } },
-                    { nik: { contains: query, mode: "insensitive" } },
-                    { departemen: { contains: query, mode: "insensitive" } }
+                    { pegawai: { nik: { contains: query } } },
+                    { pegawai: { nama_pegawai: { contains: query } } },
+                    { pegawai: { departemen: { contains: query } } },
                 ],
-            },
+            }),
         },
         include: {
-            pegawai: true,
+            pegawai: true, 
         },
         orderBy: {
             jam_masuk: "desc", 
         },
     });
 
-    const serializedData = presensiSakit.map((p) => ({
-        ...p,
-        jam_masuk: p.jam_masuk.toISOString(),
-        jam_keluar: p.jam_keluar ? p.jam_keluar.toISOString() : null,
+    // Serialize dates to strings for client component
+    const serializedDataList = dataList.map(item => ({
+        ...item,
+        jam_masuk: item.jam_masuk.toISOString(),
+        jam_keluar: item.jam_keluar ? item.jam_keluar.toISOString() : null,
     }));
 
-    return <IstirahatSakitClient dataList={serializedData} query={query} />;
+    return (
+        <IstirahatSakitClient 
+            dataList={serializedDataList} 
+            query={query} 
+        />
+    );
 }

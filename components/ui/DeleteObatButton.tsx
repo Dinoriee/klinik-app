@@ -6,11 +6,12 @@ import { Trash2 } from "lucide-react"
 
 interface DeleteObatProps {
   idObat: number | string; 
+  onDelete: (idObat: number | string) => void;
 }
 
-export default function DeleteObatButton({ idObat }: DeleteObatProps) {
+export default function DeleteObatButton({ idObat, onDelete }: DeleteObatProps) {
   const handleDelete = () => {
-    console.log("Menghapus obat dengan ID:", idObat);
+    onDelete(idObat);
   };
 
   return (
