@@ -4,7 +4,7 @@ import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function DeleteUserButton({userId} : {userId: number}){
+export default function DeleteUserButton({userId} : {userId: string}){
     const router = useRouter();
     const [isDelete, setIsDelete] = useState(false);
 

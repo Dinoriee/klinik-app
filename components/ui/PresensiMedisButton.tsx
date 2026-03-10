@@ -14,7 +14,7 @@ import { Label } from "./label";
 import { toast } from "sonner";
 
 interface TenagaMedis{
-    id_tenaga_medis: number;
+    id_tenaga_medis: string;
     nama_tenaga_medis: string;
 }
 
@@ -31,7 +31,7 @@ export default function PresensiMedisButton({tenagaMedis} : {tenagaMedis: Tenaga
 
         if(!selectedId) return toast.error("Masukkan data yang valid!");
 
-        const selectedPerson = tenagaMedis.find(t => t.id_tenaga_medis === Number(selectedId));
+        const selectedPerson = tenagaMedis.find(t => t.id_tenaga_medis === selectedId);
         const nama = selectedPerson ? selectedPerson.nama_tenaga_medis : "Unknown";
 
         const res = await fetch('/api/tenaga-medis/presensi', {

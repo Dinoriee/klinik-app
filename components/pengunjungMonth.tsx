@@ -3,6 +3,8 @@
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"; 
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { NativeSelect, NativeSelectOption } from "./ui/native-select";
+import { useState } from "react";
 
 const chartConfig = {
   total: {
@@ -11,32 +13,65 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-interface Pengunjung{
-  bulan: string;
+interface chartItem{
+  label: string;
   total: number;
 }
 
-export default function PengunjungMonth({ chartData }: { chartData: Pengunjung[] }) {
-    const bulanTerbaru = chartData && chartData.length > 0 
-        ? chartData[chartData.length - 1]?.bulan 
-        : "";
+interface ChartDataProps {
+  month: chartItem[];
+  monthly: chartItem[];
+  weekly: chartItem[];
+}
 
-    const bulanTerlama = chartData && chartData.length > 0 
-        ? chartData[0]?.bulan 
-        : "";
+export interface GroupedData {
+  month: chartItem[];
+  monthly: chartItem[];
+  weekly: chartItem[];
+}
+
+
+
+export default function PengunjungMonth({ chartData }: { chartData: ChartDataProps }) {
+  const [filter, setFilter] = useState<keyof ChartDataProps>("month");
+  
+  const currentData= chartData[filter];
+
+  let data;
+
+  if(filter === "month"){
+    data = "bulan"
+  }else if(filter === "monthly"){
+    data = "tanggal"
+  }else{
+    data = "hari"
+  }
+  
+  // const bulanTerbaru = chartData && chartData.length > 0 
+  //       ? chartData[chartData.length - 1]?.bulan 
+  //       : "";
+
+  //   const bulanTerlama = chartData && chartData.length > 0 
+  //       ? chartData[0]?.bulan 
+  //       : "";
   
     return (
     <Card>
         <CardHeader>
             <CardTitle>Total Pengunjung 6 Bulan Terakhir</CardTitle>
-            <CardDescription>{bulanTerlama} - {bulanTerbaru} 2026</CardDescription>
+            <CardDescription>Detail data</CardDescription>
+            <NativeSelect onChange={(e) => setFilter(e.target.value as keyof GroupedData)}>
+              <NativeSelectOption value="month">4 Bulan</NativeSelectOption>
+              <NativeSelectOption value="monthly">1 Bulan</NativeSelectOption>
+              <NativeSelectOption value="weekly">1 Minggu</NativeSelectOption>
+            </NativeSelect>
         </CardHeader>
         <CardContent>
             <ChartContainer config={chartConfig} className="min-h-50 w-full">
-      <BarChart data={chartData}>
+      <BarChart data={currentData}>
         <CartesianGrid vertical={false} />
         <XAxis
-          dataKey="bulan"
+          dataKey={data}
           tickLine={false}
           tickMargin={10}
           axisLine={false}
