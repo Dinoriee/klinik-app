@@ -6,9 +6,10 @@ export const dynamic = "force-dynamic";
 export default async function IstirahatSakitAdminPage({
     searchParams,
 }: {
-    searchParams: { query?: string };
+    searchParams: Promise<{ query?: string }>;
 }) {
-    const query = searchParams.query || "";
+    const params = await searchParams;
+    const query = params.query || "";
 
     const dataList = await prisma.presensi.findMany({
         where: {
