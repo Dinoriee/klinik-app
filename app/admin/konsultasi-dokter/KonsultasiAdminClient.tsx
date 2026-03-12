@@ -18,7 +18,14 @@ interface RekamMedis {
     tenaga_medis: { nama_tenaga_medis: string };
 }
 
-export default function KonsultasiAdminClient({ rekamList, query }: { rekamList: RekamMedis[], query: string }) {
+interface Notif {
+    id_obat: string;
+    obat: { nama_obat: string };
+    pesan: string;
+    status: string;
+}
+
+export default function KonsultasiAdminClient({ rekamList, query, notifications }: { rekamList: RekamMedis[], query: string, notifications: Notif[] }) {
     const { data: session } = useSession();
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedRekam, setSelectedRekam] = useState<RekamMedis | null>(null);
@@ -73,7 +80,7 @@ export default function KonsultasiAdminClient({ rekamList, query }: { rekamList:
                 <div className="flex flex-col">
                     <h1 className="text-black">Admin / <span className="text-white font-bold">Riwayat Konsultasi (Rekam Medis)</span></h1>
                 </div>
-                <UserAccount userName={session?.user?.name || "Admin"} />
+                <UserAccount userName={session?.user?.name || "Admin"} notifications={notifications} />
             </div>
 
             <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mx-4 mb-4">

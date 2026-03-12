@@ -23,6 +23,13 @@ export default async function AdminKonsultasiPage({
         orderBy: { tanggal_periksa: 'desc' } 
     });
 
+    const notifications = await prisma.notifikasi.findMany({
+        include: {
+            obat: { select: { nama_obat: true } }
+        },
+        orderBy: { id_notifikasi: 'desc' }
+    });
+
     const serializedRekam = rekamList.map(rekam => ({
         ...rekam,
         tensi: rekam.tensi,
@@ -30,5 +37,5 @@ export default async function AdminKonsultasiPage({
         tanggal_periksa: rekam.tanggal_periksa.toISOString()
     }));
 
-    return <KonsultasiAdminClient rekamList={serializedRekam} query={query} />;
+    return <KonsultasiAdminClient rekamList={serializedRekam} query={query} notifications={notifications} />;
 }
