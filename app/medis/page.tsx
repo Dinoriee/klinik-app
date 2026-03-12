@@ -160,6 +160,15 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
     weekly: groupedWeeklyData,
   };
 
+  const dataObat = await prisma.obat.findMany({
+    select:{
+      nama_obat: true,
+      stok_saat_ini: true,
+      expired_date: true,
+      reorder_level: true,
+    }
+  })
+
   return (
     <div>
       <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
@@ -191,7 +200,7 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
                 <span className="text-2xl font-bold text-blue-600">{obatCount}</span>
               </div>
             </div>
-            <ShowMedicineDetail/>
+            <ShowMedicineDetail obat={dataObat}/>
           </div>
           <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
             <Smile size={36} className="bg-red-500 text-white p-2 rounded-md" />
