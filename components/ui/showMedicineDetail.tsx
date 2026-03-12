@@ -12,7 +12,7 @@ export default function ShowMedicineDetail(){
             <div className="absolute bg-white shadow-md flex justify-between space-x-12 left-1/2 top-0 z-50 rounded-2xl p-4" onMouseLeave={() => setOpen(false)}>
                 <div className="flex flex-col gap-4">
                     <span className="text-2xl">Obat Segera Expired</span>
-                    <ul classnam>
+                    <ul className="">
                         <li className="flex flex-col border-t border-b first:border-t-0 last:border-b-0">
                             <span className="font-bold">Nama obat</span>
                             <span className="italic text-gray-400">desc</span>

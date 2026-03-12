@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { toast } from "sonner";
 
 // 1. IMPORT AUTH PROVIDER YANG BARU DIBUAT
 import AuthProvider from '@/components/AuthProvider'
@@ -24,6 +25,7 @@ export default function RootLayout({
         {/* 2. BUNGKUS CHILDREN DENGAN AUTH PROVIDER */}
         <AuthProvider>
           {children}
+          
         </AuthProvider>
 
       </body>

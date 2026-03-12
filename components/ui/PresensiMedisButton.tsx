@@ -12,6 +12,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "./radio-group";
 import { Label } from "./label";
 import { toast } from "sonner";
+import { useEffect } from "react"
 
 interface TenagaMedis{
     id_tenaga_medis: string;
@@ -22,6 +23,9 @@ export default function PresensiMedisButton({tenagaMedis} : {tenagaMedis: Tenaga
     const [isModalOpen, setModalOpen] = useState(false);
     const [selectedId, setSelectedId] = useState("");
     const [status, setStatus] = useState("hadir");
+    useEffect(() => {
+    toast("Test King Dino muncul kaga?")
+  }, [])
     
     
 

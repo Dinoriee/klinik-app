@@ -46,7 +46,6 @@ const PresensiTenagaMedis = async () => {
           {/* revisi scan nik */}
           <KlinikScanner tenagaMedis={tenagaMedis} />
         </div>
-        <NikInput tenagaMedis={tenagaMedis}/>
       </div>
     </div>
   );

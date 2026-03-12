@@ -14,7 +14,7 @@ const PresensiAdmin = async () => {
 
   const users = await prisma.presensi_Tenaga_Medis.findMany({
     orderBy: {
-      jam_keluar: "desc",
+      jam_masuk: 'desc',
     },
     include:{
         tenagaMedis: true,
@@ -35,8 +35,8 @@ const PresensiAdmin = async () => {
           <UserAccount userName={session?.user?.name}/>
         </div>
       </div>
-      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md">
-        <div className="flex justify-between">
+      <div className="bg-gray-50 text-black p-4 rounded-md shadow-md m-4 border">
+        <div className="flex justify-between border-b items-center">
           <h2 className="font-bold">Data User</h2>
           <div className="flex space-x-2 p-2">
             <div className="flex relative">
@@ -77,9 +77,15 @@ const PresensiAdmin = async () => {
                 <td className="p-3 text-gray-500">{item.jam_masuk.toLocaleTimeString()}</td>
                 <td className="p-3 text-gray-500">{item.jam_keluar ? new Date(item.jam_keluar).toLocaleTimeString() : "Belum melakukan check-out"}</td>
                 <td className="p-3 capitalize flex">
-                  <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs font-semibold">
-                    {item.keterangan}
-                  </span>
+                  {item.keterangan === "hadir" ? (
+                    <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs font-semibold">
+                      {item.keterangan}
+                    </span>
+                  ) :  (
+                    <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-md text-xs font-semibold">
+                      {item.keterangan}
+                    </span>
+                  )}
                 </td>
               </tr>
             ))}

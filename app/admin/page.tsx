@@ -104,7 +104,7 @@ const DashboardAdmin = async () => {
   }, {});
 
   const groupedMonthData = Object.values(monthDataResult);
-  groupedMonthData.splice(0,2);
+  groupedMonthData.splice(4,2);
 
   const hoursTemplate: Record<string, PengunjungHarian> = {};
 
@@ -147,7 +147,7 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
 
   return (
     <div>
-      <div className="flex justify-between p-4">
+      <div className="flex justify-between pl-4 pt-4 pr-4">
         <div className="flex flex-col">
           <h1 className="text-gray-400">
             Klinik<span className="text-black"> / Presensi</span>
@@ -159,7 +159,7 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
         </div>
       </div>
 
-      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md">
+      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
             <User size={36} className="bg-green-500 text-white p-2 rounded-md" />

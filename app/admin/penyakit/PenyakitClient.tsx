@@ -7,7 +7,7 @@ import EditPenyakitButton from "@/components/ui/EditPenyakitButton";
 import DeletePenyakitButton from "@/components/ui/DeletePenyakitButton";
 
 type Penyakit = {
-  id_penyakit: number;
+  id_penyakit: string;
   nama_penyakit: string;
 };
 

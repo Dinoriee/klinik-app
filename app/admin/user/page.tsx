@@ -35,7 +35,7 @@ const KelolaUser = async () => {
           <UserAccount userName={session?.user?.name}/>
         </div>
       </div>
-      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md">
+      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
         <div className="flex justify-between">
           <h2 className="font-bold">Data User</h2>
           <div className="flex space-x-2 p-2">

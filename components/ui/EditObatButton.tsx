@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Button } from "@/components/ui/button"
-import { Pencil } from "lucide-react"
+import { Pencil, SquarePen } from "lucide-react"
 
 interface Obat {
   idObat: number | string; 
@@ -22,8 +22,8 @@ export default function EditObatButton({ obat }: { obat: Obat }) {
   };
 
   return (
-    <Button variant="outline" size="icon" onClick={handleEdit}>
-      <Pencil className="h-4 w-4" />
-    </Button>
+    <button onClick={handleEdit}>
+      <SquarePen className="h-4 w-4 text-yellow-400"/>
+    </button>
   )
 }

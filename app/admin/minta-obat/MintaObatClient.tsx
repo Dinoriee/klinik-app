@@ -90,7 +90,7 @@ export default function MintaObatClient({
                 <UserAccount userName={session?.user?.name || "Admin"} />
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mx-4 mb-4">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                     <h2 className="font-bold text-lg text-black">Riwayat Permintaan Obat</h2>
                     <div className="flex space-x-3">

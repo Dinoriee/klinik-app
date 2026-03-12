@@ -14,8 +14,8 @@ export default function DeleteObatButton({ idObat }: DeleteObatProps) {
   };
 
   return (
-    <Button variant="destructive" size="icon" onClick={handleDelete}>
-      <Trash2 className="h-4 w-4" />
-    </Button>
+    <button onClick={handleDelete}>
+      <Trash2 className="h-4 w-4 text-red-600" />
+    </button>
   )
 }
