@@ -1,29 +1,200 @@
 'use client'
 
-import React from 'react'
-import { Button } from "@/components/ui/button"
-import { Pencil, SquarePen } from "lucide-react"
+import React, { useState } from 'react'
+import { SquarePen, X } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 interface Obat {
-  idObat: number | string; 
-  namaObat: string;
-  namaBatch: string;
-  jenisObat: string;
-  stokSaatIni: number;
+  id_obat: number | string; 
+  nama_obat: string;
+  nama_batch: string;
+  jenis_obat: string;
+  stok_saat_ini: number;
   satuan: string;
-  expiredDate: string;
-  reorderLevel: number;
+  expired_date: string;
+  reorder_level: number;
 }
 
 export default function EditObatButton({ obat }: { obat: Obat }) {
-  const handleEdit = () => {
-    console.log("Editing obat ID:", obat.idObat);
-    // Nanti masukkan logika modal/edit di sini
-  };
+  const router = useRouter()
+  const [isModalOpen, setModalOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const [namaObat, setNamaObat] = useState(obat.nama_obat)
+  const [namaBatch, setNamaBatch] = useState(obat.nama_batch)
+  const [jenisObat, setJenisObat] = useState(obat.jenis_obat)
+  const [satuan, setSatuan] = useState(obat.satuan)
+  const [stok, setStok] = useState(obat.stok_saat_ini.toString())
+  const [reorderLevel, setReorderLevel] = useState(obat.reorder_level.toString())
+  const [expiredDate, setExpiredDate] = useState(obat.expired_date)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const res = await fetch(`/api/obat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id_obat: obat.id_obat,
+          nama_obat: namaObat,
+          nama_batch: namaBatch,
+          jenis_obat: jenisObat,
+          satuan: satuan,
+          stok_saat_ini: parseInt(stok),
+          reorder_level: parseInt(reorderLevel),
+          expired_date: expiredDate
+        })
+      })
+
+      if (res.ok) {
+        setModalOpen(false)
+        toast.success('Obat berhasil diperbarui')
+        router.refresh()
+      } else {
+        toast.error('Gagal menyimpan perubahan data obat')
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error('Terjadi kesalahan')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <button onClick={handleEdit}>
-      <SquarePen className="h-4 w-4 text-yellow-400"/>
-    </button>
+    <>
+      <button 
+        onClick={() => setModalOpen(true)} 
+        className="text-yellow-300 hover:text-yellow-600 px-3 py-1 rounded-md transition duration-200"
+      >
+        <SquarePen size={20} />
+      </button>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 text-left">
+          <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <span className="font-bold text-lg text-gray-900">Form Edit Obat</span>
+              <X
+                size={22}
+                className="text-gray-600 cursor-pointer hover:text-red-500"
+                onClick={() => setModalOpen(false)}
+              />
+            </div>
+
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-1.5">
+                  <label className="text-sm font-semibold text-gray-800">Nama Obat</label>
+                  <input
+                    type="text"
+                    required
+                    className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400"
+                    value={namaObat}
+                    onChange={(e) => setNamaObat(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <label className="text-sm font-semibold text-gray-800">Nomor Batch</label>
+                  <input
+                    type="text"
+                    required
+                    className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400"
+                    value={namaBatch}
+                    onChange={(e) => setNamaBatch(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-1.5">
+                  <label className="text-sm font-semibold text-gray-800">Jenis Obat</label>
+                  <select
+                    required
+                    className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400"
+                    value={jenisObat}
+                    onChange={(e) => setJenisObat(e.target.value)}
+                  >
+                    <option value="tablet">Tablet</option>
+                    <option value="kapsul">Kapsul</option>
+                    <option value="sirup">Sirup</option>
+                    <option value="salep">Salep</option>
+                    <option value="injeksi">Injeksi</option>
+                    <option value="tetes">Tetes</option>
+                    <option value="puyer">Puyer</option>
+                  </select>
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <label className="text-sm font-semibold text-gray-800">Satuan</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Cth: Strip, Botol"
+                    className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400"
+                    value={satuan}
+                    onChange={(e) => setSatuan(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="flex flex-col space-y-1.5">
+                  <label className="text-sm font-semibold text-gray-800">Stok</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400"
+                    value={stok}
+                    onChange={(e) => setStok(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <label className="text-sm font-semibold text-gray-800">Batas Reorder</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400"
+                    value={reorderLevel}
+                    onChange={(e) => setReorderLevel(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <label className="text-sm font-semibold text-gray-800">Tanggal Expired</label>
+                  <input
+                    type="date"
+                    required
+                    className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400"
+                    value={expiredDate}
+                    onChange={(e) => setExpiredDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end mt-4 pt-4 border-t gap-3">
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-800 hover:bg-gray-50 text-sm font-medium transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm font-medium transition disabled:opacity-50"
+                >
+                  {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

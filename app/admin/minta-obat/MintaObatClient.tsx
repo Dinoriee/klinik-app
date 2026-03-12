@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Search, Download, ChevronLeft, ChevronRight } from "lucide-react";
-import * as XLSX from "xlsx";
 
 // IMPORT NEXT-AUTH DAN USER ACCOUNT
 import UserAccount from "@/components/ui/userAccount";
@@ -43,33 +42,39 @@ export default function MintaObatClient({
         }).format(new Date(tanggalString));
     };
 
-    const exportToExcel = () => {
+    const exportToExcel = async () => {
         if (riwayatList.length === 0) {
             alert("Tidak ada data untuk diexport.");
             return;
         }
 
-        const excelData = riwayatList.map((riwayat, index) => {
-            const waktu = formatTanggal(riwayat.waktu_permintaan);
-            const pasien = riwayat.pegawai?.nama_pegawai || "-";
-            const pemeriksa = riwayat.tenaga_medis?.nama_tenaga_medis || "-";
-            const diagnosa = riwayat.penyakit?.nama_penyakit || "-";
-            const daftarObat = riwayat.detail_permintaan?.map((d) => `${d.obat?.nama_obat} (${d.jumlah_diminta})`).join(", ") || "-";
+        try {
+            const XLSX = await import("xlsx");
+            const excelData = riwayatList.map((riwayat, index) => {
+                const waktu = formatTanggal(riwayat.waktu_permintaan);
+                const pasien = riwayat.pegawai?.nama_pegawai || "-";
+                const pemeriksa = riwayat.tenaga_medis?.nama_tenaga_medis || "-";
+                const diagnosa = riwayat.penyakit?.nama_penyakit || "-";
+                const daftarObat = riwayat.detail_permintaan?.map((d) => `${d.obat?.nama_obat} (${d.jumlah_diminta})`).join(", ") || "-";
 
-            return {
-                "No": index + 1,
-                "Waktu Transaksi": waktu,
-                "Pasien": pasien,
-                "Pemeriksa": pemeriksa,
-                "Diagnosa Penyakit": diagnosa,
-                "Obat Diberikan": daftarObat
-            };
-        });
+                return {
+                    "No": index + 1,
+                    "Waktu Transaksi": waktu,
+                    "Pasien": pasien,
+                    "Pemeriksa": pemeriksa,
+                    "Diagnosa Penyakit": diagnosa,
+                    "Obat Diberikan": daftarObat
+                };
+            });
 
-        const worksheet = XLSX.utils.json_to_sheet(excelData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Obat Keluar");
-        XLSX.writeFile(workbook, `Rekap_Obat_Keluar_${new Date().toISOString().split('T')[0]}.xlsx`);
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Obat Keluar");
+            XLSX.writeFile(workbook, `Rekap_Obat_Keluar_${new Date().toISOString().split('T')[0]}.xlsx`);
+        } catch (error) {
+            console.error("Error exporting Excel:", error);
+            alert("Gagal mengexport file Excel");
+        }
     };
 
     // --- LOGIKA PEMOTONGAN DATA (PAGINATION) ---
@@ -83,9 +88,9 @@ export default function MintaObatClient({
             {/* ========================================= */}
             {/* HEADER: USER ACCOUNT DI KANAN ATAS          */}
             {/* ========================================= */}
-            <div className="flex justify-between items-center p-4">
+            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-gray-400">Klinik / Transaksi / <span className="text-black font-bold">Minta Obat (Log Aktivitas)</span></h1>
+                    <h1 className="text-black">Klinik / Transaksi / <span className="text-white font-bold">Minta Obat (Log Aktivitas)</span></h1>
                 </div>
                 <UserAccount userName={session?.user?.name || "Admin"} />
             </div>

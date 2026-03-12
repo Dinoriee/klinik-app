@@ -5,19 +5,38 @@ import { PuffLoader } from "react-spinners";
 import { toast } from "sonner";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
 import { Item, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
+import { usePathname } from 'next/navigation';
 
-interface TenagaMedis{
-    id_tenaga_medis: string;
-    nama_tenaga_medis: string;
-    nik: string;
-}
+// interface TenagaMedis{
+//     id_tenaga_medis: string;
+//     nama_tenaga_medis: string;
+//     nik: string;
+// }
 
-export default function KlinikScanner({tenagaMedis} : {tenagaMedis: TenagaMedis[]}) {
+// interface Pegawai{
+//     id_pegawai: string;
+//     nama_pegawai: string;
+//     nik: string;
+// }
+
+type person = {id_pegawai?: string; id_tenaga_medis?: string; nama_pegawai?: string; nama_tenaga_medis?: string; nik?: string}
+type AttendanceType = "presensi" | "istirahat-sakit" | "laktasi" | "istirahat-hamil";
+
+export default function KlinikScanner({dataUser} : {dataUser: person[]}) {
+  const pathname = usePathname();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(true);
   const [selectedId, setSelectedId] = useState("");
+  const [attendanceType, setAttendanceType] = useState<AttendanceType>("presensi");
+
+  useEffect(() => {
+    if (pathname.includes("istirahat-sakit")) setAttendanceType("istirahat-sakit");
+    else if (pathname.includes("laktasi")) setAttendanceType("laktasi");
+    else if (pathname.includes("presensi")) setAttendanceType("presensi");
+    else setAttendanceType("istirahat-hamil");
+  }, [pathname]);
 
   const handleScan = async (text: string) => {
     if (!active) return;
@@ -30,7 +49,7 @@ export default function KlinikScanner({tenagaMedis} : {tenagaMedis: TenagaMedis[
 
     try {
       setSelectedId(nik);
-      const res = await fetch('/api/tenaga-medis/presensi', {
+      const res = await fetch(`/api/tenaga-medis/${attendanceType}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nik: nik, keterangan: "hadir" })
@@ -51,7 +70,7 @@ export default function KlinikScanner({tenagaMedis} : {tenagaMedis: TenagaMedis[
     
       if(!selectedId) return toast.error("Masukkan data yang valid!");
       console.log(selectedId);
-        const selectedPerson = tenagaMedis.find(t => t.nik === selectedId);
+        const selectedPerson = dataUser.find(t => t.nik === selectedId);
         const nama = selectedPerson ? selectedPerson.nama_tenaga_medis : "Unknown";
 
         const res = await fetch('/api/tenaga-medis/presensi', {
@@ -130,10 +149,10 @@ export default function KlinikScanner({tenagaMedis} : {tenagaMedis: TenagaMedis[
             <span className="text-2xl font-bold">Presensi Manual</span>
             <div className="flex space-x-4">
               <Combobox
-        items={tenagaMedis}
+        items={dataUser}
         value={selectedId}
         onValueChange={(val) => {
-                                      const found = tenagaMedis.find(t => t.nik === val);
+                                      const found = dataUser.find(t => t.nik === val);
                                       if (found) setSelectedId(found.nik)}} 
       //   itemToStringValue={}
       >
@@ -146,7 +165,7 @@ export default function KlinikScanner({tenagaMedis} : {tenagaMedis: TenagaMedis[
                 <Item size="sm" className="p-0">
                   <ItemContent>
                     <ItemTitle className="whitespace-nowrap">
-                      {item.nama_tenaga_medis}
+                      {item.nama_tenaga_medis || item.nama_pegawai}
                     </ItemTitle>
                     <ItemDescription>
                       {item.nik}

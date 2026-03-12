@@ -37,10 +37,10 @@ export default function PegawaiClient({
 
   return (
     <div className="flex flex-col gap-4 relative">
-      <div className="flex justify-between p-4">
+      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-gray-400">
-            Klinik / Pegawai / <span className="text-black font-bold">Kelola Pegawai</span>
+          <h1 className="text-black">
+            Klinik / Pegawai / <span className="text-white font-bold">Kelola Pegawai</span>
           </h1>
         </div>
       </div>

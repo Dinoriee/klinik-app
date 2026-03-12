@@ -23,9 +23,6 @@ export default function PresensiMedisButton({tenagaMedis} : {tenagaMedis: Tenaga
     const [isModalOpen, setModalOpen] = useState(false);
     const [selectedId, setSelectedId] = useState("");
     const [status, setStatus] = useState("hadir");
-    useEffect(() => {
-    toast("Test King Dino muncul kaga?")
-  }, [])
     
     
 

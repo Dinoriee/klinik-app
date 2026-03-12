@@ -25,6 +25,8 @@ export default async function AdminKonsultasiPage({
 
     const serializedRekam = rekamList.map(rekam => ({
         ...rekam,
+        tensi: rekam.tensi,
+        suhu: rekam.suhu,
         tanggal_periksa: rekam.tanggal_periksa.toISOString()
     }));
 

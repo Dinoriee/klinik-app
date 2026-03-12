@@ -72,9 +72,9 @@ export default function MintaObatMedisClient({
             {}
             {}
             {}
-            <div className="flex justify-between items-center p-4">
+            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-gray-400">Medis / Transaksi / <span className="text-black font-bold">Minta Obat</span></h1>
+                    <h1 className="text-black">Medis / Transaksi / <span className="text-white font-bold">Minta Obat</span></h1>
                 </div>
                 <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
             </div>

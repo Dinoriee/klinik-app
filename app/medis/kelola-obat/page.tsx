@@ -4,7 +4,7 @@ import ObatClient from "./ObatClient";
 export default async function KelolaObat({
   searchParams,
 }: {
-  searchParams: Promise<{ query?: string }> | { query?: string };
+  searchParams: Promise<{ query?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const query = resolvedSearchParams.query || "";

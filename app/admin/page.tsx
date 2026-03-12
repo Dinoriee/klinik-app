@@ -137,7 +137,22 @@ const dailyData = dataHariIni.reduce((acc, item) => {
 
 const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCompare(b.jam));
 
-
+  const notifications = await prisma.notifikasi.findMany({
+    select:{
+      id_obat: true,
+      obat:{
+        select:{
+          nama_obat: true,
+        }
+      },
+      pesan: true,
+      status: true,
+    },
+    orderBy:[
+      {status: 'desc'},
+      {id_notifikasi: 'asc'},
+    ]
+  });
 
   const groupedData: ChartData = {
     month: groupedMonthData,
@@ -147,15 +162,15 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
 
   return (
     <div>
-      <div className="flex justify-between pl-4 pt-4 pr-4">
+      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-gray-400">
-            Klinik<span className="text-black"> / Presensi</span>
+          <h1 className="text-gray-800">
+            Klinik<span className="text-gray-100"> / Presensi</span>
           </h1>
-          <span className="text-black font-bold">Dashboard Admin</span>
+          <span className="text-gray-100 font-bold">Dashboard Admin</span>
         </div>
         <div className="flex space-x-1">
-          <UserAccount userName={session?.user?.name || "Guest"} />
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
         </div>
       </div>
 

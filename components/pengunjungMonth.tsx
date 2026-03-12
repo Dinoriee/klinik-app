@@ -38,13 +38,17 @@ export default function PengunjungMonth({ chartData }: { chartData: ChartDataPro
   const currentData= chartData[filter];
 
   let data;
+  let informasi;
 
   if(filter === "month"){
-    data = "bulan"
+    data = "bulan",
+    informasi = "Data 4 Bulan Terakhir"
   }else if(filter === "monthly"){
-    data = "tanggal"
+    data = "tanggal",
+    informasi = "Data 1 Bulan Terakhir"
   }else{
-    data = "hari"
+    data = "hari",
+    informasi = "Data 1 Minggu Terakhir"
   }
   
   // const bulanTerbaru = chartData && chartData.length > 0 
@@ -58,7 +62,7 @@ export default function PengunjungMonth({ chartData }: { chartData: ChartDataPro
     return (
     <Card>
         <CardHeader>
-            <CardTitle>Total Pengunjung 6 Bulan Terakhir</CardTitle>
+            <CardTitle>{informasi}</CardTitle>
             <CardDescription>Detail data</CardDescription>
             <NativeSelect onChange={(e) => setFilter(e.target.value as keyof GroupedData)}>
               <NativeSelectOption value="month">4 Bulan</NativeSelectOption>
