@@ -21,9 +21,26 @@ const KelolaUser = async () => {
     }
   });
 
+  const notifications = await prisma.notifikasi.findMany({
+      select:{
+        id_obat: true,
+        obat:{
+          select:{
+            nama_obat: true,
+          }
+        },
+        pesan: true,
+        status: true,
+      },
+      orderBy:[
+        {status: 'desc'},
+        {id_notifikasi: 'asc'},
+      ]
+    });
+
   return (
     <div>
-      <div className="flex justify-between p-4">
+      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
         <div className="flex flex-col">
           <h1 className="text-gray-400">
             Klinik<span className="text-black"> / Kelola User</span>
@@ -32,10 +49,10 @@ const KelolaUser = async () => {
         </div>
         {}
         <div className="flex space-x-1">
-          <UserAccount userName={session?.user?.name}/>
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
         </div>
       </div>
-      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md">
+      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
         <div className="flex justify-between">
           <h2 className="font-bold">Data User</h2>
           <div className="flex space-x-2 p-2">

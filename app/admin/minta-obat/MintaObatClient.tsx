@@ -88,14 +88,14 @@ export default function MintaObatClient({
             {/* ========================================= */}
             {/* HEADER: USER ACCOUNT DI KANAN ATAS          */}
             {/* ========================================= */}
-            <div className="flex justify-between items-center p-4">
+            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-gray-400">Klinik / Transaksi / <span className="text-black font-bold">Minta Obat (Log Aktivitas)</span></h1>
+                    <h1 className="text-black">Klinik / Transaksi / <span className="text-white font-bold">Minta Obat (Log Aktivitas)</span></h1>
                 </div>
                 <UserAccount userName={session?.user?.name || "Admin"} />
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mx-4 mb-4">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                     <h2 className="font-bold text-lg text-black">Riwayat Permintaan Obat</h2>
                     <div className="flex space-x-3">

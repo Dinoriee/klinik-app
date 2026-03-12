@@ -100,10 +100,10 @@ export default function KwitansiClient({
 
     return (
         <div className="flex flex-col gap-4 relative">
-            <div className="flex justify-between items-center p-4">
+            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-gray-400">
-                        Klinik / Kasir / <span className="text-black font-bold">Kwitansi</span>
+                    <h1 className="text-black">
+                        Klinik / Kasir / <span className="text-white font-bold">Kwitansi</span>
                     </h1>
                 </div>
                 <UserAccount userName={session?.user?.name || "Admin"} />

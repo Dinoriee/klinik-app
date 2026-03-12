@@ -121,7 +121,7 @@ export default function KonsultasiDokterClient() {
 
   return (
     <div className="flex flex-col gap-4 relative">
-      <div className="flex justify-between items-center p-4">
+      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
         <div className="flex flex-col">
           <h1 className="text-gray-400">
             Klinik /{" "}

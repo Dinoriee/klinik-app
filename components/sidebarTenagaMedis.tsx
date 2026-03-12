@@ -34,7 +34,7 @@ export default function SidebarTenagaMedis(){
   }
 
     return(
-        <aside className='p-4 w-1/6 min-h-screen bg-blue-900 rounded-tr-md rounded-br-md shadow-xl sticky top-0'>
+        <aside className='p-4 w-1/6 min-h-screen bg-blue-900 shadow-xl sticky top-0'>
                 <div className='space-y-1.5'>    
                     <Image src="/logo-klinik.png" alt='Logo Klinik' width={500} height={500} className="w-24 h-auto"/>
                     <h1 className='text-gray-300 text-base font-medium pt-4 pl-2'>Menu</h1>

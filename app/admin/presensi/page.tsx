@@ -14,29 +14,46 @@ const PresensiAdmin = async () => {
 
   const users = await prisma.presensi_Tenaga_Medis.findMany({
     orderBy: {
-      jam_keluar: "desc",
+      jam_masuk: 'desc',
     },
     include:{
         tenagaMedis: true,
     }
   });
 
+  const notifications = await prisma.notifikasi.findMany({
+    select:{
+      id_obat: true,
+      obat:{
+        select:{
+          nama_obat: true,
+        }
+      },
+      pesan: true,
+      status: true,
+    },
+    orderBy:[
+      {status: 'desc'},
+      {id_notifikasi: 'asc'},
+    ]
+  });
+
   return (
     <div>
-      <div className="flex justify-between p-4">
+      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-gray-400">
-            Klinik<span className="text-black"> / Presensi</span>
+          <h1 className="text-black">
+            Klinik<span className="text-white"> / Presensi</span>
           </h1>
-          <span className="text-black font-bold">Presensi</span>
+          <span className="text-white font-bold">Presensi</span>
         </div>
         {}
         <div className="flex space-x-1">
-          <UserAccount userName={session?.user?.name}/>
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
         </div>
       </div>
-      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md">
-        <div className="flex justify-between">
+      <div className="bg-gray-50 text-black p-4 rounded-md shadow-md m-4 border">
+        <div className="flex justify-between border-b items-center">
           <h2 className="font-bold">Data User</h2>
           <div className="flex space-x-2 p-2">
             <div className="flex relative">
@@ -77,9 +94,15 @@ const PresensiAdmin = async () => {
                 <td className="p-3 text-gray-500">{item.jam_masuk.toLocaleTimeString()}</td>
                 <td className="p-3 text-gray-500">{item.jam_keluar ? new Date(item.jam_keluar).toLocaleTimeString() : "Belum melakukan check-out"}</td>
                 <td className="p-3 capitalize flex">
-                  <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs font-semibold">
-                    {item.keterangan}
-                  </span>
+                  {item.keterangan === "hadir" ? (
+                    <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-xs font-semibold">
+                      {item.keterangan}
+                    </span>
+                  ) :  (
+                    <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-md text-xs font-semibold">
+                      {item.keterangan}
+                    </span>
+                  )}
                 </td>
               </tr>
             ))}

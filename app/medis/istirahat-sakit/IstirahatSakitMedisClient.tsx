@@ -55,9 +55,9 @@ export default function IstirahatSakitMedisClient() {
     return (
         <div className="flex flex-col gap-4 relative">
             
-            <div className="flex justify-between items-center p-4">
+            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-gray-400">Klinik / <span className="text-black font-bold">Istirahat Sakit</span></h1>
+                    <h1 className="text-black">Klinik / <span className="text-whote font-bold">Istirahat Sakit</span></h1>
                 </div>
                 <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
             </div>

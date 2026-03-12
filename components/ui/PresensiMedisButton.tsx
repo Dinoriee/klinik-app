@@ -12,6 +12,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "./radio-group";
 import { Label } from "./label";
 import { toast } from "sonner";
+import { useEffect } from "react"
 
 interface TenagaMedis{
     id_tenaga_medis: string;

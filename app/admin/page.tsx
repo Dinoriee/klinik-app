@@ -104,7 +104,7 @@ const DashboardAdmin = async () => {
   }, {});
 
   const groupedMonthData = Object.values(monthDataResult);
-  groupedMonthData.splice(0,2);
+  groupedMonthData.splice(4,2);
 
   const hoursTemplate: Record<string, PengunjungHarian> = {};
 
@@ -137,7 +137,22 @@ const dailyData = dataHariIni.reduce((acc, item) => {
 
 const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCompare(b.jam));
 
-
+  const notifications = await prisma.notifikasi.findMany({
+    select:{
+      id_obat: true,
+      obat:{
+        select:{
+          nama_obat: true,
+        }
+      },
+      pesan: true,
+      status: true,
+    },
+    orderBy:[
+      {status: 'desc'},
+      {id_notifikasi: 'asc'},
+    ]
+  });
 
   const groupedData: ChartData = {
     month: groupedMonthData,
@@ -147,19 +162,19 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
 
   return (
     <div>
-      <div className="flex justify-between p-4">
+      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-gray-400">
-            Klinik<span className="text-black"> / Presensi</span>
+          <h1 className="text-gray-800">
+            Klinik<span className="text-gray-100"> / Presensi</span>
           </h1>
-          <span className="text-black font-bold">Dashboard Admin</span>
+          <span className="text-gray-100 font-bold">Dashboard Admin</span>
         </div>
         <div className="flex space-x-1">
-          <UserAccount userName={session?.user?.name || "Guest"} />
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
         </div>
       </div>
 
-      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md">
+      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
             <User size={36} className="bg-green-500 text-white p-2 rounded-md" />

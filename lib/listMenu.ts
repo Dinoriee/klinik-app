@@ -44,7 +44,7 @@ export const menuMedis: SidebarItem[] = [
   { name: 'Kwitansi', href: '/medis/kwitansi', icon: ReceiptText },
   { name: 'Minta Obat', href: '/medis/minta-obat', icon: Pill },
   { name: 'Konsultasi Dokter', href: '/medis/konsultasi-dokter', icon: MessageCircleQuestion },
-  { name: 'Istirahat Sakit', href: 'istirahat-sakit', icon: Frown },
+  { name: 'Istirahat Sakit', href: '/medis/istirahat-sakit', icon: Frown },
   { name: 'Istirahat Hamil', href: '/medis/istirahat-hamil', icon: Baby },
   { name: 'Laktasi', href: '/medis/laktasi', icon: Milk },
 ]

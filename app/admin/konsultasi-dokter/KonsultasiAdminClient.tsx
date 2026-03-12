@@ -69,14 +69,14 @@ export default function KonsultasiAdminClient({ rekamList, query }: { rekamList:
     return (
         <div className="flex flex-col gap-4 relative">
             
-            <div className="flex justify-between items-center p-4">
+            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-gray-400">Admin / <span className="text-black font-bold">Riwayat Konsultasi (Rekam Medis)</span></h1>
+                    <h1 className="text-black">Admin / <span className="text-white font-bold">Riwayat Konsultasi (Rekam Medis)</span></h1>
                 </div>
                 <UserAccount userName={session?.user?.name || "Admin"} />
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mx-4 mb-4">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                     <h2 className="font-bold text-lg text-black">Data Riwayat Konsultasi</h2>
                     <div className="flex space-x-3">

@@ -1,7 +1,7 @@
 import prisma from "@/lib/db";
 import PenyakitClient from "./PenyakitClient";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 export default async function KelolaPenyakit({
   searchParams,

@@ -22,15 +22,32 @@ export default async function KelolaPenyakitMedis({
     orderBy: { id_penyakit: "desc" },
   });
 
+  const notifications = await prisma.notifikasi.findMany({
+    select:{
+      id_obat: true,
+      obat:{
+        select:{
+          nama_obat: true,
+        }
+      },
+      pesan: true,
+      status: true,
+    },
+    orderBy:[
+      {status: 'desc'},
+      {id_notifikasi: 'asc'},
+    ]
+  });
+
   return (
     <div className="flex flex-col gap-4 relative">
-      <div className="flex justify-between p-4">
+      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-gray-400">
-            Medis / Penyakit / <span className="text-black font-bold">Kelola Penyakit</span>
+          <h1 className="text-black">
+            Medis / Penyakit / <span className="text-white font-bold">Kelola Penyakit</span>
           </h1>
         </div>
-        <UserAccount userName={session?.user?.name} />
+        <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">

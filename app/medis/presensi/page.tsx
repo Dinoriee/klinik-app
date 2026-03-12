@@ -24,29 +24,45 @@ const PresensiTenagaMedis = async () => {
     },
   });
 
+  const notifications = await prisma.notifikasi.findMany({
+    select:{
+      id_obat: true,
+      obat:{
+        select:{
+          nama_obat: true,
+        }
+      },
+      pesan: true,
+      status: true,
+    },
+    orderBy:[
+      {status: 'desc'},
+      {id_notifikasi: 'asc'},
+    ]
+  });
+
   return (
     <div>
-      <div className="flex justify-between p-4 spacey4">
+      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-gray-400">
-            Klinik<span className="text-black"> / Presensi</span>
+          <h1 className="text-black">
+            Klinik<span className="text-white"> / Presensi</span>
           </h1>
-          <span className="text-black font-bold">Presensi</span>
+          <span className="text-white font-bold">Presensi</span>
         </div>
-        <UserAccount userName={session?.user?.name} />
+        <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
       </div>
       <div className="bg-gray-50 text-gray-600 m-4 p-4 rounded-md shadow-md">
         <div className="flex justify-between">
           <h2 className="font-bold">Presensi</h2>
           <div className="flex space-x-2 p-2">
-            <PresensiButton tenagaMedis={tenagaMedis} />
+            {/* <PresensiButton tenagaMedis={tenagaMedis} /> */}
           </div>
         </div>
         <div>
           {/* revisi scan nik */}
-          <KlinikScanner tenagaMedis={tenagaMedis} />
+          <KlinikScanner dataUser={tenagaMedis} />
         </div>
-        <NikInput tenagaMedis={tenagaMedis}/>
       </div>
     </div>
   );
