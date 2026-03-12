@@ -1,5 +1,6 @@
 import prisma from "@/lib/db"; 
 import TenagaMedisClient from "./TenagaMedisClient";
+import { getServerSession } from "next-auth/next";
 
 export default async function TenagaMedisPage({
     searchParams,
@@ -8,6 +9,7 @@ export default async function TenagaMedisPage({
 }) {
     const resolvedSearchParams = await searchParams;
     const query = resolvedSearchParams.query || "";
+    const session = await getServerSession();
 
     const tenagaMedisList = await prisma.tenaga_Medis.findMany({
         where: {
@@ -22,5 +24,22 @@ export default async function TenagaMedisPage({
         orderBy: { id_tenaga_medis: 'desc' } 
     });
 
-    return <TenagaMedisClient tenagaMedisList={tenagaMedisList} query={query} />;
+    const notifications = await prisma.notifikasi.findMany({
+        select:{
+            id_obat: true,
+            obat:{
+                select:{
+                    nama_obat: true,
+                }
+            },
+            pesan: true,
+            status: true,
+        },
+        orderBy:[
+            {status: 'desc'},
+            {id_notifikasi: 'asc'},
+        ]
+    });
+
+    return <TenagaMedisClient tenagaMedisList={tenagaMedisList} query={query} notifications={notifications} />;
 }

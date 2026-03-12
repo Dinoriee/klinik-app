@@ -23,10 +23,12 @@ interface RiwayatPermintaan {
 
 export default function MintaObatClient({ 
     riwayatList, 
-    query 
+    query,
+    notifications
 }: { 
     riwayatList: RiwayatPermintaan[], 
-    query: string 
+    query: string,
+    notifications: any[]
 }) {
     // --- MENGAMBIL DATA SESSION USER ---
     const { data: session } = useSession();
@@ -92,7 +94,7 @@ export default function MintaObatClient({
                 <div className="flex flex-col">
                     <h1 className="text-black">Klinik / Transaksi / <span className="text-white font-bold">Minta Obat (Log Aktivitas)</span></h1>
                 </div>
-                <UserAccount userName={session?.user?.name || "Admin"} />
+                <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
             </div>
 
             <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mx-4 mb-4">

@@ -37,10 +37,28 @@ export default async function IstirahatSakitAdminPage({
         jam_keluar: item.jam_keluar ? item.jam_keluar.toISOString() : null,
     }));
 
+    const notifications = await prisma.notifikasi.findMany({
+        select:{
+            id_obat: true,
+            obat:{
+                select:{
+                    nama_obat: true,
+                }
+            },
+            pesan: true,
+            status: true,
+        },
+        orderBy:[
+            {status: 'desc'},
+            {id_notifikasi: 'asc'},
+        ]
+    });
+
     return (
         <IstirahatSakitClient 
             dataList={serializedDataList} 
-            query={query} 
+            query={query}
+            notifications={notifications}
         />
     );
 }

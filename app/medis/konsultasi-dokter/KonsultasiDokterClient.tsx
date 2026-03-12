@@ -13,7 +13,7 @@ interface Pegawai {
   nik: string;
 }
 
-export default function KonsultasiDokterClient() {
+export default function KonsultasiDokterClient({ notifications }: { notifications: any[] }) {
   const { data: session } = useSession();
   const [manualNik, setManualNik] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -128,7 +128,7 @@ export default function KonsultasiDokterClient() {
             <span className="text-black font-bold">Konsultasi Dokter</span>
           </h1>
         </div>
-        <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
+        <UserAccount notifications={notifications} userName={session?.user?.name || "Pegawai Medis"} />
       </div>
 
       {tahap === "pencarian" && (

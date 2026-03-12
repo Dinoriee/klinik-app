@@ -18,7 +18,7 @@ interface PresensiSakit {
     pegawai: Pegawai;
 }
 
-export default function IstirahatSakitClient({ dataList, query }: { dataList: PresensiSakit[], query: string }) {
+export default function IstirahatSakitClient({ dataList, query, notifications }: { dataList: PresensiSakit[], query: string, notifications: any[] }) {
     const { data: session } = useSession();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -41,7 +41,7 @@ export default function IstirahatSakitClient({ dataList, query }: { dataList: Pr
                 <div className="flex flex-col">
                     <h1 className="text-black">Admin / <span className="text-white font-bold">Riwayat Istirahat Sakit</span></h1>
                 </div>
-                <UserAccount userName={session?.user?.name || "Administrator"} />
+                <UserAccount notifications={notifications} userName={session?.user?.name || "Administrator"} />
             </div>
 
             <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mx-4 mb-4">

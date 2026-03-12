@@ -20,9 +20,10 @@ interface Obat {
 interface ObatClientProps {
   obatList: Obat[];
   query: string;
+  notifications: any[];
 }
 
-export default function ObatClient({ obatList, query }: ObatClientProps) {
+export default function ObatClient({ obatList, query, notifications }: ObatClientProps) {
   
   const { data: session } = useSession()
   const router = useRouter()
@@ -96,7 +97,7 @@ export default function ObatClient({ obatList, query }: ObatClientProps) {
         <div className="flex flex-col">
           <h1 className="text-black">Klinik / Obat / <span className="text-white font-bold">Kelola Obat</span></h1>
         </div>
-        <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
+        <UserAccount notifications={notifications} userName={session?.user?.name || "Pegawai Medis"} />
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">

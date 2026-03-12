@@ -19,7 +19,7 @@ interface TenagaMedis {
     } | null;
 }
 
-export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMedisList: TenagaMedis[], query: string }) {
+export default function TenagaMedisClient({ tenagaMedisList, query, notifications }: { tenagaMedisList: TenagaMedis[], query: string, notifications: any[] }) {
     
     const { data: session } = useSession();
     const [currentPage, setCurrentPage] = useState(1);
@@ -65,7 +65,7 @@ export default function TenagaMedisClient({ tenagaMedisList, query }: { tenagaMe
                 <div className="flex flex-col">
                     <h1 className="text-black">Klinik / Tenaga Medis / <span className="text-white font-bold">Kelola Tenaga Medis</span></h1>
                 </div>
-                <UserAccount userName={session?.user?.name || "Admin"} />
+                <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">

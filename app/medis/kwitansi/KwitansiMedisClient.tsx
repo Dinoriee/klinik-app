@@ -35,10 +35,12 @@ export default function KwitansiMedisClient({
     kwitansiList,
     query,
     status: statusFilter,
+    notifications,
 }: {
     kwitansiList: KwitansiData[];
     query: string;
     status: string;
+    notifications: any[];
 }) {
     const { data: session } = useSession();
     const router = useRouter();
@@ -147,7 +149,7 @@ export default function KwitansiMedisClient({
                         Klinik / Medis / <span className="text-white font-bold">Kwitansi</span>
                     </h1>
                 </div>
-                <UserAccount userName={session?.user?.name || "Medis"} />
+                <UserAccount notifications={notifications} userName={session?.user?.name || "Medis"} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">

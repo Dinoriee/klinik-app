@@ -6,7 +6,7 @@ import { useState, useRef } from "react"; // PERUBAHAN: Tambahkan useRef
 import ScannerIstirahatSakit from "@/components/ui/ScannerIstirahatSakit";
 import { toast } from "sonner";
 
-export default function IstirahatSakitMedisClient() {
+export default function IstirahatSakitMedisClient({ notifications }: { notifications: any[] }) {
     const { data: session } = useSession();
     const [manualNik, setManualNik] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +59,7 @@ export default function IstirahatSakitMedisClient() {
                 <div className="flex flex-col">
                     <h1 className="text-black">Klinik / <span className="text-whote font-bold">Istirahat Sakit</span></h1>
                 </div>
-                <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
+                <UserAccount notifications={notifications} userName={session?.user?.name || "Pegawai Medis"} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">

@@ -40,6 +40,7 @@ export default function MintaObatMedisClient({
   tenagaMedisList,   
   penyakits,        
   query,
+  notifications
 }: {
   riwayatList: RiwayatPermintaan[];
   obats: ObatOption[];
@@ -47,6 +48,7 @@ export default function MintaObatMedisClient({
   tenagaMedisList: TenagaMedisOption[];
   penyakits: PenyakitOption[];
   query: string;
+  notifications: any[];
 }) {
     
     const { data: session } = useSession();
@@ -76,7 +78,7 @@ export default function MintaObatMedisClient({
                 <div className="flex flex-col">
                     <h1 className="text-black">Medis / Transaksi / <span className="text-white font-bold">Minta Obat</span></h1>
                 </div>
-                <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
+                <UserAccount notifications={notifications} userName={session?.user?.name || "Pegawai Medis"} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">

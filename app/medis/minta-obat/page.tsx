@@ -1,5 +1,6 @@
 import prisma from "@/lib/db";
 import MintaObatMedisClient from "./MintaObatMedisClient";
+import { getServerSession } from "next-auth/next";
 
 export default async function MintaObatMedisPage({
     searchParams,
@@ -8,6 +9,8 @@ export default async function MintaObatMedisPage({
 }) {
     const resolvedSearchParams = await searchParams;
     const query = resolvedSearchParams.query || "";
+    const session = await getServerSession();
+    
     const obats = await prisma.obat.findMany({
         where: { stok_saat_ini: { gt: 0 } },
         select: { id_obat: true, nama_obat: true, stok_saat_ini: true, satuan: true },
@@ -46,6 +49,23 @@ export default async function MintaObatMedisPage({
         waktu_permintaan: riwayat.waktu_permintaan.toISOString()
     }));
 
+    const notifications = await prisma.notifikasi.findMany({
+        select:{
+            id_obat: true,
+            obat:{
+                select:{
+                    nama_obat: true,
+                }
+            },
+            pesan: true,
+            status: true,
+        },
+        orderBy:[
+            {status: 'desc'},
+            {id_notifikasi: 'asc'},
+        ]
+    });
+
     return (
         <MintaObatMedisClient 
             riwayatList={serializedRiwayat} 
@@ -53,7 +73,8 @@ export default async function MintaObatMedisPage({
             pegawais={pegawais} 
             tenagaMedisList={tenagaMedisList} 
             penyakits={penyakits} 
-            query={query} 
+            query={query}
+            notifications={notifications}
         />
     );
 }

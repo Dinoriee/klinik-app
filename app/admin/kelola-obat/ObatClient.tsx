@@ -20,7 +20,7 @@ interface Obat {
     reorder_level: number;
 }
 
-export default function ObatClient({ obatList, query }: { obatList: Obat[], query: string }) {
+export default function ObatClient({ obatList, query, notifications }: { obatList: Obat[], query: string, notifications: any[] }) {
     const { data: session } = useSession();
     const router = useRouter();
     const [currentPage, setCurrentPage] = useState(1);
@@ -128,7 +128,7 @@ export default function ObatClient({ obatList, query }: { obatList: Obat[], quer
                 <div className="flex flex-col">
                     <h1 className="text-black">Admin / Obat / <span className="text-white font-bold">Kelola Obat</span></h1>
                 </div>
-                <UserAccount userName={session?.user?.name || "Admin"} />
+                <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
