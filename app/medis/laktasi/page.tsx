@@ -8,13 +8,29 @@ import prisma from "@/lib/db";
 
 const LaktasiMedisPage = async () => {
   const session = await getServerSession(AuthOptions);
-  const pegawai = await prisma.pegawai.findMany({
-    select:{
-      id_pegawai: true,
-      nama_pegawai: true,
-      nik: true,
-    }
-  });
+
+  // Prisma Client in this repo can be out-of-sync with the actual DB schema.
+  // Use raw SQL to fetch `nik` when available, and fall back to `kode_tenaga_medis`.
+  let tenagaMedis: { id_tenaga_medis: string; nama_tenaga_medis: string; nik: string }[] = [];
+  try {
+    tenagaMedis = await prisma.$queryRaw`
+      SELECT
+        CAST(id_tenaga_medis AS TEXT) AS id_tenaga_medis,
+        nama_tenaga_medis,
+        CAST(nik AS TEXT) AS nik
+      FROM "Tenaga_Medis"
+      ORDER BY nama_tenaga_medis ASC
+    `;
+  } catch {
+    tenagaMedis = await prisma.$queryRaw`
+      SELECT
+        CAST(id_tenaga_medis AS TEXT) AS id_tenaga_medis,
+        nama_tenaga_medis,
+        CAST(kode_tenaga_medis AS TEXT) AS nik
+      FROM "Tenaga_Medis"
+      ORDER BY nama_tenaga_medis ASC
+    `;
+  }
 
   const notifications = await prisma.notifikasi.findMany({
     select:{
@@ -51,7 +67,7 @@ const LaktasiMedisPage = async () => {
             <h2 className="font-bold text-white">Pengajuan Laktasi</h2>
           </div>
           <div className="mt-4">
-            <KlinikScanner dataUser={pegawai} />
+            <KlinikScanner dataUser={tenagaMedis} />
           </div>
         </div>
       </div>

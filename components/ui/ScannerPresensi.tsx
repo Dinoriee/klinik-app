@@ -19,7 +19,7 @@ import { usePathname } from 'next/navigation';
 //     nik: string;
 // }
 
-type person = {id_pegawai?: string; id_tenaga_medis?: string; nama_pegawai?: string; nama_tenaga_medis?: string; nik?: string}
+type person = {id_pegawai?: string; id_tenaga_medis?: string; nama_pegawai?: string; nama_tenaga_medis?: string; nik: string}
 type AttendanceType = "presensi" | "istirahat-sakit" | "laktasi" | "istirahat-hamil";
 
 export default function KlinikScanner({dataUser} : {dataUser: person[]}) {
@@ -71,9 +71,9 @@ export default function KlinikScanner({dataUser} : {dataUser: person[]}) {
       if(!selectedId) return toast.error("Masukkan data yang valid!");
       console.log(selectedId);
         const selectedPerson = dataUser.find(t => t.nik === selectedId);
-        const nama = selectedPerson ? selectedPerson.nama_tenaga_medis : "Unknown";
+        const nama = selectedPerson ? (selectedPerson.nama_tenaga_medis || selectedPerson.nama_pegawai) : "Unknown";
 
-        const res = await fetch('/api/tenaga-medis/presensi', {
+        const res = await fetch(`/api/tenaga-medis/${attendanceType}`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({

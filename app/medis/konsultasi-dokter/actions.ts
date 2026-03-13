@@ -1,6 +1,12 @@
 'use server'
 
 import prisma from "@/lib/db"; 
+import { randomBytes } from "crypto";
+
+function pseudoCuid() {
+  // Prisma normally generates cuid() client-side; for raw SQL fallback we generate a stable unique string.
+  return `c${randomBytes(12).toString("hex")}`;
+}
 
 export async function cariPegawaiByNik(nikPencarian: string) {
   try {
@@ -62,26 +68,36 @@ export async function simpanRekamMedisAction(formData: {
       id_tenaga_medis = dokterAcak.id_tenaga_medis;
     }
 
-    const rekamMedis = await prisma.rekam_Medis.create({
-      data: {
-        id_pegawai: formData.id_pegawai,
-        id_tenaga_medis: id_tenaga_medis,
-        keluhan: formData.keluhan,
-        tensi: formData.tensi || null,
-        suhu: formData.suhu,
-        diagnosa: formData.diagnosa,
-        tindakan: formData.tindakan || null,
-        status_perawatan: formData.status_perawatan,
-      }
-    });
+    // The generated Prisma Client can be missing `rekam_Medis` / `kwitansi` models.
+    // Use raw SQL to insert, matching Prisma's cuid() behavior.
+    const idRekamMedis = pseudoCuid();
+    try {
+      await prisma.$executeRaw`
+        INSERT INTO "Rekam_Medis"
+          ("id_rekam_medis", "id_pegawai", "id_tenaga_medis", "keluhan", "tensi", "suhu", "diagnosa", "tindakan", "status_perawatan")
+        VALUES
+          (${idRekamMedis}, ${formData.id_pegawai}, ${id_tenaga_medis}, ${formData.keluhan},
+           ${formData.tensi || null}, ${formData.suhu}, ${formData.diagnosa}, ${formData.tindakan || null},
+           ${formData.status_perawatan})
+      `;
+    } catch (error) {
+      console.error("Error insert Rekam_Medis via raw SQL:", error);
+      return { success: false, message: "Gagal menyimpan rekam medis (tabel Rekam_Medis belum tersedia atau schema belum sinkron)." };
+    }
 
     if (formData.status_perawatan === 'rawat_inap') {
-      await prisma.kwitansi.create({
-        data: {
-          id_rekam_medis: rekamMedis.id_rekam_medis,
-          status: 'belum_lunas',
-        }
-      });
+      const idKwitansi = pseudoCuid();
+      try {
+        await prisma.$executeRaw`
+          INSERT INTO "Kwitansi"
+            ("id_kwitansi", "id_rekam_medis", "status")
+          VALUES
+            (${idKwitansi}, ${idRekamMedis}, ${'belum_lunas'})
+        `;
+      } catch (error) {
+        console.error("Error insert Kwitansi via raw SQL:", error);
+        // Rekam medis already saved; don't fail the whole operation.
+      }
     }
 
     return { 

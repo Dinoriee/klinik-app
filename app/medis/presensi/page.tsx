@@ -16,13 +16,26 @@ const PresensiTenagaMedis = async () => {
   const session = await getServerSession(AuthOptions);
   console.log(session);
 
-  const tenagaMedis = await prisma.tenaga_Medis.findMany({
-    select: {
-      id_tenaga_medis: true,
-      nama_tenaga_medis: true,
-      nik: true,
-    },
-  });
+  let tenagaMedis: { id_tenaga_medis: string; nama_tenaga_medis: string; nik: string }[] = [];
+  try {
+    tenagaMedis = await prisma.$queryRaw`
+      SELECT
+        CAST(id_tenaga_medis AS TEXT) AS id_tenaga_medis,
+        nama_tenaga_medis,
+        CAST(nik AS TEXT) AS nik
+      FROM "Tenaga_Medis"
+      ORDER BY nama_tenaga_medis ASC
+    `;
+  } catch {
+    tenagaMedis = await prisma.$queryRaw`
+      SELECT
+        CAST(id_tenaga_medis AS TEXT) AS id_tenaga_medis,
+        nama_tenaga_medis,
+        CAST(kode_tenaga_medis AS TEXT) AS nik
+      FROM "Tenaga_Medis"
+      ORDER BY nama_tenaga_medis ASC
+    `;
+  }
 
   const notifications = await prisma.notifikasi.findMany({
     select:{

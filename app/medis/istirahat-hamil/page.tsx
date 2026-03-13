@@ -8,13 +8,27 @@ import prisma from "@/lib/db";
 const IstirahatHamilMedisPage = async () => {
   const session = await getServerSession(AuthOptions);
   await ensureAktivitasMedisTable();
-  const pegawai = await prisma.pegawai.findMany({
-    select:{
-      id_pegawai: true,
-      nama_pegawai: true,
-      nik: true,
-    }
-  });
+
+  let tenagaMedis: { id_tenaga_medis: string; nama_tenaga_medis: string; nik: string }[] = [];
+  try {
+    tenagaMedis = await prisma.$queryRaw`
+      SELECT
+        CAST(id_tenaga_medis AS TEXT) AS id_tenaga_medis,
+        nama_tenaga_medis,
+        CAST(nik AS TEXT) AS nik
+      FROM "Tenaga_Medis"
+      ORDER BY nama_tenaga_medis ASC
+    `;
+  } catch {
+    tenagaMedis = await prisma.$queryRaw`
+      SELECT
+        CAST(id_tenaga_medis AS TEXT) AS id_tenaga_medis,
+        nama_tenaga_medis,
+        CAST(kode_tenaga_medis AS TEXT) AS nik
+      FROM "Tenaga_Medis"
+      ORDER BY nama_tenaga_medis ASC
+    `;
+  }
 
   const notifications = await prisma.notifikasi.findMany({
     select:{
@@ -51,7 +65,7 @@ const IstirahatHamilMedisPage = async () => {
             <h2 className="font-bold text-white">Pengajuan Istirahat Hamil</h2>
           </div>
           <div className="mt-4">
-            <KlinikScanner dataUser={pegawai} />
+            <KlinikScanner dataUser={tenagaMedis} />
           </div>
         </div>
       </div>

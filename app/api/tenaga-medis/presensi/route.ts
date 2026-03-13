@@ -6,23 +6,44 @@ export async function POST(req: Request) {
   try{
     const { keterangan, nama, nik } = await req.json();
 
+    const trimmedNik = typeof nik === "string" ? nik.trim() : "";
+    if (!trimmedNik) {
+      return NextResponse.json({ message: "NIK tidak boleh kosong!" }, { status: 400 });
+    }
+
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
     
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
 
-    const userId = await prisma.tenaga_Medis.findFirst({
-        where:{
-            nik: nik,
-        },
-    })
+    type TenagaMedisLookup = { id_tenaga_medis: string; nama_tenaga_medis: string };
+    let tenagaMedis: TenagaMedisLookup | null = null;
 
-    if (!userId){
-        NextResponse.json({messagge: "NIK tidak terdaftar!"}, {status: 404});
+    try {
+      const rows = await prisma.$queryRaw<TenagaMedisLookup[]>`
+        SELECT CAST(id_tenaga_medis AS TEXT) AS id_tenaga_medis, nama_tenaga_medis
+        FROM "Tenaga_Medis"
+        WHERE CAST(nik AS TEXT) = ${trimmedNik}
+        LIMIT 1
+      `;
+      tenagaMedis = rows[0] ?? null;
+    } catch {
+      // If the DB schema doesn't have `nik`, fall back to using `kode_tenaga_medis`.
+      const rows = await prisma.$queryRaw<TenagaMedisLookup[]>`
+        SELECT CAST(id_tenaga_medis AS TEXT) AS id_tenaga_medis, nama_tenaga_medis
+        FROM "Tenaga_Medis"
+        WHERE kode_tenaga_medis = ${trimmedNik}
+        LIMIT 1
+      `;
+      tenagaMedis = rows[0] ?? null;
     }
 
-    const id = userId?.id_tenaga_medis;
+    if (!tenagaMedis) {
+      return NextResponse.json({ message: "NIK tidak terdaftar!" }, { status: 404 });
+    }
+
+    const id = tenagaMedis.id_tenaga_medis;
 
     const existing = await prisma.presensi_Tenaga_Medis.findFirst({
         where:{
@@ -33,22 +54,17 @@ export async function POST(req: Request) {
             },
         },
     });
-
-    const getName = await prisma.tenaga_Medis.findUnique({
-        where:{
-            id_tenaga_medis: id,
-        },
-    });
     
+    const normalizedKeterangan = keterangan === "izin" ? "izin" : "hadir";
 
     if(!existing) {
         await prisma.presensi_Tenaga_Medis.create({
             data:{
                 id_tenaga_medis: id,
-                keterangan: keterangan || 'hadir',
+                keterangan: normalizedKeterangan,
             },
         });
-        return NextResponse.json({message: `Sukses Check In, Halo ${nama || getName?.nama_tenaga_medis}`})
+        return NextResponse.json({message: `Sukses Check In, Halo ${nama || tenagaMedis.nama_tenaga_medis}`})
     }
 
     if(existing && existing.jam_keluar) {
@@ -63,7 +79,7 @@ export async function POST(req: Request) {
         data: {jam_keluar: new Date()},
     });
 
-    return NextResponse.json({message: `Check out sukses, hati-hati di jalan ${nama || getName?.nama_tenaga_medis}`});
+    return NextResponse.json({message: `Check out sukses, hati-hati di jalan ${nama || tenagaMedis.nama_tenaga_medis}`});
   }catch (error){
     console.error(error);
     return NextResponse.json({message: "Something went wrong"}, {status: 500})

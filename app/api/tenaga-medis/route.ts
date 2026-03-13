@@ -19,8 +19,21 @@ export async function POST(request: Request) {
             if (tenagaMedis) {
                 await prisma.tenaga_Medis.update({
                     where: { id_tenaga_medis },
-                    data: { kode_tenaga_medis, nama_tenaga_medis, jabatan, nik } 
+                    // `nik` might not exist in the current Prisma Client schema; set it using raw SQL below.
+                    data: { kode_tenaga_medis, nama_tenaga_medis, jabatan } 
                 });
+
+                if (nik) {
+                    try {
+                        await prisma.$executeRaw`
+                          UPDATE "Tenaga_Medis"
+                          SET nik = ${nik}
+                          WHERE CAST(id_tenaga_medis AS TEXT) = ${String(id_tenaga_medis)}
+                        `;
+                    } catch {
+                        // Ignore when the DB schema doesn't have `nik` (or type mismatch); kode_tenaga_medis can be used as fallback.
+                    }
+                }
 
                 if (password) {
                     await prisma.user.update({
@@ -48,9 +61,18 @@ export async function POST(request: Request) {
             }
 
             if (nik) {
-                 const cekNik = await prisma.tenaga_Medis.findFirst({ where: { nik } });
-                 if (cekNik) {
-                     return NextResponse.json({ message: "Gagal: NIK sudah terdaftar!" }, { status: 400 });
+                 try {
+                     const rows = await prisma.$queryRaw<{ id_tenaga_medis: string }[]>`
+                       SELECT CAST(id_tenaga_medis AS TEXT) AS id_tenaga_medis
+                       FROM "Tenaga_Medis"
+                       WHERE CAST(nik AS TEXT) = ${String(nik)}
+                       LIMIT 1
+                     `;
+                     if (rows.length > 0) {
+                         return NextResponse.json({ message: "Gagal: NIK sudah terdaftar!" }, { status: 400 });
+                     }
+                 } catch {
+                     // If DB schema doesn't have `nik`, skip uniqueness check.
                  }
             }
 
@@ -59,15 +81,27 @@ export async function POST(request: Request) {
                     data: { email, password, name: nama_tenaga_medis, role }
                 });
 
-                await tx.tenaga_Medis.create({
+                const createdTenaga = await tx.tenaga_Medis.create({
                     data: {
                         id_user: newUser.id_user, 
                         kode_tenaga_medis,
                         nama_tenaga_medis,
                         jabatan,
-                        nik 
+                        // `nik` might not exist in the current Prisma Client schema; set it using raw SQL below.
                     }
                 });
+
+                if (nik) {
+                    try {
+                        await tx.$executeRaw`
+                          UPDATE "Tenaga_Medis"
+                          SET nik = ${nik}
+                          WHERE CAST(id_tenaga_medis AS TEXT) = ${String(createdTenaga.id_tenaga_medis)}
+                        `;
+                    } catch {
+                        // Ignore when the DB schema doesn't have `nik` (or type mismatch).
+                    }
+                }
             });
         }
 
