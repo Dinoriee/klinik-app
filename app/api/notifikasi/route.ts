@@ -1,5 +1,15 @@
-import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
+import prisma from "@/lib/db";
+import { syncMedicineNotifications } from "@/lib/notifikasi";
+
+export async function POST() {
+  try {
+    const result = await syncMedicineNotifications();
+    return NextResponse.json({ message: "Success", ...result });
+  } catch {
+    return NextResponse.json({ message: "Gagal sinkronisasi" }, { status: 500 });
+  }
+}
 
 export async function PATCH() {
   try {
@@ -8,7 +18,7 @@ export async function PATCH() {
       data: { status: 'read' }
     });
     return NextResponse.json({ message: "Success" });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ message: "Gagal update" }, { status: 500 });
   }
 }

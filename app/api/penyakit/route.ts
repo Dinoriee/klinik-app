@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    const id_penyakit = data.id_penyakit ? Number(data.id_penyakit) : null;
+    const id_penyakit = typeof data.id_penyakit === "string" ? data.id_penyakit : null;
     const nama_penyakit = data.nama_penyakit?.trim();
 
     if (!nama_penyakit) {
@@ -40,7 +40,7 @@ export async function DELETE(request: Request) {
     }
 
     await prisma.penyakit.delete({
-      where: { id_penyakit: Number(id_penyakit) },
+      where: { id_penyakit },
     });
 
     return NextResponse.json({ message: "Berhasil dihapus" }, { status: 200 });

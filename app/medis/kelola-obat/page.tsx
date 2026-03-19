@@ -1,6 +1,7 @@
-import prisma from "@/lib/db"; 
+import prisma from "@/lib/db";
 import ObatClient from "./ObatClient";
 import { getServerSession } from "next-auth/next";
+import { AuthOptions } from "@/lib/auth";
 
 export default async function KelolaObat({
   searchParams,
@@ -9,9 +10,9 @@ export default async function KelolaObat({
 }) {
   const resolvedSearchParams = await searchParams;
   const query = resolvedSearchParams.query || "";
-  const session = await getServerSession();
+  await getServerSession(AuthOptions);
   
-  const dataDariDB = await prisma.obat.findMany({
+  const obatList = await prisma.obat.findMany({
     where: {
       OR: [
         { nama_obat: { contains: query, mode: "insensitive" } },
@@ -23,15 +24,9 @@ export default async function KelolaObat({
     },
   });
 
-  const obatListYangSudahDiterjemahkan = dataDariDB.map((obat) => ({
-    idObat: obat.id_obat, 
-    namaObat: obat.nama_obat,
-    namaBatch: obat.nama_batch,
-    jenisObat: obat.jenis_obat,
-    stokSaatIni: obat.stok_saat_ini,
-    satuan: obat.satuan,
-    expiredDate: obat.expired_date.toISOString(),
-    reorderLevel: obat.reorder_level,
+  const serializedObatList = obatList.map((obat) => ({
+    ...obat,
+    expired_date: obat.expired_date.toISOString(),
   }));
 
   const notifications = await prisma.notifikasi.findMany({
@@ -53,7 +48,7 @@ export default async function KelolaObat({
 
   return (
     <div className="w-full">
-      <ObatClient obatList={obatListYangSudahDiterjemahkan} query={query} notifications={notifications} />
+      <ObatClient obatList={serializedObatList} query={query} notifications={notifications} />
     </div>
   );
 }
