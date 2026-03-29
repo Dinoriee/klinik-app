@@ -102,7 +102,7 @@ export default function KonsultasiAdminClient({ rekamList, query, notifications 
                             className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
                             suppressHydrationWarning
                         >
-                            <Download size={16} /> Export Excel
+                            <Download size={16} /> Export
                         </button>
                     </div>
                 </div>

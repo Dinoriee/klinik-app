@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
 
@@ -18,7 +18,16 @@ interface PresensiSakit {
     pegawai: Pegawai;
 }
 
-export default function IstirahatSakitClient({ dataList, query, notifications }: { dataList: PresensiSakit[], query: string, notifications: any[] }) {
+interface Notif {
+    id_obat: string;
+    obat: {
+        nama_obat: string;
+    };
+    pesan: string;
+    status: string;
+}
+
+export default function IstirahatSakitClient({ dataList, query, notifications }: { dataList: PresensiSakit[], query: string, notifications: Notif[] }) {
     const { data: session } = useSession();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -28,6 +37,33 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
             day: '2-digit', month: 'short', year: 'numeric',
             hour: '2-digit', minute: '2-digit'
         }).format(new Date(tanggalString));
+    };
+
+    const handleExportExcel = async () => {
+        if (dataList.length === 0) {
+            alert("Tidak ada data untuk diexport!");
+            return;
+        }
+
+        try {
+            const XLSX = await import("xlsx");
+            const dataToExport = dataList.map((data, index) => ({
+                "No": index + 1,
+                "Waktu Tercatat": formatTanggal(data.jam_masuk),
+                "NIK Pasien": data.pegawai?.nik || "-",
+                "Nama Pasien": data.pegawai?.nama_pegawai || "-",
+                "Departemen": data.pegawai?.departemen || "-",
+                "Status": "Sakit",
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Data Istirahat Sakit");
+            XLSX.writeFile(workbook, `Rekap_Istirahat_Sakit_${new Date().toISOString().split('T')[0]}.xlsx`);
+        } catch (error) {
+            console.error("Error exporting Excel:", error);
+            alert("Gagal mengexport file Excel");
+        }
     };
 
     const totalPages = Math.ceil(dataList.length / itemsPerPage);
@@ -57,6 +93,13 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
                             />
                             <button type="submit" className="hidden">Cari</button>
                         </form>
+
+                        <button
+                            onClick={handleExportExcel}
+                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
+                        >
+                            <Download size={16} /> Export
+                        </button>
                     </div>
                 </div>
 

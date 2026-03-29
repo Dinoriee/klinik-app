@@ -21,6 +21,15 @@ interface RiwayatPermintaan {
     detail_permintaan?: ObatDetail[];
 }
 
+interface Notif {
+    id_obat: string;
+    obat: {
+        nama_obat: string;
+    };
+    pesan: string;
+    status: string;
+}
+
 export default function MintaObatClient({ 
     riwayatList, 
     query,
@@ -28,7 +37,7 @@ export default function MintaObatClient({
 }: { 
     riwayatList: RiwayatPermintaan[], 
     query: string,
-    notifications: any[]
+    notifications: Notif[]
 }) {
     // --- MENGAMBIL DATA SESSION USER ---
     const { data: session } = useSession();
@@ -113,9 +122,9 @@ export default function MintaObatClient({
                         
                         <button 
                             onClick={exportToExcel}
-                            className="flex items-center gap-2 border border-blue-400 text-blue-500 hover:bg-blue-50 px-4 py-2 rounded-md transition-colors text-sm font-medium"
+                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
                         >
-                            <Download size={16} /> Export Rekap
+                            <Download size={16} /> Export
                         </button>
                         
                     </div>
