@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import UserAccount from "@/components/ui/userAccount";
 import ScannerKonsultasiDokter from "@/components/ui/ScannerKonsultasiDokter";
 import { useSession } from "next-auth/react";
@@ -18,7 +18,6 @@ export default function KonsultasiDokterClient({ notifications }: { notification
   const [manualNik, setManualNik] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasilPegawai, setHasilPegawai] = useState<Pegawai | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const [isSavingForm, setIsSavingForm] = useState(false);
   const [tahap, setTahap] = useState<"pencarian" | "konsultasi">("pencarian");
@@ -131,10 +130,10 @@ export default function KonsultasiDokterClient({ notifications }: { notification
       </div>
 
       {tahap === "pencarian" && (
-          <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
-            <div className="flex justify-between items-center border-b pb-4">
+        <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
+          <div className="flex justify-between items-center border-b pb-4">
             <h2 className="font-bold text-gray-800 text-lg">Cari Data Pegawai</h2>
-            </div>
+          </div>
 
           <div className="mt-4 mb-8">
             <ScannerKonsultasiDokter onScanSuccess={handleScan} />
@@ -143,7 +142,6 @@ export default function KonsultasiDokterClient({ notifications }: { notification
           <h3 className="text-2xl font-bold text-black mb-4">Input Manual</h3>
           <div className="flex gap-4 max-w-md">
             <input
-              ref={inputRef}
               type="text"
               placeholder="Cari NIK..."
               className="flex-1 border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"

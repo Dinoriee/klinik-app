@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { BarcodeFormat, BrowserMultiFormatReader, DecodeHintType } from "@zxing/library";
 import { PuffLoader } from "react-spinners";
 import { toast } from "sonner";
+import { pickPreferredCameraDevice } from "@/lib/camera";
 
 export default function ScannerIstirahatHamil() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -76,10 +77,7 @@ export default function ScannerIstirahatHamil() {
     codeReader
       .listVideoInputDevices()
       .then((devices) => {
-        const preferredDevice =
-          devices.find((d) => /back|rear|environment/i.test(d.label)) ??
-          (devices.length > 1 ? devices[1] : undefined) ??
-          devices[0];
+        const preferredDevice = pickPreferredCameraDevice(devices);
         const deviceId = preferredDevice?.deviceId;
         if (deviceId && videoRef.current) {
           codeReader.decodeFromVideoDevice(deviceId, videoRef.current, (result) => {

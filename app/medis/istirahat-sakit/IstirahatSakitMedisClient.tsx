@@ -2,7 +2,7 @@
 
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
-import { useState, useRef } from "react"; // PERUBAHAN: Tambahkan useRef
+import { useState } from "react";
 import ScannerIstirahatSakit from "@/components/ui/ScannerIstirahatSakit";
 import { toast } from "sonner";
 
@@ -10,9 +10,6 @@ export default function IstirahatSakitMedisClient({ notifications }: { notificat
     const { data: session } = useSession();
     const [manualNik, setManualNik] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    
-    // PERUBAHAN: Membuat referensi untuk kolom input manual
-    const inputRef = useRef<HTMLInputElement>(null);
 
     const prosesDataSakit = async (dataInput: string) => {
         if (!dataInput) {
@@ -54,7 +51,6 @@ export default function IstirahatSakitMedisClient({ notifications }: { notificat
 
     return (
         <div className="flex flex-col relative">
-            
             <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
                 <div className="flex flex-col">
                     <span className="text-gray-100 font-bold text-lg leading-none">Istirahat Sakit</span>
@@ -65,7 +61,6 @@ export default function IstirahatSakitMedisClient({ notifications }: { notificat
             </div>
 
             <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
-                 
                 <div className="flex justify-between items-center border-b pb-4">
                     <h2 className="font-bold text-gray-800 text-lg">Pengajuan Istirahat Sakit</h2>
                 </div>
@@ -76,9 +71,7 @@ export default function IstirahatSakitMedisClient({ notifications }: { notificat
 
                 <h3 className="text-2xl font-bold text-black mb-4">Input Manual</h3>
                 <div className="flex gap-4 max-w-md">
-                    {/* PERUBAHAN: Menempelkan ref ke elemen input */}
                     <input 
-                        ref={inputRef}
                         type="text" 
                         placeholder="Cari NIK..." 
                         className="flex-1 border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
@@ -94,9 +87,7 @@ export default function IstirahatSakitMedisClient({ notifications }: { notificat
                         {isLoading ? "Proses..." : "Simpan"}
                     </button>
                 </div>
-                
             </div>
-            
         </div>
     );
 }

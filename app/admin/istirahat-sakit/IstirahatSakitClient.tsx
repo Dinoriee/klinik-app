@@ -202,13 +202,6 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
                                 <Download size={16} /> Export Excel
                             </button>
                         </form>
-                        <button
-                            type="button"
-                            onClick={() => router.refresh()}
-                            className="px-4 py-2 border rounded-md border-gray-300 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                        >
-                            Refresh
-                        </button>
                     </div>
                 </div>
 
