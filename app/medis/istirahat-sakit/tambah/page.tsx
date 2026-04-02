@@ -81,7 +81,7 @@ export default function TambahIstirahatSakitPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col p-6">
       
       <div className="w-full flex justify-end mb-4">
-        <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
+        <UserAccount userName={session?.user?.name || "Medis"} />
       </div>
 
       <div className="flex justify-center items-start flex-1">

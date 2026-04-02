@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -48,9 +48,9 @@ export default function TambahPegawaiButton() {
     <>
       <button
         onClick={() => setModalOpen(true)}
-        className="bg-blue-500 hover:bg-blue-600 px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 text-white"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors"
       >
-        + Tambah Data
+        <Plus size={16} /> Tambah Data
       </button>
 
       {isModalOpen && (

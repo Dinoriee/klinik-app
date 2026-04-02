@@ -97,7 +97,7 @@ function IstirahatSakitTable({ dataList }: { dataList: PresensiSakit[] }) {
                             <ChevronLeft size={16} />
                         </button>
 
-                        <span className="text-sm font-medium text-gray-700 px-4">
+                        <span className="text-sm font-bold text-gray-700 px-4">
                             Halaman {currentPage} / {totalPages}
                         </span>
 
@@ -172,11 +172,11 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
     return (
         <div className="flex flex-col gap-4 relative">
             
-            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+            <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-black">Admin / <span className="text-white font-bold">Riwayat Istirahat Sakit</span></h1>
+                    <span className="text-white font-bold text-lg leading-none">Riwayat Istirahat Sakit</span>
                 </div>
-                <UserAccount notifications={notifications} userName={session?.user?.name || "Administrator"} />
+                <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
             </div>
 
             <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mx-4 mb-4">
@@ -197,7 +197,7 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
                                     e.preventDefault();
                                     void handleExportExcel();
                                 }}
-                                className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2 ml-2"
+                                className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors ml-2"
                             >
                                 <Download size={16} /> Export Excel
                             </button>

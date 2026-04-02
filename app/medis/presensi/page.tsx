@@ -56,23 +56,22 @@ const PresensiTenagaMedis = async () => {
 
   return (
     <div>
-      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+      <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-black">
-            Klinik<span className="text-white"> / Presensi</span>
-          </h1>
-          <span className="text-white font-bold">Presensi</span>
+          <span className="text-gray-100 font-bold text-lg leading-none">Presensi</span>
         </div>
-        <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
+        <div className="flex space-x-1">
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Medis"} />
+        </div>
       </div>
       <div className="bg-gray-50 text-gray-600 m-4 p-4 rounded-md shadow-md">
-        <div className="flex justify-between">
-          <h2 className="font-bold">Presensi</h2>
+        <div className="flex justify-between mb-4">
+          <h2 className="font-bold text-gray-800 text-lg">Scanner Presensi</h2>
           <div className="flex space-x-2 p-2">
             {/* <PresensiButton tenagaMedis={tenagaMedis} /> */}
           </div>
         </div>
-        <div>
+        <div className="mt-2">
           {/* revisi scan nik */}
           <KlinikScanner dataUser={tenagaMedis} />
         </div>

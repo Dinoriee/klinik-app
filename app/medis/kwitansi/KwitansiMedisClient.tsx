@@ -31,6 +31,13 @@ interface KwitansiData {
     };
 }
 
+type Notification = {
+    id_obat: string;
+    obat: { nama_obat: string } | null;
+    pesan: string;
+    status: string;
+};
+
 export default function KwitansiMedisClient({
     kwitansiList,
     query,
@@ -40,7 +47,7 @@ export default function KwitansiMedisClient({
     kwitansiList: KwitansiData[];
     query: string;
     status: string;
-    notifications: any[];
+    notifications: Notification[];
 }) {
     const { data: session } = useSession();
     const router = useRouter();
@@ -143,13 +150,13 @@ export default function KwitansiMedisClient({
 
     return (
         <div className="flex flex-col gap-4 relative">
-            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+            <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-black">
-                        Klinik / Medis / <span className="text-white font-bold">Kwitansi</span>
-                    </h1>
+                    <span className="text-gray-100 font-bold text-lg leading-none">Kwitansi</span>
                 </div>
-                <UserAccount notifications={notifications} userName={session?.user?.name || "Medis"} />
+                <div className="flex space-x-1">
+                    <UserAccount notifications={notifications} userName={session?.user?.name || "Medis"} />
+                </div>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">

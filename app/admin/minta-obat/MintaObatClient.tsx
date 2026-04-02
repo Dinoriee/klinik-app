@@ -21,6 +21,13 @@ interface RiwayatPermintaan {
     detail_permintaan?: ObatDetail[];
 }
 
+type Notification = {
+    id_obat: string;
+    obat: { nama_obat: string } | null;
+    pesan: string;
+    status: string;
+};
+
 export default function MintaObatClient({ 
     riwayatList, 
     query,
@@ -28,14 +35,14 @@ export default function MintaObatClient({
 }: { 
     riwayatList: RiwayatPermintaan[], 
     query: string,
-    notifications: any[]
+    notifications: Notification[]
 }) {
     // --- MENGAMBIL DATA SESSION USER ---
     const { data: session } = useSession();
 
     // --- STATE UNTUK PAGINATION ---
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
     
     const formatTanggal = (tanggalString: string) => {
         return new Intl.DateTimeFormat('id-ID', {
@@ -90,9 +97,9 @@ export default function MintaObatClient({
             {/* ========================================= */}
             {/* HEADER: USER ACCOUNT DI KANAN ATAS          */}
             {/* ========================================= */}
-            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+            <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-black">Klinik / Transaksi / <span className="text-white font-bold">Minta Obat (Log Aktivitas)</span></h1>
+                    <span className="text-white font-bold text-lg leading-none">Log Aktivitas Obat</span>
                 </div>
                 <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
             </div>
@@ -113,9 +120,9 @@ export default function MintaObatClient({
                         
                         <button 
                             onClick={exportToExcel}
-                            className="flex items-center gap-2 border border-blue-400 text-blue-500 hover:bg-blue-50 px-4 py-2 rounded-md transition-colors text-sm font-medium"
+                            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors"
                         >
-                            <Download size={16} /> Export Rekap
+                            <Download size={16} /> Export Excel
                         </button>
                         
                     </div>
@@ -182,7 +189,7 @@ export default function MintaObatClient({
                                 <ChevronLeft size={16} />
                             </button>
                             
-                            <span className="text-sm font-medium text-gray-700 px-4">
+                            <span className="text-sm font-bold text-gray-700 px-4">
                                 Halaman {currentPage} / {totalPages}
                             </span>
                             

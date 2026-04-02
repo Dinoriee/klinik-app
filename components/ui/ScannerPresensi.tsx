@@ -22,7 +22,13 @@ import { usePathname } from 'next/navigation';
 type person = {id_pegawai?: string; id_tenaga_medis?: string; nama_pegawai?: string; nama_tenaga_medis?: string; nik: string}
 type AttendanceType = "presensi" | "istirahat-sakit" | "laktasi" | "istirahat-hamil";
 
-export default function KlinikScanner({dataUser} : {dataUser: person[]}) {
+export default function KlinikScanner({
+  dataUser,
+  manualTitle = "Presensi Manual",
+}: {
+  dataUser: person[];
+  manualTitle?: string;
+}) {
   const pathname = usePathname();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -178,7 +184,7 @@ export default function KlinikScanner({dataUser} : {dataUser: person[]}) {
         )}
       </div>
       <form className="mt-4 flex flex-col gap-4" onSubmit={handleSubmit}>
-            <span className="text-2xl font-bold">Presensi Manual</span>
+            <span className="text-2xl font-bold text-black">{manualTitle}</span>
             <div className="flex space-x-4">
               <Combobox
         items={dataUser}
@@ -209,7 +215,9 @@ export default function KlinikScanner({dataUser} : {dataUser: person[]}) {
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
-              <button className="bg-blue-400 text-white rounded-md w-32">Presensi</button>
+              <button className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-md w-32 font-semibold shadow-sm transition-colors">
+                Simpan
+              </button>
             </div>
           </form>
     </div>

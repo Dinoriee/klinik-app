@@ -25,11 +25,21 @@ interface Notif {
     status: string;
 }
 
-export default function KonsultasiAdminClient({ rekamList, query, notifications }: { rekamList: RekamMedis[], query: string, notifications: Notif[] }) {
+export default function KonsultasiAdminClient({
+    rekamList,
+    query,
+    notifications,
+    isRekamMedisTableMissing,
+}: {
+    rekamList: RekamMedis[];
+    query: string;
+    notifications: Notif[];
+    isRekamMedisTableMissing?: boolean;
+}) {
     const { data: session } = useSession();
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedRekam, setSelectedRekam] = useState<RekamMedis | null>(null);
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
 
     const formatTanggal = (tanggalString: string) => {
         return new Intl.DateTimeFormat('id-ID', {
@@ -76,9 +86,9 @@ export default function KonsultasiAdminClient({ rekamList, query, notifications 
     return (
         <div className="flex flex-col gap-4 relative">
             
-            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+            <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-black">Admin / <span className="text-white font-bold">Riwayat Konsultasi (Rekam Medis)</span></h1>
+                    <span className="text-white font-bold text-lg leading-none">Riwayat Konsultasi</span>
                 </div>
                 <UserAccount userName={session?.user?.name || "Admin"} notifications={notifications} />
             </div>
@@ -97,9 +107,9 @@ export default function KonsultasiAdminClient({ rekamList, query, notifications 
                             <button type="submit" className="hidden">Cari</button>
                         </form>
                         
-                        <button 
+                        <button
                             onClick={handleExportExcel}
-                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
+                            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors"
                             suppressHydrationWarning
                         >
                             <Download size={16} /> Export Excel
@@ -109,8 +119,17 @@ export default function KonsultasiAdminClient({ rekamList, query, notifications 
 
                 {rekamList.length === 0 ? (
                     <div className="text-center py-12">
-                        <p className="text-gray-400 mb-2">Belum ada riwayat rekam medis</p>
-                        <p className="text-xs text-gray-500">Data akan muncul di sini setelah dokter menyimpan konsultasi dari bagian Medis</p>
+                        {isRekamMedisTableMissing ? (
+                            <>
+                                <p className="text-gray-400 mb-2">Tabel rekam medis belum ada di database.</p>
+                                <p className="text-xs text-gray-500">Jalankan migrasi Prisma (mis. `npx prisma migrate dev`) sesuai database di `.env`.</p>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-gray-400 mb-2">Belum ada riwayat rekam medis</p>
+                                <p className="text-xs text-gray-500">Data akan muncul di sini setelah dokter menyimpan konsultasi dari bagian Medis</p>
+                            </>
+                        )}
                     </div>
                 ) : (
                     <>
@@ -180,7 +199,7 @@ export default function KonsultasiAdminClient({ rekamList, query, notifications 
                                         <ChevronLeft size={16} />
                                     </button>
                                     
-                                    <span className="text-sm font-medium text-gray-700 px-4">
+                                    <span className="text-sm font-bold text-gray-700 px-4">
                                         Halaman {currentPage} / {totalPages}
                                     </span>
                                     

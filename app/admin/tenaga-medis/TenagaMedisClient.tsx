@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import TambahTenagaMedisButton from "@/components/ui/TambahTenagaMedisButton";
 import EditTenagaMedisButton from "@/components/ui/EditTenagaMedisButton";
 import DeleteTenagaMedisButton from "@/components/ui/DeleteTenagaMedisButton";
@@ -19,11 +19,18 @@ interface TenagaMedis {
     } | null;
 }
 
-export default function TenagaMedisClient({ tenagaMedisList, query, notifications }: { tenagaMedisList: TenagaMedis[], query: string, notifications: any[] }) {
+type Notification = {
+    id_obat: string;
+    obat: { nama_obat: string } | null;
+    pesan: string;
+    status: string;
+};
+
+export default function TenagaMedisClient({ tenagaMedisList, query, notifications }: { tenagaMedisList: TenagaMedis[], query: string, notifications: Notification[] }) {
     
     const { data: session } = useSession();
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
     
     const handleExportExcel = async () => {
         try {
@@ -57,15 +64,13 @@ export default function TenagaMedisClient({ tenagaMedisList, query, notification
 
     return (
         <div className="flex flex-col gap-4 relative">
-            
-            {}
-            {}
-            {}
-            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+            <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-black">Klinik / Tenaga Medis / <span className="text-white font-bold">Kelola Tenaga Medis</span></h1>
+                    <span className="text-gray-100 font-bold text-lg leading-none">Kelola Tenaga Medis</span>
                 </div>
-                <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
+                <div className="flex space-x-1">
+                    <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
+                </div>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
@@ -82,14 +87,14 @@ export default function TenagaMedisClient({ tenagaMedisList, query, notification
                             <button type="submit" className="hidden">Cari</button>
                         </form>
                         
+                        <TambahTenagaMedisButton />
+                        
                         <button 
                             onClick={handleExportExcel}
-                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
+                            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors"
                         >
-                            Export
+                            <Download size={16} /> Export Excel
                         </button>
-                        
-                        <TambahTenagaMedisButton />
                     </div>
                 </div>
 
@@ -158,7 +163,7 @@ export default function TenagaMedisClient({ tenagaMedisList, query, notification
                                 <ChevronLeft size={16} />
                             </button>
                             
-                            <span className="text-sm font-medium text-gray-700 px-4">
+                            <span className="text-sm font-bold text-gray-700 px-4">
                                 Halaman {currentPage} / {totalPages}
                             </span>
                             

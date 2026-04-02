@@ -27,6 +27,7 @@ export default async function AdminKonsultasiPage({
 
     const like = `%${query}%`;
     let rekamList: RekamRow[] = [];
+    let isRekamMedisTableMissing = false;
     try {
         rekamList = await prisma.$queryRaw<RekamRow[]>`
             SELECT
@@ -51,8 +52,42 @@ export default async function AdminKonsultasiPage({
             ORDER BY r.tanggal_periksa DESC
         `;
     } catch (error) {
-        console.error("Error fetching Rekam_Medis via raw SQL:", error);
-        rekamList = [];
+        const pgCode = (error as any)?.meta?.code;
+        if (pgCode === "42P01") {
+            // Postgres: undefined_table. Avoid surfacing as a hard Next.js error overlay.
+            // Try a lowercase fallback (common when tables were created without quoting).
+            isRekamMedisTableMissing = true;
+            try {
+                rekamList = await prisma.$queryRaw<RekamRow[]>`
+                    SELECT
+                        CAST(r.id_rekam_medis AS TEXT) AS id_rekam_medis,
+                        r.tanggal_periksa,
+                        r.keluhan,
+                        r.tensi,
+                        r.suhu,
+                        r.diagnosa,
+                        r.tindakan,
+                        CAST(r.status_perawatan AS TEXT) AS status_perawatan,
+                        p.nama_pegawai AS pegawai_nama,
+                        CAST(p.nik AS TEXT) AS pegawai_nik,
+                        t.nama_tenaga_medis AS dokter_nama
+                    FROM rekam_medis r
+                    LEFT JOIN pegawai p ON p.id_pegawai = r.id_pegawai
+                    LEFT JOIN tenaga_medis t ON t.id_tenaga_medis = r.id_tenaga_medis
+                    WHERE
+                        p.nama_pegawai ILIKE ${like}
+                        OR t.nama_tenaga_medis ILIKE ${like}
+                        OR r.diagnosa ILIKE ${like}
+                    ORDER BY r.tanggal_periksa DESC
+                `;
+                isRekamMedisTableMissing = false;
+            } catch {
+                rekamList = [];
+            }
+        } else {
+            console.error("Error fetching rekam medis:", error);
+            rekamList = [];
+        }
     }
 
     const notifications = await prisma.notifikasi.findMany({
@@ -83,5 +118,12 @@ export default async function AdminKonsultasiPage({
         },
     }));
 
-    return <KonsultasiAdminClient rekamList={serializedRekam} query={query} notifications={notifications} />;
+    return (
+        <KonsultasiAdminClient
+            rekamList={serializedRekam}
+            query={query}
+            notifications={notifications}
+            isRekamMedisTableMissing={isRekamMedisTableMissing}
+        />
+    );
 }

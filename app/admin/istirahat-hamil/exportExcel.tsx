@@ -52,7 +52,7 @@ const ExportExcel = ({ users }: PresensiTableProps) => {
     <div className="">
           <button 
             onClick={handleExportExcel} 
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center gap-2 text-sm transition-all"
+            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors"
           >
             <Download size={16} /> Export Excel
           </button>

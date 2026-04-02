@@ -176,15 +176,12 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
 
   return (
     <div>
-      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+      <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-gray-800">
-            Klinik<span className="text-gray-100"> / Presensi</span>
-          </h1>
-          <span className="text-gray-100 font-bold">Dashboard Admin</span>
+          <span className="text-gray-100 font-bold text-lg leading-none">Dashboard Admin</span>
         </div>
         <div className="flex space-x-1">
-          <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
         </div>
       </div>
 
