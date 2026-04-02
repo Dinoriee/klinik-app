@@ -5,14 +5,14 @@ import { useState } from "react"
 
 interface obat{
     nama_obat: string,
-    stok_saat_ini: string,
+    stok_saat_ini: number,
     expired_date: string,
     reorder_level: number,
 }
 
-export default function ShowMedicineDetail({obat} : {obat: obat[]}){
+export default function ShowMedicineDetail({ obat = [] }: { obat?: obat[] }) {
     const [isOpen, setOpen] = useState(false);
-    const lowStock = obat.filter((item) => Number(item.stok_saat_ini) < item.reorder_level);
+    const lowStock = obat.filter((item) => item.stok_saat_ini < item.reorder_level);
     const now = new Date();
     const expired = obat.filter((item) => {
         const expiredDate = new Date(item.expired_date);
@@ -27,9 +27,9 @@ export default function ShowMedicineDetail({obat} : {obat: obat[]}){
                 <div className="flex flex-col gap-4 w-1/2 h-full text-nowrap">
                     <span className="text-md text-white border-b p-4">Obat Segera Expired</span>
                     <ul className="p-4">
-                        {expired.length < 0 ? (
-                            lowStock.map((item) => (
-                            <li className="flex flex-col border-t border-b first:border-t-0 last:border-b-0 text-white">
+                        {expired.length > 0 ? (
+                            expired.map((item) => (
+                            <li key={`${item.nama_obat}-${item.expired_date}`} className="flex flex-col border-t border-b first:border-t-0 last:border-b-0 text-white">
                                 <span className="font-bold">{item.nama_obat}</span>
                                 <span className="italic text-gray-400">Expired: {item.expired_date}</span>
                             </li>
@@ -45,7 +45,7 @@ export default function ShowMedicineDetail({obat} : {obat: obat[]}){
                     <ul className="p-4">
                         {lowStock.length > 0 ? (
                             lowStock.map((item) => (
-                            <li className="flex flex-col border-t border-b first:border-t-0 last:border-b-0 text-white">
+                            <li key={`${item.nama_obat}-${item.reorder_level}`} className="flex flex-col border-t border-b first:border-t-0 last:border-b-0 text-white">
                                 <span className="font-bold">{item.nama_obat}</span>
                                 <span className="italic text-xs">Jumlah obat saat ini: {item.stok_saat_ini}</span>
                             </li>

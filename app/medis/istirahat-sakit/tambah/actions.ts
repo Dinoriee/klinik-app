@@ -1,6 +1,7 @@
 'use server'
 
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export async function cariPegawaiByNik(nikPencarian: string) {
   try {
@@ -24,6 +25,9 @@ export async function catatIstirahatSakit(idPegawai: string) {
         tipe: "sakit",
       }
     });
+
+    revalidatePath("/medis/istirahat-sakit");
+    revalidatePath("/admin/istirahat-sakit");
 
     return { success: true, message: "Status Istirahat Sakit berhasil dicatat di sistem!" };
   } catch (error) {

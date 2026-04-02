@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface Pegawai {
     nik: string;
@@ -18,8 +19,14 @@ interface PresensiSakit {
     pegawai: Pegawai;
 }
 
-export default function IstirahatSakitClient({ dataList, query, notifications }: { dataList: PresensiSakit[], query: string, notifications: any[] }) {
-    const { data: session } = useSession();
+type Notification = {
+    id_obat: string;
+    obat: { nama_obat: string } | null;
+    pesan: string;
+    status: string;
+};
+
+function IstirahatSakitTable({ dataList }: { dataList: PresensiSakit[] }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
@@ -33,6 +40,110 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
     const totalPages = Math.ceil(dataList.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentData = dataList.slice(startIndex, startIndex + itemsPerPage);
+
+    return (
+        <>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                    <thead className="bg-gray-50 border-y text-gray-500">
+                        <tr>
+                            <th className="px-4 py-3 font-medium">No</th>
+                            <th className="px-4 py-3 font-medium">Waktu Tercatat</th>
+                            <th className="px-4 py-3 font-medium">NIK Pasien</th>
+                            <th className="px-4 py-3 font-medium">Nama Pasien</th>
+                            <th className="px-4 py-3 font-medium">Departemen</th>
+                            <th className="px-4 py-3 font-medium text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                        {currentData.length === 0 ? (
+                            <tr><td colSpan={6} className="text-center py-8 text-gray-400">Belum ada data pasien istirahat sakit yang tercatat.</td></tr>
+                        ) : (
+                            currentData.map((data, index) => {
+                                const actualNumber = startIndex + index + 1;
+
+                                return (
+                                    <tr key={data.id_presensi} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-4 py-3 text-gray-600">{actualNumber}</td>
+                                        <td className="px-4 py-3 text-gray-800 font-medium">{formatTanggal(data.jam_masuk)}</td>
+                                        <td className="px-4 py-3 font-mono text-gray-600">{data.pegawai?.nik || "-"}</td>
+                                        <td className="px-4 py-3 font-medium text-gray-800">{data.pegawai?.nama_pegawai || "-"}</td>
+                                        <td className="px-4 py-3 text-gray-600">{data.pegawai?.departemen || "-"}</td>
+                                        <td className="px-4 py-3 text-center">
+                                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
+                                                Sakit
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {dataList.length > 0 && (
+                <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                    <span className="text-sm text-gray-500">
+                        Menampilkan <span className="font-semibold text-gray-900">{startIndex + 1}</span> - <span className="font-semibold text-gray-900">{Math.min(startIndex + itemsPerPage, dataList.length)}</span> dari <span className="font-semibold text-gray-900">{dataList.length}</span> data
+                    </span>
+
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded-md border text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronLeft size={16} />
+                        </button>
+
+                        <span className="text-sm font-medium text-gray-700 px-4">
+                            Halaman {currentPage} / {totalPages}
+                        </span>
+
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            className="p-2 rounded-md border text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronRight size={16} />
+                        </button>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+}
+
+export default function IstirahatSakitClient({ dataList, query, notifications }: { dataList: PresensiSakit[], query: string, notifications: Notification[] }) {
+    const { data: session } = useSession();
+    const router = useRouter();
+
+    const dataVersion = useMemo(() => {
+        const firstId = dataList[0]?.id_presensi ?? "";
+        return `${query}|${dataList.length}|${firstId}`;
+    }, [dataList, query]);
+
+    useEffect(() => {
+        const refresh = () => router.refresh();
+
+        const onVisibilityChange = () => {
+            if (document.visibilityState === "visible") refresh();
+        };
+
+        window.addEventListener("focus", refresh);
+        document.addEventListener("visibilitychange", onVisibilityChange);
+
+        const intervalId = window.setInterval(() => {
+            if (document.visibilityState === "visible") refresh();
+        }, 5000);
+
+        return () => {
+            window.removeEventListener("focus", refresh);
+            document.removeEventListener("visibilitychange", onVisibilityChange);
+            window.clearInterval(intervalId);
+        };
+    }, [router]);
 
     return (
         <div className="flex flex-col gap-4 relative">
@@ -57,77 +168,17 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
                             />
                             <button type="submit" className="hidden">Cari</button>
                         </form>
+                        <button
+                            type="button"
+                            onClick={() => router.refresh()}
+                            className="px-4 py-2 border rounded-md border-gray-300 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        >
+                            Refresh
+                        </button>
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-gray-50 border-y text-gray-500">
-                            <tr>
-                                <th className="px-4 py-3 font-medium">No</th>
-                                <th className="px-4 py-3 font-medium">Waktu Tercatat</th>
-                                <th className="px-4 py-3 font-medium">NIK Pasien</th>
-                                <th className="px-4 py-3 font-medium">Nama Pasien</th>
-                                <th className="px-4 py-3 font-medium">Departemen</th>
-                                <th className="px-4 py-3 font-medium text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y">
-                            {currentData.length === 0 ? (
-                                <tr><td colSpan={6} className="text-center py-8 text-gray-400">Belum ada data pasien istirahat sakit yang tercatat.</td></tr>
-                            ) : (
-                                currentData.map((data, index) => {
-                                    const actualNumber = startIndex + index + 1;
-
-                                    return (
-                                        <tr key={data.id_presensi} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-4 py-3 text-gray-600">{actualNumber}</td>
-                                            <td className="px-4 py-3 text-gray-800 font-medium">{formatTanggal(data.jam_masuk)}</td>
-                                            <td className="px-4 py-3 font-mono text-gray-600">{data.pegawai?.nik || "-"}</td>
-                                            <td className="px-4 py-3 font-medium text-gray-800">{data.pegawai?.nama_pegawai || "-"}</td>
-                                            <td className="px-4 py-3 text-gray-600">{data.pegawai?.departemen || "-"}</td>
-                                            <td className="px-4 py-3 text-center">
-                                                <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
-                                                    Sakit
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {dataList.length > 0 && (
-                    <div className="flex items-center justify-between mt-6 pt-4 border-t">
-                        <span className="text-sm text-gray-500">
-                            Menampilkan <span className="font-semibold text-gray-900">{startIndex + 1}</span> - <span className="font-semibold text-gray-900">{Math.min(startIndex + itemsPerPage, dataList.length)}</span> dari <span className="font-semibold text-gray-900">{dataList.length}</span> data
-                        </span>
-                        
-                        <div className="flex items-center space-x-2">
-                            <button 
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className="p-2 rounded-md border text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                <ChevronLeft size={16} />
-                            </button>
-                            
-                            <span className="text-sm font-medium text-gray-700 px-4">
-                                Halaman {currentPage} / {totalPages}
-                            </span>
-                            
-                            <button 
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages || totalPages === 0}
-                                className="p-2 rounded-md border text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                <ChevronRight size={16} />
-                            </button>
-                        </div>
-                    </div>
-                )}
+                <IstirahatSakitTable key={dataVersion} dataList={dataList} />
                 
             </div>
         </div>

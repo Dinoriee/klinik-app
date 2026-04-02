@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BrowserMultiFormatReader } from "@zxing/library";
+import { BarcodeFormat, BrowserMultiFormatReader, DecodeHintType } from "@zxing/library";
 import { PuffLoader } from "react-spinners";
 import { toast } from "sonner";
 
@@ -14,9 +14,16 @@ export default function ScannerLaktasi() {
 
     setActive(false);
     try {
-      const barcodeData = JSON.parse(text);
-      const id = barcodeData?.id;
-      const nik = barcodeData?.nik;
+      let id: string | undefined;
+      let nik: string | undefined;
+
+      try {
+        const barcodeData = JSON.parse(text);
+        id = barcodeData?.id ? String(barcodeData.id) : undefined;
+        nik = barcodeData?.nik ? String(barcodeData.nik) : undefined;
+      } catch {
+        nik = String(text).trim();
+      }
 
       if (!id && !nik) {
         toast.error("QR tidak berisi ID atau NIK.");
@@ -47,12 +54,33 @@ export default function ScannerLaktasi() {
   }, [active]);
 
   useEffect(() => {
-    const codeReader = new BrowserMultiFormatReader();
+    const hints = new Map();
+    hints.set(DecodeHintType.TRY_HARDER, true);
+    hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+      BarcodeFormat.CODE_128,
+      BarcodeFormat.CODE_39,
+      BarcodeFormat.CODABAR,
+      BarcodeFormat.EAN_13,
+      BarcodeFormat.EAN_8,
+      BarcodeFormat.ITF,
+      BarcodeFormat.UPC_A,
+      BarcodeFormat.UPC_E,
+      BarcodeFormat.QR_CODE,
+      BarcodeFormat.DATA_MATRIX,
+      BarcodeFormat.AZTEC,
+      BarcodeFormat.PDF_417,
+    ]);
+
+    const codeReader = new BrowserMultiFormatReader(hints, 200);
 
     codeReader
       .listVideoInputDevices()
       .then((devices) => {
-        const deviceId = devices[0]?.deviceId;
+        const preferredDevice =
+          devices.find((d) => /back|rear|environment/i.test(d.label)) ??
+          (devices.length > 1 ? devices[1] : undefined) ??
+          devices[0];
+        const deviceId = preferredDevice?.deviceId;
         if (deviceId && videoRef.current) {
           codeReader.decodeFromVideoDevice(deviceId, videoRef.current, (result) => {
             if (result && active) handleScan(result.getText());
@@ -63,6 +91,7 @@ export default function ScannerLaktasi() {
       .catch((err) => {
         console.error(err);
         toast.error("Kamera tidak terdeteksi");
+        setLoading(false);
       });
 
     return () => codeReader.reset();

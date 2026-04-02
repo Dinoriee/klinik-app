@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { BrowserMultiFormatReader } from "@zxing/library";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { BarcodeFormat, BrowserMultiFormatReader, DecodeHintType } from "@zxing/library";
 import { PuffLoader } from "react-spinners";
 import { toast } from "sonner";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
@@ -29,41 +29,51 @@ export default function KlinikScanner({dataUser} : {dataUser: person[]}) {
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(true);
   const [selectedId, setSelectedId] = useState("");
-  const [attendanceType, setAttendanceType] = useState<AttendanceType>("presensi");
 
-  useEffect(() => {
-    if (pathname.includes("istirahat-sakit")) setAttendanceType("istirahat-sakit");
-    else if (pathname.includes("laktasi")) setAttendanceType("laktasi");
-    else if (pathname.includes("presensi")) setAttendanceType("presensi");
-    else setAttendanceType("istirahat-hamil");
+  const attendanceType = useMemo<AttendanceType>(() => {
+    if (pathname.includes("istirahat-sakit")) return "istirahat-sakit";
+    if (pathname.includes("laktasi")) return "laktasi";
+    if (pathname.includes("presensi")) return "presensi";
+    return "istirahat-hamil";
   }, [pathname]);
 
-  const handleScan = async (text: string) => {
+  const handleScan = useCallback(async (text: string) => {
     if (!active) return;
     setActive(false);
-    const barcodeData = JSON.parse(text);
 
-    const nik = barcodeData.nik;
-    console.log("Data barcode: ", text);
+    let nik = text;
+    try {
+      const barcodeData = JSON.parse(text);
+      nik = String(barcodeData?.nik ?? barcodeData?.id ?? text);
+    } catch {
+      nik = String(text);
+    }
 
+    nik = nik.trim();
+    if (!nik) {
+      toast.error("Barcode tidak berisi NIK.");
+      setTimeout(() => setActive(true), 1500);
+      return;
+    }
 
     try {
       setSelectedId(nik);
       const res = await fetch(`/api/tenaga-medis/${attendanceType}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nik: nik, keterangan: "hadir" })
+        body: JSON.stringify({ nik })
       });
 
       const data = await res.json();
-      res.ok ? toast.success(data.message) : toast.error(data.message);
+      if (res.ok) toast.success(data.message);
+      else toast.error(data.message);
     } catch (e) {
       console.log(nik, e);
       toast.error("Barcode tidak valid");
     }
 
     setTimeout(() => setActive(true), 1500);
-  };
+  }, [active, attendanceType]);
 
   const handleSubmit = async(e: React.FormEvent) => {
       e.preventDefault();
@@ -96,11 +106,32 @@ export default function KlinikScanner({dataUser} : {dataUser: person[]}) {
     };
 
   useEffect(() => {
-  const codeReader = new BrowserMultiFormatReader();
+  const hints = new Map();
+  hints.set(DecodeHintType.TRY_HARDER, true);
+  hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+    BarcodeFormat.CODE_128,
+    BarcodeFormat.CODE_39,
+    BarcodeFormat.CODABAR,
+    BarcodeFormat.EAN_13,
+    BarcodeFormat.EAN_8,
+    BarcodeFormat.ITF,
+    BarcodeFormat.UPC_A,
+    BarcodeFormat.UPC_E,
+    BarcodeFormat.QR_CODE,
+    BarcodeFormat.DATA_MATRIX,
+    BarcodeFormat.AZTEC,
+    BarcodeFormat.PDF_417,
+  ]);
+
+  const codeReader = new BrowserMultiFormatReader(hints, 200);
 
   codeReader.listVideoInputDevices()
     .then((devices) => {
-      const deviceId = devices[0]?.deviceId;
+      const preferredDevice =
+        devices.find((d) => /back|rear|environment/i.test(d.label)) ??
+        (devices.length > 1 ? devices[1] : undefined) ??
+        devices[0];
+      const deviceId = preferredDevice?.deviceId;
       
       if (deviceId && videoRef.current) {
         codeReader.decodeFromVideoDevice(deviceId, videoRef.current, (result) => {
@@ -112,10 +143,11 @@ export default function KlinikScanner({dataUser} : {dataUser: person[]}) {
     .catch((err) => {
       console.error(err);
       toast.error("Kamera tidak terdeteksi");
+      setLoading(false);
     });
 
   return () => codeReader.reset();
-}, [active]);
+}, [active, handleScan]);
 
   return (
     <div>

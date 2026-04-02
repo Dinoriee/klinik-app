@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db"; 
 import { randomBytes } from "crypto";
+import { revalidatePath } from "next/cache";
 
 function pseudoCuid() {
   // Prisma normally generates cuid() client-side; for raw SQL fallback we generate a stable unique string.
@@ -30,6 +31,8 @@ export async function catatIstirahatSakit(idPegawai: string) {
         tipe: "sakit",
       }
     });
+    revalidatePath("/medis/istirahat-sakit");
+    revalidatePath("/admin/istirahat-sakit");
     return { success: true, message: "Status Istirahat Sakit berhasil dicatat di sistem presensi!" };
   } catch (error) {
     console.error("Error mencatat istirahat sakit:", error);

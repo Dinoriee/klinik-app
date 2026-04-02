@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { revalidatePath } from "next/cache";
 import {
   closePresensiMedisById,
   ensureAktivitasMedisTable,
@@ -36,6 +37,9 @@ export async function POST(request: Request) {
                     tipe: status || "sakit",
                 }
             });
+
+            revalidatePath("/admin/istirahat-sakit");
+            revalidatePath("/medis/istirahat-sakit");
 
             return NextResponse.json(
                 { message: `Sukses mencatat pasien sakit: ${pegawai.nama_pegawai}` }, 
