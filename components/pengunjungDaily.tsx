@@ -3,6 +3,7 @@
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"; 
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import ExportExcel from "./ui/exportExcel";
 
 const chartConfig = {
   total: {
@@ -34,7 +35,10 @@ export default function PengunjungMonth({ chartData }: { chartData: PengunjungHa
     return (
     <Card>
         <CardHeader>
+          <div className="flex justify-between items-center">
             <CardTitle>Total Pengunjung 24 Jam Terakhir</CardTitle>
+            <ExportExcel currentData={chartData} filterName="24_Jam" dataKey="jam"/>
+          </div>
             <CardDescription>{formattedDate}</CardDescription>
         </CardHeader>
         <CardContent>

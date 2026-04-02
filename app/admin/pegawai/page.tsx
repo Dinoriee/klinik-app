@@ -32,6 +32,8 @@ export default async function KelolaPegawai({
     take: PAGE_SIZE,
   });
 
+  const allPegawai = await prisma.pegawai.findMany({})
+
   return (
     <PegawaiClient
       pegawaiList={pegawaiList}
@@ -40,6 +42,7 @@ export default async function KelolaPegawai({
       totalPages={totalPages}
       totalData={totalData}
       pageSize={PAGE_SIZE}
+      allPegawai={allPegawai}
     />
   );
 }

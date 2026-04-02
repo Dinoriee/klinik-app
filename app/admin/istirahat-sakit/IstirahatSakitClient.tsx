@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Search } from "lucide-react";
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -26,16 +26,16 @@ type Notification = {
     status: string;
 };
 
+const formatTanggal = (tanggalString: string) => {
+    return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    }).format(new Date(tanggalString));
+};
+
 function IstirahatSakitTable({ dataList }: { dataList: PresensiSakit[] }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-
-    const formatTanggal = (tanggalString: string) => {
-        return new Intl.DateTimeFormat('id-ID', {
-            day: '2-digit', month: 'short', year: 'numeric',
-            hour: '2-digit', minute: '2-digit'
-        }).format(new Date(tanggalString));
-    };
 
     const totalPages = Math.ceil(dataList.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -124,6 +124,30 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
         return `${query}|${dataList.length}|${firstId}`;
     }, [dataList, query]);
 
+    const handleExportExcel = async () => {
+        if (dataList.length === 0) return alert("Tidak ada data untuk diexport!");
+
+        try {
+            const XLSX = await import("xlsx");
+            const dataToExport = dataList.map((data, index) => ({
+                "No": index + 1,
+                "Waktu Tercatat": formatTanggal(data.jam_masuk),
+                "NIK Pasien": data.pegawai?.nik || "-",
+                "Nama Pasien": data.pegawai?.nama_pegawai || "-",
+                "Departemen": data.pegawai?.departemen || "-",
+                "Status": "Sakit",
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Istirahat Sakit");
+            XLSX.writeFile(workbook, `Rekap_Istirahat_Sakit_${new Date().toISOString().split('T')[0]}.xlsx`);
+        } catch (error) {
+            console.error("Error exporting Excel:", error);
+            alert("Gagal mengexport file Excel");
+        }
+    };
+
     useEffect(() => {
         const refresh = () => router.refresh();
 
@@ -158,7 +182,7 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
             <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mx-4 mb-4">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                     <h2 className="font-bold text-lg text-black">Data Pasien Istirahat Sakit</h2>
-                    <div className="flex space-x-3">
+                    <div className="flex space-x-8 gap-2">
                         <form method="GET" className="relative flex items-center">
                             <Search size={16} className="absolute left-3 text-gray-400" />
                             <input 
@@ -167,6 +191,16 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
                                 placeholder="Cari NIK / Nama / Dept..."
                             />
                             <button type="submit" className="hidden">Cari</button>
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    void handleExportExcel();
+                                }}
+                                className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2 ml-2"
+                            >
+                                <Download size={16} /> Export Excel
+                            </button>
                         </form>
                         <button
                             type="button"

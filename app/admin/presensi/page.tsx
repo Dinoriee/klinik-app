@@ -1,4 +1,4 @@
-import { Search} from "lucide-react";
+import { Download, Search} from "lucide-react";
 import { AuthOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/db";
@@ -6,6 +6,7 @@ import TambahUserButton from "@/components/ui/TambahUserButton";
 import EditUserButton from "@/components/ui/EditUserButton";
 import DeleteUserButton from "@/components/ui/DeleteUserButton";
 import UserAccount from "@/components/ui/userAccount";
+import ExcelButton from "./exportExcel";
 
 
 const PresensiAdmin = async () => {
@@ -38,6 +39,8 @@ const PresensiAdmin = async () => {
     ]
   });
 
+  
+
   return (
     <div>
       <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
@@ -67,6 +70,7 @@ const PresensiAdmin = async () => {
                 placeholder="Cari disini..."
               />
             </div>
+            <ExcelButton users={users}/>
           </div>
         </div>
         <table className="w-full mt-6 border-collapse text-left text-sm">
