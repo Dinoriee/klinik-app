@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from "@zxing/library";
 import { PuffLoader } from "react-spinners";
 import { toast } from "sonner";
+import { pickPreferredCameraDevice } from "@/lib/camera";
 
 interface ScannerProps {
   onScanSuccess: (text: string) => void;
@@ -25,7 +26,7 @@ export default function Scanner({ onScanSuccess }: ScannerProps) {
 
     codeReader.listVideoInputDevices()
       .then((devices) => {
-        const deviceId = devices[0]?.deviceId;
+        const deviceId = pickPreferredCameraDevice(devices)?.deviceId;
         
         if (deviceId && videoRef.current) {
           codeReader.decodeFromVideoDevice(deviceId, videoRef.current, (result) => {

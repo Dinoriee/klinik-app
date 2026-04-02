@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import UserAccount from "@/components/ui/userAccount";
 import ScannerKonsultasiDokter from "@/components/ui/ScannerKonsultasiDokter";
 import { useSession } from "next-auth/react";
@@ -18,7 +18,6 @@ export default function KonsultasiDokterClient({ notifications }: { notification
   const [manualNik, setManualNik] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasilPegawai, setHasilPegawai] = useState<Pegawai | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const [isSavingForm, setIsSavingForm] = useState(false);
   const [tahap, setTahap] = useState<"pencarian" | "konsultasi">("pencarian");
@@ -133,17 +132,10 @@ export default function KonsultasiDokterClient({ notifications }: { notification
 
       {tahap === "pencarian" && (
         <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
-          <div className="flex justify-between items-center mb-4">
+          <div className="mb-4">
             <h2 className="font-bold text-gray-800 text-lg">
               Cari Data Pegawai
             </h2>
-            <button
-              onClick={() => inputRef.current?.focus()}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 text-sm rounded-md transition duration-200 font-medium"
-              suppressHydrationWarning
-            >
-              Input Manual
-            </button>
           </div>
 
           <div className="mb-8">
@@ -153,7 +145,6 @@ export default function KonsultasiDokterClient({ notifications }: { notification
           <h3 className="font-bold text-lg text-black mb-4">Input Manual</h3>
           <div className="flex gap-4 max-w-md">
             <input
-              ref={inputRef}
               type="text"
               placeholder="Cari NIK..."
               className="flex-1 border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"

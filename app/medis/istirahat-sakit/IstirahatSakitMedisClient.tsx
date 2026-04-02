@@ -2,7 +2,7 @@
 
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
-import { useState, useRef } from "react"; // PERUBAHAN: Tambahkan useRef
+import { useState } from "react";
 import ScannerIstirahatSakit from "@/components/ui/ScannerIstirahatSakit";
 import { toast } from "sonner";
 
@@ -10,9 +10,6 @@ export default function IstirahatSakitMedisClient({ notifications }: { notificat
     const { data: session } = useSession();
     const [manualNik, setManualNik] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    
-    // PERUBAHAN: Membuat referensi untuk kolom input manual
-    const inputRef = useRef<HTMLInputElement>(null);
 
     const prosesDataSakit = async (dataInput: string) => {
         if (!dataInput) {
@@ -64,16 +61,8 @@ export default function IstirahatSakitMedisClient({ notifications }: { notificat
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
                 
-                <div className="flex justify-between items-center mb-4">
+                <div className="mb-4">
                     <h2 className="font-bold text-gray-800 text-lg">Istirahat Sakit Scanner</h2>
-                    
-                    {/* PERUBAHAN: Menambahkan onClick untuk memfokuskan kursor ke input */}
-                    <button 
-                        onClick={() => inputRef.current?.focus()}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 text-sm rounded-md transition duration-200 font-medium"
-                    >
-                        Input Manual
-                    </button>
                 </div>
 
                 <div className="mb-8">
@@ -82,9 +71,7 @@ export default function IstirahatSakitMedisClient({ notifications }: { notificat
 
                 <h3 className="font-bold text-lg text-black mb-4">Istirahat Sakit Manual</h3>
                 <div className="flex gap-4 max-w-md">
-                    {/* PERUBAHAN: Menempelkan ref ke elemen input */}
                     <input 
-                        ref={inputRef}
                         type="text" 
                         placeholder="Cari NIK..." 
                         className="flex-1 border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"

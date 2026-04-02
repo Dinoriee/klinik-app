@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
 import { Item, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import { usePathname } from 'next/navigation';
+import { pickPreferredCameraDevice } from "@/lib/camera";
 
 // interface TenagaMedis{
 //     id_tenaga_medis: string;
@@ -127,10 +128,7 @@ export default function KlinikScanner({dataUser} : {dataUser: person[]}) {
 
   codeReader.listVideoInputDevices()
     .then((devices) => {
-      const preferredDevice =
-        devices.find((d) => /back|rear|environment/i.test(d.label)) ??
-        (devices.length > 1 ? devices[1] : undefined) ??
-        devices[0];
+      const preferredDevice = pickPreferredCameraDevice(devices);
       const deviceId = preferredDevice?.deviceId;
       
       if (deviceId && videoRef.current) {

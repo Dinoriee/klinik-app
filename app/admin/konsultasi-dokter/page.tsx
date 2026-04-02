@@ -1,6 +1,22 @@
 import prisma from "@/lib/db"; 
 import KonsultasiAdminClient from "./KonsultasiAdminClient";
 
+function padDateTimePart(value: number) {
+    return value.toString().padStart(2, "0");
+}
+
+function serializeDatabaseDateTime(value: Date | string) {
+    if (value instanceof Date) {
+        return `${value.getUTCFullYear()}-${padDateTimePart(value.getUTCMonth() + 1)}-${padDateTimePart(value.getUTCDate())} ${padDateTimePart(value.getUTCHours())}:${padDateTimePart(value.getUTCMinutes())}:${padDateTimePart(value.getUTCSeconds())}`;
+    }
+
+    return String(value)
+        .trim()
+        .replace("T", " ")
+        .replace(/Z$/, "")
+        .slice(0, 19);
+}
+
 export default async function AdminKonsultasiPage({
     searchParams,
 }: {
@@ -64,10 +80,7 @@ export default async function AdminKonsultasiPage({
 
     const serializedRekam = rekamList.map((rekam) => ({
         id_rekam_medis: String(rekam.id_rekam_medis),
-        tanggal_periksa:
-            rekam.tanggal_periksa instanceof Date
-                ? rekam.tanggal_periksa.toISOString()
-                : new Date(rekam.tanggal_periksa).toISOString(),
+        tanggal_periksa: serializeDatabaseDateTime(rekam.tanggal_periksa),
         keluhan: rekam.keluhan,
         tensi: rekam.tensi,
         suhu: rekam.suhu,

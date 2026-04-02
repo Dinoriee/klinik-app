@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from "@zxing/library";
 import { PuffLoader } from "react-spinners";
 import { toast } from "sonner";
+import { pickPreferredCameraDevice } from "@/lib/camera";
 
 export default function ScannerIstirahatSakit({ onScanSuccess }: { onScanSuccess: (data: string) => void }) {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -25,7 +26,7 @@ export default function ScannerIstirahatSakit({ onScanSuccess }: { onScanSuccess
 
         codeReader.listVideoInputDevices()
             .then((devices) => {
-                const deviceId = devices.length > 1 ? devices[1].deviceId : devices[0]?.deviceId;
+                const deviceId = pickPreferredCameraDevice(devices)?.deviceId;
                 
                 if (deviceId && videoRef.current) {
                     codeReader.decodeFromVideoDevice(deviceId, videoRef.current, (result) => {
@@ -44,7 +45,7 @@ export default function ScannerIstirahatSakit({ onScanSuccess }: { onScanSuccess
     }, [active]);
 
     return (
-        <div className="relative border-8 border-gray-800 rounded-2xl overflow-hidden bg-black w-full h-[140px] md:h-[180px] shadow-2xl flex items-center justify-center">
+        <div className="relative border-8 border-gray-800 rounded-2xl overflow-hidden bg-black max-h-96 shadow-2xl">
             {loading && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80 z-20 text-white">
                     <PuffLoader color="#3B82F6" size={40} />
@@ -54,7 +55,7 @@ export default function ScannerIstirahatSakit({ onScanSuccess }: { onScanSuccess
             
             <video 
                 ref={videoRef} 
-                className="w-full h-full object-cover" 
+                className="w-full h-auto object-cover" 
             />
 
             {active && !loading && (

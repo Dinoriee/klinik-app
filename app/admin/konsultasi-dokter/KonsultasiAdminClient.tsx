@@ -31,11 +31,29 @@ export default function KonsultasiAdminClient({ rekamList, query, notifications 
     const [selectedRekam, setSelectedRekam] = useState<RekamMedis | null>(null);
     const itemsPerPage = 5;
 
+    const parseTanggal = (tanggalString: string) => {
+        const match = tanggalString.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
+
+        if (match) {
+            const [, year, month, day, hour, minute, second = "00"] = match;
+            return new Date(
+                Number(year),
+                Number(month) - 1,
+                Number(day),
+                Number(hour),
+                Number(minute),
+                Number(second)
+            );
+        }
+
+        return new Date(tanggalString);
+    };
+
     const formatTanggal = (tanggalString: string) => {
         return new Intl.DateTimeFormat('id-ID', {
             day: '2-digit', month: 'short', year: 'numeric',
             hour: '2-digit', minute: '2-digit'
-        }).format(new Date(tanggalString));
+        }).format(parseTanggal(tanggalString));
     };
 
     const handleExportExcel = async () => {
