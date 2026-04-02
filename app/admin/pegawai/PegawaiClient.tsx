@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Download, Search } from "lucide-react";
 import TambahPegawaiButton from "@/components/ui/TambahPegawaiButton";
 import EditPegawaiButton from "@/components/ui/EditPegawaiButton";
 import DeletePegawaiButton from "@/components/ui/DeletePegawaiButton";
@@ -20,6 +20,7 @@ export default function PegawaiClient({
   totalPages,
   totalData,
   pageSize,
+  allPegawai,
 }: {
   pegawaiList: Pegawai[];
   query: string;
@@ -27,6 +28,7 @@ export default function PegawaiClient({
   totalPages: number;
   totalData: number;
   pageSize: number;
+  allPegawai: Pegawai[];
 }) {
   const buildPageHref = (page: number) => {
     const params = new URLSearchParams();
@@ -34,6 +36,30 @@ export default function PegawaiClient({
     params.set("page", String(page));
     return `?${params.toString()}`;
   };
+
+  const handleExportExcel = async () => {
+        if (allPegawai.length === 0) return alert("Tidak ada data untuk diexport!");
+
+        try {
+            const XLSX = await import("xlsx");
+            const dataToExport = allPegawai.map((data, index) => {
+                return {
+                    "No": index + 1,
+                    "Nomor Pegawai": data.nomor_pegawai,
+                    "Nama Pegawai": data.nama_pegawai || "-",
+                    "Departemen": data.departemen || "-",
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Data Pegawai");
+            XLSX.writeFile(workbook, `Rekap_Pegawai_${new Date().toISOString().split('T')[0]}.xlsx`);
+        } catch (error) {
+            console.error("Error exporting Excel:", error);
+            alert("Gagal mengexport file Excel");
+        }
+    };
 
   return (
     <div className="flex flex-col gap-4 relative">
@@ -63,6 +89,13 @@ export default function PegawaiClient({
               </button>
             </form>
             <TambahPegawaiButton />
+            <button 
+                            onClick={handleExportExcel}
+                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2 ml-2"
+                            suppressHydrationWarning
+                        >
+                            <Download size={16} /> Export Excel
+                        </button>
           </div>
         </div>
 

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import UserAccount from "@/components/ui/userAccount";
 import { ensureAktivitasMedisTable, getRiwayatAktivitasMedis } from "@/lib/medisAktivitas";
 import prisma from "@/lib/db";
+import ExportExcel from "./exportExcel";
 
 const LaktasiAdminPage = async () => {
   const session = await getServerSession(AuthOptions);
@@ -42,6 +43,7 @@ const LaktasiAdminPage = async () => {
       <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md mx-4 mb-4">
         <div className="flex justify-between items-center border-b pb-4">
           <h2 className="font-bold text-black">Data Laktasi</h2>
+          <ExportExcel users={riwayatLaktasi}/>
         </div>
 
         <div className="overflow-x-auto mt-4">

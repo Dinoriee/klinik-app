@@ -6,6 +6,7 @@ import TambahUserButton from "@/components/ui/TambahUserButton";
 import EditUserButton from "@/components/ui/EditUserButton";
 import DeleteUserButton from "@/components/ui/DeleteUserButton";
 import UserAccount from "@/components/ui/userAccount";
+import ExportExcel from "./exportExcel";
 
 
 const KelolaUser = async () => {
@@ -67,6 +68,7 @@ const KelolaUser = async () => {
                 className="pl-6 border rounded-md border-gray-300 h-8"
                 placeholder="Cari disini..."
               />
+              <ExportExcel users={users}/>
             </div>
           </div>
         </div>

@@ -18,25 +18,23 @@ export default function UserAccount({ userName, notifications }: { userName: str
   const [isOpen, setIsOpen] = useState(false);
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const hasUnread = notifications?.some(n => n.status === 'unread') || false;
+  const unreadCount = notifications?.filter(n => n.status === 'unread').length || 0;
 
   const handleToggleNotif = async () => {
     const isCurrentlyOpen = isNotificationOpen;
     
-    // Kalo sekarang lagi buka, berarti aksi selanjutnya adalah nutup 🥀
     if (isCurrentlyOpen) {
       setNotificationOpen(false);
       
-      // Pas mau nutup dan ada yang unread, baru bantai API-nya 💀
       if (hasUnread) {
         try {
           await fetch('/api/notifikasi', { method: 'PATCH' });
-          router.refresh(); // Biar logo pulsing-nya ilang pas udah ketutup 🫩
+          router.refresh();
         } catch (e) {
-          console.error("Gagal update pas close gng 🥀");
+          console.error("Gagal update");
         }
       }
     } else {
-      // Kalo lagi nutup ya cuma buka doang brada 🤓
       setNotificationOpen(true);
       setIsOpen(false);
     }
@@ -44,14 +42,14 @@ export default function UserAccount({ userName, notifications }: { userName: str
 
   return (
     <div className="flex flex-row items-center justify-center pr-4 pb-2 space-x-4">
-      <div className="relative">
+      <div className="">
         <div className="flex flex-row justify-center items-center relative">
             <Bell className={`transition-all duration-300 ease-in-out`} color="white" onClick={() => setNotificationOpen(true)}/>
               {hasUnread && (
-        <>
-          <span className="absolute top-0 right-0 bg-red-500 w-2.5 h-2.5 rounded-full animate-ping opacity-75"></span>
-          <span className="absolute top-0 right-0 bg-red-500 w-2.5 h-2.5 rounded-full border border-blue-600"></span>
-        </>
+        <div className="absolute top-0 right-0" onClick={() => setNotificationOpen(true)}>
+          <span className=" top-0 right-0 bg-red-500 animate-ping opacity-75"></span>
+          <span className=" top-0 right-0 bg-red-500 w-16 h-16 rounded-full text-xs border border-blue-600 text-white">{unreadCount}</span>
+        </div>
       )}
         </div>
         {isNotificationOpen && (
