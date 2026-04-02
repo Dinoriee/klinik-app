@@ -5,6 +5,7 @@ import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { NativeSelect, NativeSelectOption } from "./ui/native-select";
 import { useState } from "react";
+import ExportExcel from "./ui/exportExcel";
 
 const chartConfig = {
   total: {
@@ -62,7 +63,10 @@ export default function PengunjungMonth({ chartData }: { chartData: ChartDataPro
     return (
     <Card>
         <CardHeader>
+          <div className="flex justify-between items-center">
             <CardTitle>{informasi}</CardTitle>
+            <ExportExcel currentData={currentData} filterName={filter === "month" ? "4_Bulan" : filter === "monthly" ? "1_Bulan" : "1_Minggu"} dataKey={data}/>
+          </div>
             <CardDescription>Detail data</CardDescription>
             <NativeSelect onChange={(e) => setFilter(e.target.value as keyof GroupedData)}>
               <NativeSelectOption value="month">4 Bulan</NativeSelectOption>

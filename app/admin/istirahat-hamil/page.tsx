@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import UserAccount from "@/components/ui/userAccount";
 import { ensureAktivitasMedisTable, getRiwayatAktivitasMedis } from "@/lib/medisAktivitas";
 import prisma from "@/lib/db";
+import ExportExcel from "./exportExcel";
 
 const IstirahatHamilAdminPage = async () => {
   const session = await getServerSession(AuthOptions);
@@ -39,9 +40,10 @@ const IstirahatHamilAdminPage = async () => {
         <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
       </div>
 
-      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md mx-4 mb-4">
+      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
         <div className="flex justify-between items-center border-b pb-4">
           <h2 className="font-bold text-black">Data Istirahat Hamil</h2>
+          <ExportExcel users={riwayatIstirahatHamil}/>
         </div>
 
         <div className="overflow-x-auto mt-4">

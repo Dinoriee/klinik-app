@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
 
@@ -16,6 +16,7 @@ interface PresensiSakit {
     jam_masuk: string;
     tipe: string;
     pegawai: Pegawai;
+    status: string;
 }
 
 export default function IstirahatSakitClient({ dataList, query, notifications }: { dataList: PresensiSakit[], query: string, notifications: any[] }) {
@@ -34,6 +35,32 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentData = dataList.slice(startIndex, startIndex + itemsPerPage);
 
+    const handleExportExcel = async () => {
+        if (dataList.length === 0) return alert("Tidak ada data untuk diexport!");
+
+        try {
+            const XLSX = await import("xlsx");
+            const dataToExport = dataList.map((data, index) => {
+                return {
+                    "No": index + 1,
+                    "Tanggal Periksa": formatTanggal(data.jam_masuk),
+                    "Nama Pasien": data.pegawai?.nama_pegawai || "-",
+                    "NIK Pasien": data.pegawai?.nik || "-",
+                    "Departemen": data.pegawai?.departemen || "-",
+                    "Status Perawatan": data.status === "sakit" ? "Sakit" : "Sakit"
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Data Rekam Medis");
+            XLSX.writeFile(workbook, `Rekap_Istirahat_Sakit_${new Date().toISOString().split('T')[0]}.xlsx`);
+        } catch (error) {
+            console.error("Error exporting Excel:", error);
+            alert("Gagal mengexport file Excel");
+        }
+    };
+
     return (
         <div className="flex flex-col gap-4 relative">
             
@@ -47,7 +74,7 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
             <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mx-4 mb-4">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                     <h2 className="font-bold text-lg text-black">Data Pasien Istirahat Sakit</h2>
-                    <div className="flex space-x-3">
+                    <div className="flex space-x-8 gap-2">
                         <form method="GET" className="relative flex items-center">
                             <Search size={16} className="absolute left-3 text-gray-400" />
                             <input 
@@ -56,6 +83,13 @@ export default function IstirahatSakitClient({ dataList, query, notifications }:
                                 placeholder="Cari NIK / Nama / Dept..."
                             />
                             <button type="submit" className="hidden">Cari</button>
+                            <button 
+                            onClick={handleExportExcel}
+                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2 ml-2"
+                            suppressHydrationWarning
+                        >
+                            <Download size={16} /> Export Excel
+                        </button>
                         </form>
                     </div>
                 </div>
