@@ -5,14 +5,8 @@ import { ChevronLeft, ChevronRight, Download, Search } from "lucide-react";
 import TambahPegawaiButton from "@/components/ui/TambahPegawaiButton";
 import EditPegawaiButton from "@/components/ui/EditPegawaiButton";
 import DeletePegawaiButton from "@/components/ui/DeletePegawaiButton";
+import ImportPegawaiModal from "./importExcel";
 import UserAccount from "@/components/ui/userAccount";
-
-type Notif = {
-  id_obat: string;
-  obat: { nama_obat: string };
-  pesan: string;
-  status: string;
-};
 
 type Pegawai = {
   id_pegawai: number;
@@ -103,13 +97,14 @@ export default function PegawaiClient({
               </button>
             </form>
             <TambahPegawaiButton />
-            <button
-              onClick={handleExportExcel}
-              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors"
-              suppressHydrationWarning
-            >
-              <Download size={16} /> Export Excel
-            </button>
+            <button 
+                            onClick={handleExportExcel}
+                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2 ml-2"
+                            suppressHydrationWarning
+                        >
+                            <Download size={16} /> Export Excel
+                        </button>
+            <ImportPegawaiModal/>
           </div>
         </div>
 

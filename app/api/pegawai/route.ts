@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    const id_pegawai = data.id_pegawai ? Number(data.id_pegawai) : null;
+    const id_pegawai = data.id_pegawai ? String(data.id_pegawai) : null;
     const nomor_pegawai = data.nomor_pegawai?.trim();
     const nik = data.nik?.trim();
     const nama_pegawai = data.nama_pegawai?.trim();
