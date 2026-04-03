@@ -5,10 +5,11 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    const id_pegawai = data.id_pegawai ? Number(data.id_pegawai) : null;
+    const id_pegawai = data.id_pegawai ? String(data.id_pegawai) : null;
     const nomor_pegawai = data.nomor_pegawai?.trim();
     const nama_pegawai = data.nama_pegawai?.trim();
     const departemen = data.departemen?.trim();
+    const nik = data.nik?.trim();
 
     if (!nomor_pegawai || !nama_pegawai || !departemen) {
       return NextResponse.json(
@@ -20,11 +21,11 @@ export async function POST(request: Request) {
     if (id_pegawai) {
       await prisma.pegawai.update({
         where: { id_pegawai },
-        data: { nomor_pegawai, nama_pegawai, departemen },
+        data: { nomor_pegawai, nama_pegawai, departemen, nik },
       });
     } else {
       await prisma.pegawai.create({
-        data: { nomor_pegawai, nama_pegawai, departemen },
+        data: { nomor_pegawai, nama_pegawai, departemen, nik },
       });
     }
 

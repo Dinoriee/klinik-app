@@ -7,20 +7,32 @@ import EditUserButton from "@/components/ui/EditUserButton";
 import DeleteUserButton from "@/components/ui/DeleteUserButton";
 import UserAccount from "@/components/ui/userAccount";
 import ExportExcel from "./exportExcel";
+import ImportExcelComponent from "./importExcel"
+import Link from "next/link";;
 
 
-const KelolaUser = async () => {
+const KelolaUser = async (props: { searchParams: Promise<{ page?: string }> }) => {
   const session = await getServerSession(AuthOptions);
-  console.log(session);
+  const searchParams = await props.searchParams;
+  const currentPage = Number(searchParams?.page) || 1;
+  const pageSize = 8;
+  const skip = (currentPage - 1) * pageSize;
 
-  const users = await prisma.user.findMany({
-    orderBy: {
-      role: "desc",
-    },
-    include: {
+  const [users, totalUsers] = await Promise.all([
+    prisma.user.findMany({
+      skip: skip,
+      take: pageSize,
+      orderBy: {
+        id_user: "desc",
+      },
+      include: {
         tenagaMedis: true,
-    }
-  });
+      }
+    }),
+    prisma.user.count()
+  ]);
+
+  const totalPages = Math.ceil(totalUsers / pageSize);
 
   const notifications = await prisma.notifikasi.findMany({
       select:{
@@ -57,8 +69,8 @@ const KelolaUser = async () => {
         <div className="flex justify-between">
           <h2 className="font-bold">Data User</h2>
           <div className="flex space-x-2 p-2">
-            <TambahUserButton/>
-            <div className="flex relative">
+            
+            <div className="flex relative gap-2">
               <Search
                 size={16}
                 className="absolute left-1 top-1/2 -translate-y-1/2 text-gray-400"
@@ -68,7 +80,9 @@ const KelolaUser = async () => {
                 className="pl-6 border rounded-md border-gray-300 h-8"
                 placeholder="Cari disini..."
               />
+              <TambahUserButton/>
               <ExportExcel users={users}/>
+              <ImportExcelComponent/>
             </div>
           </div>
         </div>
@@ -108,6 +122,28 @@ const KelolaUser = async () => {
             ))}
           </tbody>
         </table>
+        <div className="flex justify-between items-center mt-4 px-2">
+          <p className="text-xs text-gray-500">
+            Showing {skip + 1} to {Math.min(skip + pageSize, totalUsers)} of {totalUsers} users
+          </p>
+          <div className="flex gap-2">
+            <Link
+              href={`?page=${currentPage - 1}`}
+              className={`px-3 py-1 border rounded-md text-xs transition ${currentPage <= 1 ? "pointer-events-none opacity-50" : "hover:bg-gray-200"}`}
+            >
+              Prev
+            </Link>
+            <div className="flex items-center gap-1">
+               <span className="text-sm text-gray-500 px-2">Halaman {currentPage} / {totalPages}</span>
+            </div>
+            <Link
+              href={`?page=${currentPage + 1}`}
+              className={`px-3 py-1 border rounded-md text-xs transition ${currentPage >= totalPages ? "pointer-events-none opacity-50" : "hover:bg-gray-200"}`}
+            >
+              Next
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

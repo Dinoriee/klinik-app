@@ -35,7 +35,7 @@ export default function TambahUserButton() {
         <>
             <button 
                 onClick={() => setModalOpen(true)}
-                className="bg-blue-400 hover:bg-purple-300 min-w-36 h-8 rounded-md transition-colors duration-200 text-white"
+                className="bg-blue-400 hover:bg-purple-300 px-4 py-2 rounded-md flex items-center gap-2 text-sm transition-colors duration-200 text-white"
             >
                 + Tambah Data
             </button>

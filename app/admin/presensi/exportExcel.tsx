@@ -30,7 +30,7 @@ const ExportExcel = ({ users }: PresensiTableProps) => {
   };
 
   const handleExportExcel = async () => {
-    if (users.length === 0) return alert("Kosong gng, apa yang mau di-export? 💀");
+    if (users.length === 0) return alert("Tabel Kosong");
 
     try {
       const XLSX = await import("xlsx");

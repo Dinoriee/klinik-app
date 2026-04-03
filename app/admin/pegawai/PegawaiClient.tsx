@@ -5,6 +5,7 @@ import { Download, Search } from "lucide-react";
 import TambahPegawaiButton from "@/components/ui/TambahPegawaiButton";
 import EditPegawaiButton from "@/components/ui/EditPegawaiButton";
 import DeletePegawaiButton from "@/components/ui/DeletePegawaiButton";
+import ImportPegawaiModal from "./importExcel";
 
 type Pegawai = {
   id_pegawai: number;
@@ -96,6 +97,7 @@ export default function PegawaiClient({
                         >
                             <Download size={16} /> Export Excel
                         </button>
+            <ImportPegawaiModal/>
           </div>
         </div>
 
