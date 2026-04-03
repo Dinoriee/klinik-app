@@ -1,94 +1,66 @@
 import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
-import {
-  closePresensiMedisById,
-  ensureAktivitasMedisTable,
-  findTodayPresensiIdByJenis,
-  getPresensiMedisById,
-  insertAktivitasMedis,
-} from "@/lib/medisAktivitas";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: Request) {
   try {
-    await ensureAktivitasMedisTable();
-
-    const { id_tenaga_medis, nik, nama } = await req.json();
+    const { nik, nama } = await req.json();
     const trimmedNik = typeof nik === "string" ? nik.trim() : "";
-
-    type TenagaMedisLookup = {
-      id_tenaga_medis: number;
-      nama_tenaga_medis: string;
-    };
-
-    let tenagaMedis: TenagaMedisLookup | null = null;
-    if (id_tenaga_medis !== undefined && id_tenaga_medis !== null && id_tenaga_medis !== "") {
-      const idAsNumber = Number(id_tenaga_medis);
-      if (!Number.isNaN(idAsNumber)) {
-        tenagaMedis = await prisma.tenaga_Medis.findUnique({
-          where: { id_tenaga_medis: idAsNumber },
-          select: { id_tenaga_medis: true, nama_tenaga_medis: true },
-        });
-      }
+    if (!trimmedNik) {
+      return NextResponse.json({ message: "NIK tidak boleh kosong!" }, { status: 400 });
     }
 
-    if (!tenagaMedis && trimmedNik) {
-      try {
-        const result = await prisma.$queryRaw<TenagaMedisLookup[]>`
-          SELECT id_tenaga_medis, nama_tenaga_medis
-          FROM "Tenaga_Medis"
-          WHERE nik = ${trimmedNik}
-          LIMIT 1
-        `;
-        if (result.length > 0) tenagaMedis = result[0];
-      } catch {
-        tenagaMedis = await prisma.tenaga_Medis.findFirst({
-          where: { kode_tenaga_medis: trimmedNik },
-          select: { id_tenaga_medis: true, nama_tenaga_medis: true },
-        });
-      }
+    const pegawai = await prisma.pegawai.findFirst({
+      where: { nik: trimmedNik },
+      select: { id_pegawai: true, nama_pegawai: true },
+    });
+
+    if (!pegawai) {
+      return NextResponse.json({ message: "Pegawai tidak ditemukan." }, { status: 404 });
     }
 
-    if (!tenagaMedis) {
-      return NextResponse.json({ message: "Tenaga medis tidak ditemukan." }, { status: 404 });
-    }
+    const existingRows = await prisma.$queryRaw<{ id_presensi: string; jam_keluar: Date | null }[]>`
+      SELECT id_presensi, jam_keluar
+      FROM "Presensi"
+      WHERE id_pegawai = ${pegawai.id_pegawai}
+        AND tipe = 'hamil'
+        AND jam_masuk::date = CURRENT_DATE
+      ORDER BY jam_masuk DESC
+      LIMIT 1
+    `;
 
-    const idTenagaMedis = String(tenagaMedis.id_tenaga_medis);
-    const existingPresensiId = await findTodayPresensiIdByJenis(idTenagaMedis, "istirahat_hamil");
+    const existing = existingRows[0] ?? null;
 
-    if (!existingPresensiId) {
-      const created = await prisma.presensi_Tenaga_Medis.create({
-        data: {
-          id_tenaga_medis: tenagaMedis.id_tenaga_medis,
-          keterangan: "izin",
-        },
+    if (!existing) {
+      await prisma.presensi.create({
+        data: { id_pegawai: pegawai.id_pegawai, tipe: "hamil" },
       });
-      await insertAktivitasMedis({
-        idTenagaMedis,
-        idPresensi: String(created.id_presensi),
-        jenis: "istirahat_hamil",
-      });
+
+      revalidatePath("/admin/istirahat-hamil");
+      revalidatePath("/medis/istirahat-hamil");
 
       return NextResponse.json({
-        message: `Pengajuan istirahat hamil berhasil, semoga sehat selalu ${nama || tenagaMedis?.nama_tenaga_medis}`,
+        message: `Istirahat hamil dimulai, semoga sehat selalu ${nama || pegawai.nama_pegawai}`,
       });
     }
 
-    const existingPresensi = await getPresensiMedisById(existingPresensiId);
-    if (!existingPresensi) {
-      return NextResponse.json({ message: "Data presensi tidak ditemukan." }, { status: 404 });
-    }
-
-    if (existingPresensi.jam_keluar) {
+    if (existing.jam_keluar) {
       return NextResponse.json(
         { message: "Istirahat hamil untuk hari ini sudah selesai diproses." },
         { status: 400 }
       );
     }
 
-    await closePresensiMedisById(existingPresensiId);
+    await prisma.presensi.update({
+      where: { id_presensi: existing.id_presensi },
+      data: { jam_keluar: new Date() },
+    });
+
+    revalidatePath("/admin/istirahat-hamil");
+    revalidatePath("/medis/istirahat-hamil");
 
     return NextResponse.json({
-      message: `Istirahat hamil selesai, semoga kondisi tetap nyaman ${nama || tenagaMedis?.nama_tenaga_medis}`,
+      message: `Istirahat hamil selesai, semoga kondisi tetap nyaman ${nama || pegawai.nama_pegawai}`,
     });
   } catch (error) {
     console.error("Error istirahat hamil:", error);

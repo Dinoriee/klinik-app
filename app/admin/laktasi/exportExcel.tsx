@@ -1,14 +1,18 @@
 "use client";
 
-import { Download, Search } from "lucide-react";
+import { Download } from "lucide-react";
 
-interface UserPresensi {
-  id_presensi: string | number;
-  jam_masuk: string | Date;
-  jam_keluar: string | Date | null;
-  keterangan: string;
-  nama_tenaga_medis: string;
-}
+type UserPresensi = {
+  id_presensi: string;
+  jam_masuk: string;
+  jam_keluar: string | null;
+  tipe: string;
+  pegawai: {
+    nik: string;
+    nama_pegawai: string;
+    departemen: string;
+  } | null;
+};
 
 interface PresensiTableProps {
   users: UserPresensi[];
@@ -32,11 +36,13 @@ const ExportExcel = ({ users }: PresensiTableProps) => {
       const XLSX = await import("xlsx");
       const dataToExport = users.map((data, index) => ({
         "No": index + 1,
-        "Nama": data.nama_tenaga_medis|| "-",
+        "NIK": data.pegawai?.nik || "-",
+        "Nama": data.pegawai?.nama_pegawai || "-",
+        "Departemen": data.pegawai?.departemen || "-",
         "Tanggal": formatTanggal(data.jam_masuk),
         "Jam Masuk": new Date(data.jam_masuk).toLocaleTimeString(),
         "Jam Keluar": data.jam_keluar ? new Date(data.jam_keluar).toLocaleTimeString() : "-",
-        "Keterangan": data.keterangan || "Istirahat Laktasi"
+        "Keterangan": "Istirahat Laktasi",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(dataToExport);
