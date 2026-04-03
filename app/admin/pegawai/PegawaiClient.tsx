@@ -1,24 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Download, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Search, Barcode as BarcodeIcon, Printer, X } from "lucide-react";
 import TambahPegawaiButton from "@/components/ui/TambahPegawaiButton";
 import EditPegawaiButton from "@/components/ui/EditPegawaiButton";
 import DeletePegawaiButton from "@/components/ui/DeletePegawaiButton";
+import ImportPegawaiModal from "./importExcel";
 import UserAccount from "@/components/ui/userAccount";
-
-type Notif = {
-  id_obat: string;
-  obat: { nama_obat: string };
-  pesan: string;
-  status: string;
-};
+import React, { useState, useRef } from "react";
+import Barcode from "react-barcode";
 
 type Pegawai = {
   id_pegawai: number;
   nomor_pegawai: string;
   nama_pegawai: string;
   departemen: string;
+  nik: string;
 };
 
 export default function PegawaiClient({
@@ -48,9 +45,41 @@ export default function PegawaiClient({
     params.set("page", String(page));
     return `?${params.toString()}`;
   };
+  const [selectedNik, setSelectedNik] = useState<string | null>(null);
+  const printRef = useRef<HTMLDivElement>(null);
 
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalData);
+
+  const handlePrint = () => {
+    const printContent = printRef.current;
+    if (!printContent) return;
+
+    const windowPrint = window.open("", "", "width=600,height=600");
+    if (windowPrint) {
+      windowPrint.document.write(`
+        <html>
+          <head>
+            <title>Cetak Barcode NIK</title>
+            <style>
+              body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+              @media print { .no-print { display: none; } }
+            </style>
+          </head>
+          <body>
+            ${printContent.innerHTML}
+            <script>
+              setTimeout(() => {
+                window.print();
+                window.close();
+              }, 500);
+            </script>
+          </body>
+        </html>
+      `);
+      windowPrint.document.close();
+    }
+  };
 
   const handleExportExcel = async () => {
         if (allPegawai.length === 0) return alert("Tidak ada data untuk diexport!");
@@ -103,13 +132,14 @@ export default function PegawaiClient({
               </button>
             </form>
             <TambahPegawaiButton />
-            <button
-              onClick={handleExportExcel}
-              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors"
-              suppressHydrationWarning
-            >
-              <Download size={16} /> Export Excel
-            </button>
+            <button 
+                            onClick={handleExportExcel}
+                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2 ml-2"
+                            suppressHydrationWarning
+                        >
+                            <Download size={16} /> Export Excel
+                        </button>
+            <ImportPegawaiModal/>
           </div>
         </div>
 
@@ -142,6 +172,12 @@ export default function PegawaiClient({
                       <div className="flex justify-center space-x-3 items-center">
                         <EditPegawaiButton pegawai={pegawai} />
                         <DeletePegawaiButton id_pegawai={pegawai.id_pegawai} />
+                        <button 
+                                    onClick={() => setSelectedNik(pegawai.nik)}
+                                    className="p-2 bg-slate-100 hover:bg-slate-200 rounded-md text-slate-700 transition-all"
+                                >
+                                    <BarcodeIcon size={16} />
+                                </button>
                       </div>
                     </td>
                   </tr>
@@ -183,6 +219,33 @@ export default function PegawaiClient({
           </div>
         </div>
       </div>
+      {selectedNik && (
+                      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-100 p-4">
+                          <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-200">
+                              <div className="flex justify-between w-full items-center border-b pb-4">
+                                  <h3 className="font-bold text-gray-800">Barcode NIK</h3>
+                                  <button onClick={() => setSelectedNik(null)} className="text-gray-400 hover:text-red-500"><X size={20}/></button>
+                              </div>
+                              
+                              <div ref={printRef} className="p-4 bg-white border rounded-xl">
+                                  <Barcode 
+                                      value={selectedNik} 
+                                      width={2} 
+                                      height={80} 
+                                      fontSize={14}
+                                      background="#ffffff"
+                                  />
+                              </div>
+      
+                              <button 
+                                  onClick={handlePrint}
+                                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-bold shadow-lg shadow-blue-200 transition-all"
+                              >
+                                  <Printer size={18} /> Cetak Barcode 
+                              </button>
+                          </div>
+                      </div>
+                  )}
     </div>
   );
 }

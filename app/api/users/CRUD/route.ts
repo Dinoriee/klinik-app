@@ -78,7 +78,7 @@ export async function DELETE(request: Request) {
         const { id_user } =await request.json();
 
         await prisma.user.delete({
-            where: {id_user: Number(id_user)}
+            where: {id_user: String(id_user)}
         });
 
         return NextResponse.json({message: "User dihapus"});
