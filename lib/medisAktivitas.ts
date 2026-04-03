@@ -1,6 +1,6 @@
 import prisma from "./db";
 
-export type JenisAktivitasMedis = "istirahat_hamil" | "laktasi";
+export type JenisAktivitasMedis = "istirahat_hamil" | "laktasi" | "istirahat_sakit";
 
 type RiwayatRow = {
   id_presensi: string | number;

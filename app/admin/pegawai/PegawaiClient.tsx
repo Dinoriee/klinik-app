@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Download, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Search } from "lucide-react";
 import TambahPegawaiButton from "@/components/ui/TambahPegawaiButton";
 import EditPegawaiButton from "@/components/ui/EditPegawaiButton";
 import DeletePegawaiButton from "@/components/ui/DeletePegawaiButton";
 import ImportPegawaiModal from "./importExcel";
+import UserAccount from "@/components/ui/userAccount";
 
 type Pegawai = {
   id_pegawai: number;
@@ -22,6 +23,8 @@ export default function PegawaiClient({
   totalData,
   pageSize,
   allPegawai,
+  notifications,
+  userName,
 }: {
   pegawaiList: Pegawai[];
   query: string;
@@ -30,6 +33,8 @@ export default function PegawaiClient({
   totalData: number;
   pageSize: number;
   allPegawai: Pegawai[];
+  notifications: Notif[];
+  userName: string;
 }) {
   const buildPageHref = (page: number) => {
     const params = new URLSearchParams();
@@ -37,6 +42,9 @@ export default function PegawaiClient({
     params.set("page", String(page));
     return `?${params.toString()}`;
   };
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalData);
 
   const handleExportExcel = async () => {
         if (allPegawai.length === 0) return alert("Tidak ada data untuk diexport!");
@@ -64,18 +72,17 @@ export default function PegawaiClient({
 
   return (
     <div className="flex flex-col gap-4 relative">
-      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
-        <div className="flex flex-col">
-          <h1 className="text-black">
-            Klinik / Pegawai / <span className="text-white font-bold">Kelola Pegawai</span>
-          </h1>
+      <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
+        <span className="text-gray-100 font-bold text-lg leading-none">Kelola Pegawai</span>
+        <div className="flex space-x-1">
+          <UserAccount notifications={notifications} userName={userName} />
         </div>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
         <div className="flex justify-between items-center mb-6 border-b pb-4">
           <h2 className="font-bold text-lg text-black">Data Pegawai</h2>
-          <div className="flex space-x-3">
+          <div className="flex items-center gap-3">
             <form method="GET" className="relative flex items-center">
               <Search size={16} className="absolute left-3 text-gray-400" />
               <input
@@ -140,9 +147,12 @@ export default function PegawaiClient({
         </div>
 
         <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-gray-500">
-            Menampilkan {pegawaiList.length} dari {totalData} data
-          </p>
+          <span className="text-sm text-gray-500">
+            Menampilkan{" "}
+            <span className="font-semibold text-gray-900">{totalData === 0 ? 0 : startIndex + 1}</span> -{" "}
+            <span className="font-semibold text-gray-900">{endIndex}</span> dari{" "}
+            <span className="font-semibold text-gray-900">{totalData}</span> data
+          </span>
           <div className="flex items-center gap-2">
             <Link
               href={buildPageHref(Math.max(1, currentPage - 1))}
@@ -150,9 +160,10 @@ export default function PegawaiClient({
                 currentPage <= 1 ? "pointer-events-none opacity-50" : "hover:bg-gray-50"
               }`}
             >
-              Prev
+              <ChevronLeft size={16} />
+              <span className="sr-only">Prev</span>
             </Link>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm font-bold text-gray-700">
               Halaman {currentPage} / {totalPages}
             </span>
             <Link
@@ -161,7 +172,8 @@ export default function PegawaiClient({
                 currentPage >= totalPages ? "pointer-events-none opacity-50" : "hover:bg-gray-50"
               }`}
             >
-              Next
+              <ChevronRight size={16} />
+              <span className="sr-only">Next</span>
             </Link>
           </div>
         </div>

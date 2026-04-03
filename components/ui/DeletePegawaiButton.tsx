@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash, Trash2 } from "lucide-react";
+import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -32,11 +32,12 @@ export default function DeletePegawaiButton({ id_pegawai }: { id_pegawai: number
 
   return (
     <button
+      type="button"
       onClick={handleDelete}
       disabled={isDeleting}
-      className="text-red-500 hover:text-red-700 text-xs font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      className="text-red-500 hover:text-red-700 px-3 py-1 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      <Trash2 size={20}/>
+      <Trash size={20} />
     </button>
   );
 }

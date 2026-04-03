@@ -49,9 +49,18 @@ const DashboardAdmin = async () => {
   startOfWeek.setDate(now.getDate() - now.getDay());
   startOfWeek.setHours(0, 0, 0, 0);
 
-  const [medisCount, obatCount, pengunjung, pengunjungCount] = await Promise.all([
+  const [medisCount, obatCount, obatList, pengunjung, pengunjungCount] = await Promise.all([
     prisma.tenaga_Medis.count(),
     prisma.obat.count(),
+    prisma.obat.findMany({
+      select: {
+        nama_obat: true,
+        stok_saat_ini: true,
+        expired_date: true,
+        reorder_level: true,
+      },
+      orderBy: { nama_obat: "asc" },
+    }),
     prisma.presensi.findMany({
       orderBy: { jam_masuk: "desc" },
     }),
@@ -137,6 +146,11 @@ const dailyData = dataHariIni.reduce((acc, item) => {
 
 const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCompare(b.jam));
 
+  const obatForDetail = obatList.map((item) => ({
+    ...item,
+    expired_date: item.expired_date.toISOString(),
+  }));
+
   const notifications = await prisma.notifikasi.findMany({
     select:{
       id_obat: true,
@@ -160,26 +174,14 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
     weekly: groupedWeeklyData,
   };
 
-  const dataObat = await prisma.obat.findMany({
-    select:{
-      nama_obat: true,
-      stok_saat_ini: true,
-      expired_date: true,
-      reorder_level: true,
-    }
-  })
-
   return (
     <div>
-      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+      <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-gray-800">
-            Klinik<span className="text-gray-100"> / Presensi</span>
-          </h1>
-          <span className="text-gray-100 font-bold">Dashboard Admin</span>
+          <span className="text-gray-100 font-bold text-lg leading-none">Dashboard Admin</span>
         </div>
         <div className="flex space-x-1">
-          <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
         </div>
       </div>
 
@@ -200,7 +202,7 @@ const groupedDailyData = Object.values(dailyData).sort((a, b) => a.jam.localeCom
                 <span className="text-2xl font-bold text-blue-600">{obatCount}</span>
               </div>
             </div>
-            <ShowMedicineDetail obat={dataObat}/>
+            <ShowMedicineDetail obat={obatForDetail} />
           </div>
           <div className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm">
             <Smile size={36} className="bg-red-500 text-white p-2 rounded-md" />

@@ -35,7 +35,12 @@ export default function DeleteUserButton({userId} : {userId: string}){
     }
 
     return(
-        <button className="text-red-300 hover:text-red-600 px-3 py-1 rounded-md transition duration-200" onClick={handleDelete}>
+        <button
+            type="button"
+            className="text-red-500 hover:text-red-700 px-3 py-1 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleDelete}
+            disabled={isDelete}
+        >
                     <Trash size={20}/>
         </button>
     )

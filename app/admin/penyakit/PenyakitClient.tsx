@@ -1,10 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import TambahPenyakitButton from "@/components/ui/TambahPenyakitButton";
 import EditPenyakitButton from "@/components/ui/EditPenyakitButton";
 import DeletePenyakitButton from "@/components/ui/DeletePenyakitButton";
+import UserAccount from "@/components/ui/userAccount";
+
+type Notif = {
+  id_obat: string;
+  obat: { nama_obat: string };
+  pesan: string;
+  status: string;
+};
 
 type Penyakit = {
   id_penyakit: string;
@@ -18,6 +26,8 @@ export default function PenyakitClient({
   totalPages,
   totalData,
   pageSize,
+  notifications,
+  userName,
 }: {
   penyakitList: Penyakit[];
   query: string;
@@ -25,6 +35,8 @@ export default function PenyakitClient({
   totalPages: number;
   totalData: number;
   pageSize: number;
+  notifications: Notif[];
+  userName: string;
 }) {
   const buildPageHref = (page: number) => {
     const params = new URLSearchParams();
@@ -33,13 +45,15 @@ export default function PenyakitClient({
     return `?${params.toString()}`;
   };
 
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalData);
+
   return (
     <div className="flex flex-col gap-4 relative">
-      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
-        <div className="flex flex-col">
-          <h1 className="text-black">
-            Klinik / Penyakit / <span className="text-white font-bold">Kelola Penyakit</span>
-          </h1>
+      <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
+        <span className="text-gray-100 font-bold text-lg leading-none">Kelola Penyakit</span>
+        <div className="flex space-x-1">
+          <UserAccount notifications={notifications} userName={userName} />
         </div>
       </div>
 
@@ -99,9 +113,12 @@ export default function PenyakitClient({
         </div>
 
         <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-gray-500">
-            Menampilkan {penyakitList.length} dari {totalData} data
-          </p>
+          <span className="text-sm text-gray-500">
+            Menampilkan{" "}
+            <span className="font-semibold text-gray-900">{totalData === 0 ? 0 : startIndex + 1}</span> -{" "}
+            <span className="font-semibold text-gray-900">{endIndex}</span> dari{" "}
+            <span className="font-semibold text-gray-900">{totalData}</span> data
+          </span>
           <div className="flex items-center gap-2">
             <Link
               href={buildPageHref(Math.max(1, currentPage - 1))}
@@ -109,9 +126,10 @@ export default function PenyakitClient({
                 currentPage <= 1 ? "pointer-events-none opacity-50" : "hover:bg-gray-50"
               }`}
             >
-              Prev
+              <ChevronLeft size={16} />
+              <span className="sr-only">Prev</span>
             </Link>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm font-bold text-gray-700">
               Halaman {currentPage} / {totalPages}
             </span>
             <Link
@@ -120,7 +138,8 @@ export default function PenyakitClient({
                 currentPage >= totalPages ? "pointer-events-none opacity-50" : "hover:bg-gray-50"
               }`}
             >
-              Next
+              <ChevronRight size={16} />
+              <span className="sr-only">Next</span>
             </Link>
           </div>
         </div>

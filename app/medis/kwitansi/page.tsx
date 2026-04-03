@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import KwitansiMedisClient from "./KwitansiMedisClient";
 import { getServerSession } from "next-auth/next";
+import prisma from "@/lib/db";
 
 interface Kwitansi {
     id_kwitansi: string;
@@ -34,6 +35,7 @@ export default async function KwitansiMedisPage({
     const params = await searchParams;
     const query = params.query || "";
     const status = params.status || "";
+    const session = await getServerSession();
 
     const urlParams = new URLSearchParams();
     if (query) urlParams.set("query", query);
@@ -57,9 +59,26 @@ export default async function KwitansiMedisPage({
         console.error("Error fetching kwitansi:", error);
     }
 
+    const notifications = await prisma.notifikasi.findMany({
+        select:{
+            id_obat: true,
+            obat:{
+                select:{
+                    nama_obat: true,
+                }
+            },
+            pesan: true,
+            status: true,
+        },
+        orderBy:[
+            {status: 'desc'},
+            {id_notifikasi: 'asc'},
+        ]
+    });
+
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <KwitansiMedisClient kwitansiList={kwitansiList} query={query} status={status} />
+            <KwitansiMedisClient kwitansiList={kwitansiList} query={query} status={status} notifications={notifications} />
         </Suspense>
     );
 }

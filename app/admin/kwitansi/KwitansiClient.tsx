@@ -30,21 +30,30 @@ interface KwitansiData {
     };
 }
 
+type Notification = {
+    id_obat: string;
+    obat: { nama_obat: string } | null;
+    pesan: string;
+    status: string;
+};
+
 export default function KwitansiClient({
     kwitansiList,
     query,
     status: statusFilter,
+    notifications,
 }: {
     kwitansiList: KwitansiData[];
     query: string;
     status: string;
+    notifications: Notification[];
 }) {
     const { data: session } = useSession();
     const router = useRouter();
     const [currentPage, setCurrentPage] = useState(1);
     const [isDetailModalOpen, setDetailModalOpen] = useState(false);
     const [selectedKwitansi, setSelectedKwitansi] = useState<KwitansiData | null>(null);
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
 
     const formatTanggal = (tanggalString: string) => {
         return new Intl.DateTimeFormat("id-ID", {
@@ -100,13 +109,11 @@ export default function KwitansiClient({
 
     return (
         <div className="flex flex-col gap-4 relative">
-            <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+            <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
                 <div className="flex flex-col">
-                    <h1 className="text-black">
-                        Klinik / Kasir / <span className="text-white font-bold">Kwitansi</span>
-                    </h1>
+                    <span className="text-white font-bold text-lg leading-none">Kwitansi</span>
                 </div>
-                <UserAccount userName={session?.user?.name || "Admin"} />
+                <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
@@ -147,10 +154,10 @@ export default function KwitansiClient({
 
                         <button
                             onClick={handleExportExcel}
-                            className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2"
+                            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors"
                             suppressHydrationWarning
                         >
-                            <Download size={16} /> Export
+                            <Download size={16} /> Export Excel
                         </button>
                     </div>
                 </div>
@@ -236,7 +243,7 @@ export default function KwitansiClient({
                                 <ChevronLeft size={16} />
                             </button>
 
-                            <span className="text-sm font-medium text-gray-700 px-4">
+                            <span className="text-sm font-bold text-gray-700 px-4">
                                 Halaman {currentPage} / {totalPages}
                             </span>
 

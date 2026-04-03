@@ -1,12 +1,8 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-import { toast } from "sonner";
 
 // 1. IMPORT AUTH PROVIDER YANG BARU DIBUAT
 import AuthProvider from '@/components/AuthProvider'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Aplikasi Klinik', // Silakan sesuaikan dengan nama aplikasi Anda
@@ -20,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         
         {/* 2. BUNGKUS CHILDREN DENGAN AUTH PROVIDER */}
         <AuthProvider>

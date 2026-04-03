@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,7 @@ export default function TambahPegawaiButton() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [nomorPegawai, setNomorPegawai] = useState("");
+  const [nik, setNik] = useState("");
   const [namaPegawai, setNamaPegawai] = useState("");
   const [departemen, setDepartemen] = useState("");
 
@@ -22,6 +23,7 @@ export default function TambahPegawaiButton() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         nomor_pegawai: nomorPegawai,
+        nik,
         nama_pegawai: namaPegawai,
         departemen,
       }),
@@ -30,11 +32,13 @@ export default function TambahPegawaiButton() {
     if (res.ok) {
       setModalOpen(false);
       setNomorPegawai("");
+      setNik("");
       setNamaPegawai("");
       setDepartemen("");
       router.refresh();
     } else {
-      alert("Gagal menyimpan data pegawai");
+      const data = await res.json().catch(() => null);
+      alert(data?.message || "Gagal menyimpan data pegawai");
     }
 
     setIsLoading(false);
@@ -44,9 +48,9 @@ export default function TambahPegawaiButton() {
     <>
       <button
         onClick={() => setModalOpen(true)}
-        className="bg-blue-500 hover:bg-blue-600 px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 text-white"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors"
       >
-        + Tambah Data
+        <Plus size={16} /> Tambah Data
       </button>
 
       {isModalOpen && (
@@ -70,6 +74,21 @@ export default function TambahPegawaiButton() {
                   className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400"
                   value={nomorPegawai}
                   onChange={(e) => setNomorPegawai(e.target.value)}
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1.5">
+                <label className="text-sm font-semibold text-gray-800">NIK</label>
+                <input
+                  type="text"
+                  required
+                  inputMode="numeric"
+                  maxLength={6}
+                  pattern="\\d{1,6}"
+                  title="NIK maksimal 6 digit angka"
+                  className="border rounded-md h-9 p-2 text-sm focus:outline-blue-400"
+                  value={nik}
+                  onChange={(e) => setNik(e.target.value)}
                 />
               </div>
 

@@ -1,5 +1,5 @@
 'use client'
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import React, { useState } from "react";
 
 export default function TambahUserButton() {
@@ -35,9 +35,9 @@ export default function TambahUserButton() {
         <>
             <button 
                 onClick={() => setModalOpen(true)}
-                className="bg-blue-400 hover:bg-purple-300 px-4 py-2 rounded-md flex items-center gap-2 text-sm transition-colors duration-200 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold shadow-sm transition-colors"
             >
-                + Tambah Data
+                <Plus size={16} /> Tambah Data
             </button>
 
             {isModalOpen && (

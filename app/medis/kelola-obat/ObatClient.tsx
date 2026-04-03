@@ -20,9 +20,10 @@ interface Obat {
 interface ObatClientProps {
   obatList: Obat[];
   query: string;
+  notifications: any[];
 }
 
-export default function ObatClient({ obatList, query }: ObatClientProps) {
+export default function ObatClient({ obatList, query, notifications }: ObatClientProps) {
   
   const { data: session } = useSession()
   const router = useRouter()
@@ -92,11 +93,13 @@ export default function ObatClient({ obatList, query }: ObatClientProps) {
   return (
     <div className="flex flex-col gap-4 relative">
       
-      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+      <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-black">Klinik / Obat / <span className="text-white font-bold">Kelola Obat</span></h1>
+          <span className="text-gray-100 font-bold text-lg leading-none">Kelola Obat</span>
         </div>
-        <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
+        <div className="flex space-x-1">
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Medis"} />
+        </div>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">

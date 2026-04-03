@@ -30,17 +30,16 @@ const LaktasiAdminPage = async () => {
 
   return (
     <div>
-      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+      <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-black">
-            Klinik<span className="text-white"> / Laktasi</span>
-          </h1>
-          <span className="text-white font-bold">Laktasi</span>
+          <span className="text-gray-100 font-bold text-lg leading-none">Laktasi</span>
         </div>
-        <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
+        <div className="flex space-x-1">
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
+        </div>
       </div>
 
-      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md mx-4 mb-4">
+      <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
         <div className="flex justify-between items-center border-b pb-4">
           <h2 className="font-bold text-black">Data Laktasi</h2>
           <ExportExcel users={riwayatLaktasi}/>

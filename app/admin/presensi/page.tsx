@@ -1,4 +1,4 @@
-import { Download, Search} from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Search} from "lucide-react";
 import { AuthOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/db";
@@ -7,20 +7,38 @@ import EditUserButton from "@/components/ui/EditUserButton";
 import DeleteUserButton from "@/components/ui/DeleteUserButton";
 import UserAccount from "@/components/ui/userAccount";
 import ExcelButton from "./exportExcel";
+import Link from "next/link";
 
+const PAGE_SIZE = 10;
 
-const PresensiAdmin = async () => {
+const PresensiAdmin = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) => {
   const session = await getServerSession(AuthOptions);
   console.log(session);
 
-  const users = await prisma.presensi_Tenaga_Medis.findMany({
-    orderBy: {
-      jam_masuk: 'desc',
-    },
-    include:{
-        tenagaMedis: true,
-    }
-  });
+  const resolvedSearchParams = await searchParams;
+  const pageParam = Number(resolvedSearchParams.page || "1");
+  const requestedPage = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+
+  const totalData = await prisma.presensi_Tenaga_Medis.count();
+  const totalPages = Math.max(1, Math.ceil(totalData / PAGE_SIZE));
+  const currentPage = Math.min(requestedPage, totalPages);
+
+  const [users, allUsers] = await Promise.all([
+    prisma.presensi_Tenaga_Medis.findMany({
+      orderBy: { jam_masuk: "desc" },
+      include: { tenagaMedis: true },
+      skip: (currentPage - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.presensi_Tenaga_Medis.findMany({
+      orderBy: { jam_masuk: "desc" },
+      include: { tenagaMedis: true },
+    }),
+  ]);
 
   const notifications = await prisma.notifikasi.findMany({
     select:{
@@ -39,20 +57,18 @@ const PresensiAdmin = async () => {
     ]
   });
 
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const buildPageHref = (page: number) => `?page=${page}`;
   
 
   return (
     <div>
-      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+      <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-black">
-            Klinik<span className="text-white"> / Presensi</span>
-          </h1>
-          <span className="text-white font-bold">Presensi</span>
+          <span className="text-white font-bold text-lg leading-none">Presensi</span>
         </div>
-        {}
         <div className="flex space-x-1">
-          <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
         </div>
       </div>
       <div className="bg-gray-50 text-black p-4 rounded-md shadow-md m-4 border">
@@ -70,7 +86,7 @@ const PresensiAdmin = async () => {
                 placeholder="Cari disini..."
               />
             </div>
-            <ExcelButton users={users}/>
+            <ExcelButton users={allUsers}/>
           </div>
         </div>
         <table className="w-full mt-6 border-collapse text-left text-sm">
@@ -112,6 +128,33 @@ const PresensiAdmin = async () => {
             ))}
           </tbody>
         </table>
+
+        <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
+          <div>
+            Menampilkan{" "}
+            <span className="font-semibold text-gray-900">{totalData === 0 ? 0 : startIndex + 1}</span> -{" "}
+            <span className="font-semibold text-gray-900">{Math.min(startIndex + PAGE_SIZE, totalData)}</span> dari{" "}
+            <span className="font-semibold text-gray-900">{totalData}</span> data
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href={buildPageHref(Math.max(1, currentPage - 1))}
+              className={`px-3 py-1 border rounded-md ${currentPage === 1 ? "pointer-events-none opacity-50" : "hover:bg-gray-50"}`}
+            >
+              <ChevronLeft size={16} />
+              <span className="sr-only">Prev</span>
+            </Link>
+            <span className="font-bold text-gray-700">Halaman {currentPage} / {totalPages}</span>
+            <Link
+              href={buildPageHref(Math.min(totalPages, currentPage + 1))}
+              className={`px-3 py-1 border rounded-md ${currentPage === totalPages ? "pointer-events-none opacity-50" : "hover:bg-gray-50"}`}
+            >
+              <ChevronRight size={16} />
+              <span className="sr-only">Next</span>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

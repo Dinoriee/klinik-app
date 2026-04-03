@@ -1,4 +1,4 @@
-import { Search} from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { AuthOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/db";
@@ -10,6 +10,7 @@ import ExportExcel from "./exportExcel";
 import ImportExcelComponent from "./importExcel"
 import Link from "next/link";;
 
+const PAGE_SIZE = 10;
 
 const KelolaUser = async (props: { searchParams: Promise<{ page?: string }> }) => {
   const session = await getServerSession(AuthOptions);
@@ -53,20 +54,16 @@ const KelolaUser = async (props: { searchParams: Promise<{ page?: string }> }) =
 
   return (
     <div>
-      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+      <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-gray-400">
-            Klinik<span className="text-black"> / Kelola User</span>
-          </h1>
-          <span className="text-black font-bold">Kelola User</span>
+          <span className="text-gray-100 font-bold text-lg leading-none">Kelola User</span>
         </div>
-        {}
         <div className="flex space-x-1">
-          <UserAccount notifications={notifications} userName={session?.user?.name || "Guest"} />
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Admin"} />
         </div>
       </div>
       <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center border-b pb-4">
           <h2 className="font-bold">Data User</h2>
           <div className="flex space-x-2 p-2">
             
@@ -77,7 +74,8 @@ const KelolaUser = async (props: { searchParams: Promise<{ page?: string }> }) =
               />
               <input
                 type="text"
-                className="pl-6 border rounded-md border-gray-300 h-8"
+                name="query"
+                className="pl-9 pr-4 py-2 border rounded-md border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-64"
                 placeholder="Cari disini..."
               />
               <TambahUserButton/>
@@ -114,9 +112,11 @@ const KelolaUser = async (props: { searchParams: Promise<{ page?: string }> }) =
                     {item.role}
                   </span>
                 </td>
-                <td className="p-3 text-center space-x-2">
-                  <EditUserButton user={item}/>
-                  <DeleteUserButton userId={item.id_user}/>
+                <td className="p-3">
+                  <div className="flex justify-center items-center gap-2">
+                    <EditUserButton user={item} />
+                    <DeleteUserButton userId={item.id_user} />
+                  </div>
                 </td>
               </tr>
             ))}

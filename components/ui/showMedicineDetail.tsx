@@ -5,16 +5,16 @@ import { useState } from "react"
 
 interface obat{
     nama_obat: string,
-    stok_saat_ini: string,
+    stok_saat_ini: number,
     expired_date: string,
     reorder_level: number,
 }
 
-export default function ShowMedicineDetail({obat} : {obat: obat[]}){
+export default function ShowMedicineDetail({ obat = [] }: { obat?: obat[] }) {
     const [isOpen, setOpen] = useState(false);
     const now = new Date();
 
-    const lowStock = obat.filter((item) => Number(item.stok_saat_ini) < item.reorder_level);
+    const lowStock = obat.filter((item) => item.stok_saat_ini < item.reorder_level);
     const expired = obat.filter((item) => new Date(item.expired_date) < now);
 
     return(
@@ -40,8 +40,8 @@ export default function ShowMedicineDetail({obat} : {obat: obat[]}){
                             </div>
                             <ul className="max-h-64 overflow-y-auto p-2 space-y-2 bg-white">
                                 {expired.length > 0 ? (
-                                    expired.map((item, i) => (
-                                        <li key={i} className="p-2 rounded-lg bg-red-50/30 border border-red-50 flex flex-col">
+                                    expired.map((item) => (
+                                        <li key={`${item.nama_obat}-${item.expired_date}`} className="p-2 rounded-lg bg-red-50/30 border border-red-50 flex flex-col">
                                             <span className="text-sm font-bold text-gray-800 leading-tight">{item.nama_obat}</span>
                                             <span className="text-[10px] text-red-500 font-mono mt-1">Lewat: {new Date(item.expired_date).toLocaleDateString('id-ID')}</span>
                                         </li>
@@ -59,8 +59,8 @@ export default function ShowMedicineDetail({obat} : {obat: obat[]}){
                             </div>
                             <ul className="max-h-64 overflow-y-auto p-2 space-y-2 bg-white">
                                 {lowStock.length > 0 ? (
-                                    lowStock.map((item, i) => (
-                                        <li key={i} className="p-2 rounded-lg bg-blue-50/30 border border-blue-50 flex flex-col">
+                                    lowStock.map((item) => (
+                                        <li key={`${item.nama_obat}-${item.reorder_level}`} className="p-2 rounded-lg bg-blue-50/30 border border-blue-50 flex flex-col">
                                             <span className="text-sm font-bold text-gray-800 leading-tight">{item.nama_obat}</span>
                                             <div className="flex justify-between items-center mt-1">
                                                 <span className="text-[10px] text-blue-500 font-bold">Sisa: {item.stok_saat_ini}</span>
@@ -78,5 +78,5 @@ export default function ShowMedicineDetail({obat} : {obat: obat[]}){
                 </>
             )}
         </div>
-    )
+    );
 }

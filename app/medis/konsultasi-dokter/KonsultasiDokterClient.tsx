@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import UserAccount from "@/components/ui/userAccount";
 import ScannerKonsultasiDokter from "@/components/ui/ScannerKonsultasiDokter";
 import { useSession } from "next-auth/react";
@@ -13,12 +13,11 @@ interface Pegawai {
   nik: string;
 }
 
-export default function KonsultasiDokterClient() {
+export default function KonsultasiDokterClient({ notifications }: { notifications: any[] }) {
   const { data: session } = useSession();
   const [manualNik, setManualNik] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasilPegawai, setHasilPegawai] = useState<Pegawai | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const [isSavingForm, setIsSavingForm] = useState(false);
   const [tahap, setTahap] = useState<"pencarian" | "konsultasi">("pencarian");
@@ -120,40 +119,29 @@ export default function KonsultasiDokterClient() {
   };
 
   return (
-    <div className="flex flex-col gap-4 relative">
-      <div className="flex justify-between pl-4 pt-4 pr-4 pb-2 bg-blue-600">
+    <div className="flex flex-col relative">
+      <div className="flex justify-between items-center px-4 py-3 bg-blue-600">
         <div className="flex flex-col">
-          <h1 className="text-gray-400">
-            Klinik /{" "}
-            <span className="text-black font-bold">Konsultasi Dokter</span>
-          </h1>
+          <span className="text-gray-100 font-bold text-lg leading-none">Konsultasi Dokter</span>
         </div>
-        <UserAccount userName={session?.user?.name || "Pegawai Medis"} />
+        <div className="flex space-x-1">
+          <UserAccount notifications={notifications} userName={session?.user?.name || "Medis"} />
+        </div>
       </div>
 
       {tahap === "pencarian" && (
-        <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-gray-800 text-lg">
-              Cari Data Pegawai
-            </h2>
-            <button
-              onClick={() => inputRef.current?.focus()}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 text-sm rounded-md transition duration-200 font-medium"
-              suppressHydrationWarning
-            >
-              Input Manual
-            </button>
+        <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
+          <div className="flex justify-between items-center border-b pb-4">
+            <h2 className="font-bold text-gray-800 text-lg">Cari Data Pegawai</h2>
           </div>
 
-          <div className="mb-8">
+          <div className="mt-4 mb-8">
             <ScannerKonsultasiDokter onScanSuccess={handleScan} />
           </div>
 
-          <h3 className="font-bold text-lg text-black mb-4">Input Manual</h3>
+          <h3 className="text-2xl font-bold text-black mb-4">Input Manual</h3>
           <div className="flex gap-4 max-w-md">
             <input
-              ref={inputRef}
               type="text"
               placeholder="Cari NIK..."
               className="flex-1 border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
@@ -175,7 +163,7 @@ export default function KonsultasiDokterClient() {
       )}
 
       {hasilPegawai && tahap === "pencarian" && (
-        <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
+        <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
           <div className="bg-green-50 p-4 border border-green-200 rounded-md mb-4">
             <h3 className="text-sm font-bold text-green-800 mb-2">
               Pegawai Ditemukan!
@@ -211,7 +199,7 @@ export default function KonsultasiDokterClient() {
       )}
 
       {tahap === "konsultasi" && hasilPegawai && (
-        <div className="bg-white p-6 rounded-lg shadow-sm border mx-4 mb-4">
+        <div className="bg-gray-50 text-gray-600 p-4 rounded-md shadow-md m-4">
           <div className="bg-blue-50 p-4 border border-blue-200 rounded-md mb-6 flex justify-between items-center">
             <div>
               <p className="text-xs text-blue-600 font-bold uppercase tracking-wider">

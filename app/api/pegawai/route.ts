@@ -7,9 +7,9 @@ export async function POST(request: Request) {
 
     const id_pegawai = data.id_pegawai ? String(data.id_pegawai) : null;
     const nomor_pegawai = data.nomor_pegawai?.trim();
+    const nik = data.nik?.trim();
     const nama_pegawai = data.nama_pegawai?.trim();
     const departemen = data.departemen?.trim();
-    const nik = data.nik?.trim();
 
     if (!nomor_pegawai || !nama_pegawai || !departemen) {
       return NextResponse.json(
@@ -19,13 +19,22 @@ export async function POST(request: Request) {
     }
 
     if (id_pegawai) {
+      if (nik && !/^\d{1,6}$/.test(nik)) {
+        return NextResponse.json({ message: "NIK maksimal 6 digit angka." }, { status: 400 });
+      }
       await prisma.pegawai.update({
         where: { id_pegawai },
-        data: { nomor_pegawai, nama_pegawai, departemen, nik },
+        data: { nomor_pegawai, nama_pegawai, departemen, ...(nik ? { nik } : {}) },
       });
     } else {
+      if (!nik) {
+        return NextResponse.json({ message: "NIK wajib diisi." }, { status: 400 });
+      }
+      if (!/^\d{1,6}$/.test(nik)) {
+        return NextResponse.json({ message: "NIK maksimal 6 digit angka." }, { status: 400 });
+      }
       await prisma.pegawai.create({
-        data: { nomor_pegawai, nama_pegawai, departemen, nik },
+        data: { nomor_pegawai, nik, nama_pegawai, departemen },
       });
     }
 
