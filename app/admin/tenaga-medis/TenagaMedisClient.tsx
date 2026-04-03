@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { useState, useRef } from "react";
+import { Search, ChevronLeft, ChevronRight, Download, Barcode as BarcodeIcon, Printer, X } from "lucide-react";
 import TambahTenagaMedisButton from "@/components/ui/TambahTenagaMedisButton";
 import EditTenagaMedisButton from "@/components/ui/EditTenagaMedisButton";
 import DeleteTenagaMedisButton from "@/components/ui/DeleteTenagaMedisButton";
 import UserAccount from "@/components/ui/userAccount";
 import { useSession } from "next-auth/react";
+import Barcode from "react-barcode";
 
 interface TenagaMedis {
     id_tenaga_medis: number | string;
     kode_tenaga_medis: string;
     nama_tenaga_medis: string;
     jabatan: string;
+    nik: string;
     users?: {
         email: string;
         role: string;
@@ -61,6 +63,39 @@ export default function TenagaMedisClient({ tenagaMedisList, query, notification
     const totalPages = Math.ceil(tenagaMedisList.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentData = tenagaMedisList.slice(startIndex, startIndex + itemsPerPage);
+
+    const handlePrint = () => {
+    const printContent = printRef.current;
+    if (!printContent) return;
+
+    const windowPrint = window.open("", "", "width=600,height=600");
+    if (windowPrint) {
+      windowPrint.document.write(`
+        <html>
+          <head>
+            <title>Cetak Barcode NIK</title>
+            <style>
+              body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+              @media print { .no-print { display: none; } }
+            </style>
+          </head>
+          <body>
+            ${printContent.innerHTML}
+            <script>
+              setTimeout(() => {
+                window.print();
+                window.close();
+              }, 500);
+            </script>
+          </body>
+        </html>
+      `);
+      windowPrint.document.close();
+    }
+  };
+
+    const [selectedNik, setSelectedNik] = useState<string | null>(null);
+    const printRef = useRef<HTMLDivElement>(null);
 
     return (
         <div className="flex flex-col gap-4 relative">
@@ -135,6 +170,12 @@ export default function TenagaMedisClient({ tenagaMedisList, query, notification
                                                 <div className="flex justify-center space-x-3 items-center">
                                                     <EditTenagaMedisButton tm={tm} />
                                                     <DeleteTenagaMedisButton id_tenaga_medis={tm.id_tenaga_medis as number} />
+                                                    <button 
+                                    onClick={() => setSelectedNik(tm.nik)}
+                                    className="p-2 bg-slate-100 hover:bg-slate-200 rounded-md text-slate-700 transition-all"
+                                >
+                                    <BarcodeIcon size={16} />
+                                </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -143,6 +184,35 @@ export default function TenagaMedisClient({ tenagaMedisList, query, notification
                             )}
                         </tbody>
                     </table>
+                    {selectedNik && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-100 p-4">
+                    <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-200">
+                        <div className="flex justify-between w-full items-center border-b pb-4">
+                            <h3 className="font-bold text-gray-800">Barcode NIK</h3>
+                            <button onClick={() => setSelectedNik(null)} className="text-gray-400 hover:text-red-500"><X size={20}/></button>
+                        </div>
+                        
+                        <div ref={printRef} className="p-4 bg-white border rounded-xl">
+                            <Barcode 
+                                value={selectedNik} 
+                                width={2} 
+                                height={80} 
+                                fontSize={14}
+                                background="#ffffff"
+                            />
+                        </div>
+
+                        <button 
+                            onClick={handlePrint}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-bold shadow-lg shadow-blue-200 transition-all"
+                        >
+                            <Printer size={18} /> Cetak Barcode 
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <iframe id="ifmcontentstoprint" style={{ height: '0px', width: '0px', position: 'absolute' }}></iframe>
                 </div>
 
                 {}
