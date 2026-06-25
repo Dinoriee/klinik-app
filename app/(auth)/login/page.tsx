@@ -21,7 +21,17 @@ export default function LoginPage({ setUser }: LoginProps) {
   const handleSubmit = async (e: React.FormEvent) =>{
     e.preventDefault();
     setErrorMessage("");
-    
+
+    if (!email) {
+      setErrorMessage("Email harus diisi.");
+      return;
+    }
+
+    if (!password) {
+      setErrorMessage("Password harus diisi.");
+      return;
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setErrorMessage("Format email anda salah.");
@@ -62,22 +72,25 @@ export default function LoginPage({ setUser }: LoginProps) {
           className="flex flex-col w-full h-full justify-center items-center p-8"
           onSubmit={handleSubmit}
         >
-          {errorMessage && (
-              <div className="mt-4 p-3 bg-red-300 border border-red-500 text-red-700 rounded-sm text-sm font-medium">
-                {errorMessage}
-              </div>
-            )}
-          <div className="flex flex-col w-full justify-center items-center text-black space-y-8">
-            <div className="absolute inset-0 top-0 left-0 h-screen z-0">
-              <Image src="/bg.jpg" alt='Logo Klinik' fill className="object-cover opacity-70" />
-              <div className="absolute inset-0 bg-radial-[at_80%_95%] from-transparent to-white to-75%" />
-            </div>
-            <div className="w-full space-y-8 pl-24 z-10">
+          <div className="absolute inset-0 top-0 left-0 h-screen z-0">
+            <Image src="/bg.jpg" alt='Logo Klinik' fill className="object-cover opacity-70" />
+            <div className="absolute inset-0 bg-radial-[at_80%_95%] from-transparent to-white to-75%" />
+          </div>
+          <div className="flex flex-col w-full justify-center items-center text-black space-y-8 z-10 relative">
+            <div className="w-full space-y-8 pl-24">
               <div>
                 <Image src="/logo-klinik.png" alt='Logo Klinik' width={500} height={500} className="w-48 mr-16"/>
                 <h1 className="text-black text-2xl font-bold">Login Page</h1>
                 <span className="text-gray-300">Login to your account</span>
               </div>
+              {errorMessage && (
+                <div className="p-4 bg-red-500 border-l-4 border-red-700 text-white rounded-sm text-sm font-bold w-1/2 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  {errorMessage}
+                </div>
+              )}
               <div className="flex flex-col space-y-2 w-full pt-4">
                 {/* <label htmlFor="email" className="text-black">
                   Email

@@ -53,7 +53,7 @@ export async function GET(request: Request) {
             INNER JOIN "Tenaga_Medis" t ON t.id_tenaga_medis = r.id_tenaga_medis
             WHERE
                 (${query} = '' OR p.nama_pegawai ILIKE ${like} OR CAST(k.id_kwitansi AS TEXT) ILIKE ${like})
-                AND (${statusParam} IS NULL OR CAST(k.status AS TEXT) = ${statusParam})
+                AND (${statusParam}::TEXT IS NULL OR CAST(k.status AS TEXT) = ${statusParam}::TEXT)
             ORDER BY k.tanggal_terbit DESC
         `;
 
